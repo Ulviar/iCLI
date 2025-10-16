@@ -25,6 +25,10 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 ## Documentation
 All project documentation, comments, and commit messages must be written in **English**.
 
+## Knowledge Base
+- Before starting any task, contributors must review the latest materials in `ai/knowledgeBase` to stay aligned with
+  project context and decisions.
+
 ## Repository Map
 - Primary coordination instructions are kept in this file located at the repository root (`AGENTS.md`).
 - When creating new modules or directories, add additional `AGENTS.md` files if extra guidance is required.
