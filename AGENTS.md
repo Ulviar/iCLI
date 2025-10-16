@@ -24,10 +24,10 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 ## Workflow Expectations
 
 1. Prefer Gradle tasks for building, testing, formatting, and linting once the Gradle project is initialized (e.g.,
-   `./gradlew build`, `./gradlew spotlessApply`, `./gradlew spotbugsMain`).
+`./gradlew build`, `./gradlew spotlessApply`, `./gradlew spotbugsMain`).
 2. Keep README and other documentation up to date when behavior or tooling changes.
 3. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding
-   the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
+the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
 
 ## Documentation
 
@@ -36,14 +36,16 @@ All project documentation, comments, and commit messages must be written in **En
 ## Knowledge Base
 
 - Before starting any task, contributors must review the latest materials in `ai/knowledgeBase` to stay aligned with
-  project context and decisions.
+project context and decisions.
 - Prior to each task, read `ai/taskTracker/Roadmap.md` to stay connected to the overall delivery plan and current phase
-  priorities.
+priorities.
 - Maintain awareness of research outputs stored under `ai/codeResearch`:
     - Consult `ai/codeResearch/registry.md` before beginning work to understand which analyses are available and where
       to find details.
     - Use the registry to identify targeted documents that apply to the task instead of re-reading the entire directory,
       but revisit individual reports when their context is relevant.
+- Follow the Markdown formatting rules in `ai/guidelines/markdown-formatting.md` and review the file before editing
+Markdown documents.
 
 ## Repository Map
 

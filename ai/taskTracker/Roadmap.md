@@ -6,20 +6,27 @@
 
 ## Phase 2 — Discovery & Architecture
 - Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers.
-- Interview stakeholders / gather use-cases (e.g., `mystem`, shells, REPLs) and non-functional constraints (cross-platform, resource usage).
+- Interview stakeholders / gather use-cases (e.g., `mystem`, shells, REPLs) and non-functional constraints
+(cross-platform, resource usage).
 - Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies.
-- Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout model.
-- Evaluate support for both blocking and non-blocking client APIs, ensuring the architecture can expose synchronous and asynchronous workflows.
+- Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout
+model.
+- Evaluate support for both blocking and non-blocking client APIs, ensuring the architecture can expose synchronous and
+asynchronous workflows.
 - Define data contracts (command specification, execution options, result types) and public API surface.
 
 ## Phase 3 — Core Execution Engine
-- Implement command specification builder with explicit handling for shell vs direct execution and environment overrides.
-- Build single command executor: process launch, bounded output capture, exit status interpretation, timeout and cancellation hooks.
+- Implement command specification builder with explicit handling for shell vs direct execution and environment
+overrides.
+- Build single command executor: process launch, bounded output capture, exit status interpretation, timeout and
+cancellation hooks.
 - Add comprehensive error handling and diagnostics (logs, exception hierarchy, structured result objects).
-- Create initial Kotlin-based integration tests (JUnit 6) covering success, failure, timeouts, large output, encoding handling.
+- Create initial Kotlin-based integration tests (JUnit 6) covering success, failure, timeouts, large output, encoding
+handling.
 
 ## Phase 4 — Interactive Session Support
-- Implement interactive session API returning a handle with streaming IO, lifecycle controls, and PTY resizing when applicable.
+- Implement interactive session API returning a handle with streaming IO, lifecycle controls, and PTY resizing when
+applicable.
 - Support both pipe-based and PTY-backed sessions; abstract differences behind a unified interface.
 - Provide expect-style helper utilities for scripted interactions and build sample usage documentation.
 - Extend test coverage with simulated REPLs, echo servers, and PTY-required tools.
@@ -27,7 +34,8 @@
 ## Phase 5 — Process Pooling for Heavy Initializers
 - Design a configurable worker pool that pre-warms interactive applications with expensive startups.
 - Define scheduling, concurrency limits, and idle eviction policies to prevent resource leaks.
-- Implement request/response lifecycle: acquire worker, send input, await completion, recycle or restart worker on failure.
+- Implement request/response lifecycle: acquire worker, send input, await completion, recycle or restart worker on
+failure.
 - Ensure safe shutdown semantics (graceful drain with optional force stop) and metrics for pool health.
 
 ## Phase 6 — Tooling, Observability, and Documentation
@@ -40,3 +48,4 @@
 - Run stress and soak tests (large output, pool churn, rapid session restarts) and address bottlenecks.
 - Validate cross-platform compatibility (Linux, macOS, Windows with ConPTY).
 - Finalize versioning, publish artifacts, and hand off maintenance plan.
+
