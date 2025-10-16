@@ -1,71 +1,7 @@
-# Compiled source #
-###################
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
-
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Logs and databases #
-######################
-*.log
-
-# OS generated files #
-######################
-.DS_Store*
-ehthumbs.db
-Thumbs.db
-
-# Editor Files #
-################
-*~
-*.swp
-
-# Gradle Files #
-################
-.gradle
-.gradletasknamecache
-.m2
-!gradle/wrapper/gradle-wrapper.jar
-
-# Build output directories
-target/
+.gradle/
 build/
-
-# IntelliJ specific files/directories
-out
-.idea
-*.ipr
-*.iws
+**/build/
+!.gradle/wrapper/gradle-wrapper.jar
+.idea/
 *.iml
-atlassian-ide-plugin.xml
-
-# Grafit additional ignores
-params-user.yml
-build-cache
-build-downloads
-settings.ini
-
-# Local Gradle cache for offline builds
-.gradle-home/
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-
-# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
-.kotlin/
+out/

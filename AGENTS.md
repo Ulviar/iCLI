@@ -20,6 +20,7 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 ## Workflow Expectations
 1. Prefer Gradle tasks for building, testing, formatting, and linting once the Gradle project is initialized (e.g., `./gradlew build`, `./gradlew spotlessApply`, `./gradlew spotbugsMain`).
 2. Keep README and other documentation up to date when behavior or tooling changes.
+3. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
 
 ## Documentation
 All project documentation, comments, and commit messages must be written in **English**.
