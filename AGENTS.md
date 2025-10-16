@@ -4,10 +4,10 @@
 These guidelines apply to the entire repository unless a more specific `AGENTS.md` is created within a subdirectory.
 
 ## Tooling and Environment
-- Primary production language: **Java 25**.
+- Primary production language: **Java 21**.
 - Test language and framework: **Kotlin 2.2.20** with **JUnit 5**.
-- Build system: **Gradle 9.1.0** with Kotlin DSL (`build.gradle.kts`).
-- Minimum JDK and target JVM version: **25 (LTS)**.
+- Build system: **Gradle 8.14.3** with Kotlin DSL (`build.gradle.kts`).
+- Minimum JDK and target JVM version: **21 (LTS)**.
 
 ## Code Style
 - Java sources must follow **Google Java Format** and be enforced via **Spotless**.
@@ -25,6 +25,6 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 All project documentation, comments, and commit messages must be written in **English**.
 
 ## Repository Map
-- Primary coordination instructions are kept in this file located at `ai/AGENTS.md`.
+- Primary coordination instructions are kept in this file located at the repository root (`AGENTS.md`).
 - When creating new modules or directories, add additional `AGENTS.md` files if extra guidance is required.
 
