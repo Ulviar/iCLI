@@ -4,10 +4,10 @@
 These guidelines apply to the entire repository unless a more specific `AGENTS.md` is created within a subdirectory.
 
 ## Tooling and Environment
-- Primary production language: **Java 21**.
-- Test language and framework: **Kotlin 2.2.20** with **JUnit 5**.
-- Build system: **Gradle 8.14.3** with Kotlin DSL (`build.gradle.kts`).
-- Minimum JDK and target JVM version: **21 (LTS)**.
+- Primary production language: **Java 25**.
+- Test language and framework: **Kotlin 2.2.20** with **JUnit 6**.
+- Build system: **Gradle 9.1.0** with Kotlin DSL (`build.gradle.kts`).
+- Minimum JDK and target JVM version: **25 (LTS)**.
 
 ## Code Style
 - Java sources must follow **Google Java Format** and be enforced via **Spotless**.
@@ -15,7 +15,7 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 
 ## Quality Gates
 - Configure and run **Spotless** for formatting and **SpotBugs** for static analysis as part of the build.
-- All automated tests should be written in Kotlin using JUnit 5.
+- All automated tests should be written in Kotlin using JUnit 6.
 
 ## Workflow Expectations
 1. Prefer Gradle tasks for building, testing, formatting, and linting once the Gradle project is initialized (e.g., `./gradlew build`, `./gradlew spotlessApply`, `./gradlew spotbugsMain`).
