@@ -1,8 +1,9 @@
 # iCLI Command Execution Library — Roadmap
 
 ## Phase 1 — Foundations
-- Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
-- Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
+- [x] Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
+- [ ] Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
+  *(In progress — current focus.)*
 
 ## Phase 2 — Discovery & Architecture
 - Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers.
@@ -48,4 +49,3 @@ failure.
 - Run stress and soak tests (large output, pool churn, rapid session restarts) and address bottlenecks.
 - Validate cross-platform compatibility (Linux, macOS, Windows with ConPTY).
 - Finalize versioning, publish artifacts, and hand off maintenance plan.
-
