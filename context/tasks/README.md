@@ -23,6 +23,10 @@ Assistants should update the dossier status field as the work advances (e.g., `P
 `Executing`, `Review`, `Done`) and note blockers explicitly. Each stage expects a corresponding log entry before moving
 forward.
 
+Role expectations for the maintainer, assistants, and future consumers are defined in
+[`context/guidelines/icli/project-roles.md`](../guidelines/icli/project-roles.md); reference that document whenever a
+template requests reviewers or audience notes.
+
 ## Standard dossier structure
 
 Task dossiers live under `context/tasks/<TASK-ID>/` and own the working notes for a single backlog item. Copy the

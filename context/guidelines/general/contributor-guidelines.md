@@ -10,6 +10,8 @@ iCLI live under [`context/guidelines/icli/`](../icli/).
 - Use [`context/README.md`](../../README.md) as the entry point for domain knowledge, research history, and workflow
   playbooks. Follow the assistant-managed process in [`context/tasks/README.md`](../../tasks/README.md) when executing
   backlog work.
+- Familiarise yourself with the single-maintainer role model described in
+  [`context/guidelines/icli/project-roles.md`](../icli/project-roles.md) so responsibilities and approvals are clear.
 - Follow the Markdown formatting standards in
   [`context/guidelines/general/markdown-formatting.md`](markdown-formatting.md).
 

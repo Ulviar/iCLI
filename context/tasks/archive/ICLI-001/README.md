@@ -1,8 +1,8 @@
 # ICLI-001 — Establish Assistant-Managed Task Workflow
 
 ## Status
-- **Lifecycle stage:** Execution
-- **Overall status:** Active
+- **Lifecycle stage:** Done
+- **Overall status:** Archived
 - **Last updated:** 2025-10-17
 - **Owner:** AI Assistant
 
@@ -18,7 +18,7 @@
     `context/workflow/collaboration.md` mention the workflow.
 - **Constraints:** Maintain Markdown style rules, keep tooling references aligned with repo standards, and integrate the
   workflow into existing context docs.
-- **Stakeholders:** Repository maintainers, assistants contributing to future tasks.
+- **Roles to notify:** Maintainer (project owner) for reviews; assistants implement changes.
 
 ## Planning
 - **Scope summary:** Introduce a repository-native workflow for backlog management, lifecycle logging, and templates.

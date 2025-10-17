@@ -7,8 +7,8 @@
 
 ## Phase 2 — Discovery & Architecture
 - Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers.
-- Interview stakeholders / gather use-cases (e.g., `mystem`, shells, REPLs) and non-functional constraints
-(cross-platform, resource usage).
+- Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints (cross-platform,
+  resource usage).
 - Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies.
 - Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout
 model.

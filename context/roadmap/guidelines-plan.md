@@ -22,15 +22,15 @@ choices.
 ## Work Plan
 1. Audit existing repository artifacts (`project-overview.md`, build scripts, knowledge base) to identify implicit
    standards.
-2. Collect stakeholder requirements for formatting, testing, CI, and release governance.
+2. Capture maintainer requirements for formatting, testing, CI, and release governance.
 3. Draft structured guideline sections per coverage area, cross-linking to automated enforcement (Spotless, SpotBugs,
    Gradle tasks).
-4. Validate draft with maintainers and update roadmap/documentation for any new tooling dependencies.
+4. Review the draft with the maintainer and update roadmap/documentation for any new tooling dependencies.
 5. Finalize guidelines and publish them alongside an adoption/rollout checklist.
 
 ## Completion Criteria
 - Each coverage area yields a documented section with actionable rules and references to supporting tools or scripts.
 - Guidelines map to enforceable checks (formatting, static analysis, tests) or include a plan to add them.
 - Documentation integrates with existing knowledge base and roadmap entries without duplication.
-- Stakeholder review sign-off recorded, and follow-up tasks (if any) captured in the task tracker.
+- Maintainer review sign-off recorded, and follow-up tasks (if any) captured in the task tracker.
 - Repository automation (e.g., Gradle tasks, CI config) reflects any new requirements before closing the effort.

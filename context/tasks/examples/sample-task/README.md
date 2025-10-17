@@ -12,7 +12,7 @@
 - **Objective:** Demonstrate the assistant-managed workflow for documentation purposes.
 - **Definition of Done:** Provide filled planning notes, one analysis log, and a stub execution history entry.
 - **Constraints:** Use repository templates and keep Markdown within 120-character lines.
-- **Stakeholders:** Tech Lead, Documentation Lead.
+- **Roles to notify:** Maintainer (single project owner).
 
 ## Planning
 - **Scope summary:** Create example files that mirror the template without touching production code.
