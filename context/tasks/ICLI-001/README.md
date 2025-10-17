@@ -48,6 +48,11 @@
 - **Testing:** Documentation-only task; verify Markdown formatting manually.
 - **Follow-up work:** Document any policy decisions on archiving dossiers once agreed.
 
+## Completion & archive
+- **Archive status:** Active (not archived).
+- **Archive location:** Pending — remains under `context/tasks/ICLI-001/`.
+- **Final verification:** To be captured when Definition of Done is satisfied.
+
 ## Decisions & notes
 - **Key decisions:** Adopted lifecycle stages (`Planning`, `Analysis`, `Research`, `Execution`, `Review`, `Done`) and
   per-stage log files with dated naming.

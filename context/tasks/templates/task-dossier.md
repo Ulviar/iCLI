@@ -40,6 +40,11 @@
 - **Testing:** List verification steps (commands, tools, environments).
 - **Follow-up work:** Record any issues deferred to future tasks.
 
+## Completion & archive
+- **Archive status:** Active / Ready to archive / Archived (include date).
+- **Archive location:** Path once the dossier is moved under `context/tasks/archive/`.
+- **Final verification:** Summary of tests or approvals completed before archival.
+
 ## Decisions & notes
 - **Key decisions:** Bullet points describing irreversible choices.
 - **Risks:** Outstanding concerns that need monitoring.

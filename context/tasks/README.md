@@ -113,6 +113,19 @@ missing or hard to discover. When updating analysis or execution logs:
 These feedback loops power tooling that can analyse link usage and highlight opportunities to enrich the shared
 knowledge base.
 
+## Archive strategy
+
+Active work lives directly under `context/tasks/`. After a task meets its Definition of Done:
+
+1. Ensure the final execution log summarises verification and follow-up actions.
+2. Update `context/tasks/backlog.md` to set the task `Status` to `Done`, change the `Stage` to `Review` (if applicable)
+   and then `Done`, and point the `Dossier` column to `context/tasks/archive/<TASK-ID>/README.md`.
+3. Move the entire dossier directory into `context/tasks/archive/<TASK-ID>/` while preserving the folder structure.
+4. Update the dossier’s “Completion & archive” section with the move date and any hand-off notes.
+
+Archived dossiers must remain immutable unless you are fixing broken links or clarifying historical context. The archive
+index at [`context/tasks/archive/README.md`](archive/README.md) contains the detailed checklist.
+
 ## Activity logging expectations
 
 - Create at least one dated analysis log before beginning execution; include Markdown links only for documents, notes,

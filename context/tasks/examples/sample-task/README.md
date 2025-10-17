@@ -37,6 +37,11 @@
 - **Testing:** No tests executed.
 - **Follow-up work:** None.
 
+## Completion & archive
+- **Archive status:** Active (example only).
+- **Archive location:** Remains in `context/tasks/examples/sample-task/`.
+- **Final verification:** Not applicable.
+
 ## Decisions & notes
 - **Key decisions:** Keep example self-contained in `context/tasks/examples/`.
 - **Risks:** Readers might forget to replace placeholder dates — call this out in onboarding.
