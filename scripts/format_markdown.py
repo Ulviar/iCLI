@@ -21,6 +21,7 @@ BLOCK_QUOTE_RE = re.compile(r"^(>+)\s?(.*)$")
 FENCE_RE = re.compile(r"^(```|~~~)")
 INDENTED_RE = re.compile(r"^(\s{1,3})(\S.*)$")
 H_RULES = {"---", "***", "___"}
+TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
 
 
 def gather_markdown(paths: Iterable[str]) -> List[Path]:
@@ -76,6 +77,9 @@ def format_lines(text: str, width: int) -> str:
             continue
         if stripped in H_RULES:
             formatted.append(stripped)
+            continue
+        if TABLE_ROW_RE.match(line):
+            formatted.append(line)
             continue
         if line.startswith("    "):
             formatted.append(line)
