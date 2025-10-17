@@ -4,7 +4,8 @@ This repo follows common conventions inspired by the GitHub Markdown style guide
 plain ASCII spacing.
 
 ## Required Rules
-- Wrap text at 120 characters or less; table rows may exceed this width so cells stay intact. Break long list items using a hanging indent that aligns with the marker.
+- Wrap text at 120 characters or less; table rows may exceed this width so cells stay intact. Break long list items
+  using a hanging indent that aligns with the marker.
 - Use standard spaces only—avoid non-breaking spaces and other invisible separators.
 - Keep headings on their own lines and leave a blank line before and after each heading.
 - Preserve fenced code blocks exactly as written; do not wrap their contents.

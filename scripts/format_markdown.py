@@ -57,12 +57,29 @@ def format_lines(text: str, width: int) -> str:
     lines = text.splitlines()
     formatted: List[str] = []
     in_fence = False
+    paragraph_buffer: List[str] = []
+
+    def flush_paragraph() -> None:
+        if not paragraph_buffer:
+            return
+        paragraph_text = " ".join(paragraph_buffer)
+        formatted.append(
+            textwrap.fill(
+                paragraph_text,
+                width=width,
+                break_long_words=False,
+                break_on_hyphens=False,
+                replace_whitespace=False,
+            )
+        )
+        paragraph_buffer.clear()
 
     for raw in lines:
         line = raw.rstrip()
         stripped = line.strip()
 
         if FENCE_RE.match(stripped):
+            flush_paragraph()
             formatted.append(line if line else stripped)
             in_fence = not in_fence
             continue
@@ -70,23 +87,29 @@ def format_lines(text: str, width: int) -> str:
             formatted.append(line)
             continue
         if not stripped:
+            flush_paragraph()
             formatted.append("")
             continue
         if stripped.startswith("#"):
+            flush_paragraph()
             formatted.append(stripped)
             continue
         if stripped in H_RULES:
+            flush_paragraph()
             formatted.append(stripped)
             continue
         if TABLE_ROW_RE.match(line):
+            flush_paragraph()
             formatted.append(line)
             continue
         if line.startswith("    "):
+            flush_paragraph()
             formatted.append(line)
             continue
 
         indent_match = INDENTED_RE.match(line)
         if indent_match:
+            flush_paragraph()
             indent, content = indent_match.groups()
             formatted.append(
                 textwrap.fill(
@@ -103,6 +126,7 @@ def format_lines(text: str, width: int) -> str:
 
         list_match = LIST_RE.match(stripped)
         if list_match:
+            flush_paragraph()
             indent, marker, content = list_match.groups()
             formatted.append(
                 textwrap.fill(
@@ -119,6 +143,7 @@ def format_lines(text: str, width: int) -> str:
 
         ordered_match = ORDERED_RE.match(stripped)
         if ordered_match:
+            flush_paragraph()
             indent, marker, _, content = ordered_match.groups()
             marker_with_space = f"{marker} "
             formatted.append(
@@ -136,6 +161,7 @@ def format_lines(text: str, width: int) -> str:
 
         quote_match = BLOCK_QUOTE_RE.match(stripped)
         if quote_match:
+            flush_paragraph()
             markers, content = quote_match.groups()
             prefix = "> " * len(markers)
             base_indent = prefix if prefix else "> "
@@ -152,16 +178,9 @@ def format_lines(text: str, width: int) -> str:
             )
             continue
 
-        formatted.append(
-            textwrap.fill(
-                stripped,
-                width=width,
-                break_long_words=False,
-                break_on_hyphens=False,
-                replace_whitespace=False,
-            )
-        )
+        paragraph_buffer.append(stripped)
 
+    flush_paragraph()
     return "\n".join(formatted) + "\n"
 
 

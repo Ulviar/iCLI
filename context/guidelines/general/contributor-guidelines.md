@@ -1,8 +1,7 @@
 # Contributor Guidelines Overview
 
 This file captures reusable expectations for Java/Kotlin libraries that use Gradle. Project-specific conventions for
-iCLI
-live under [`context/guidelines/icli/`](../icli/).
+iCLI live under [`context/guidelines/icli/`](../icli/).
 
 ## Orientation
 

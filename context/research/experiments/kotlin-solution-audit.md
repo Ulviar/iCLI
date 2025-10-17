@@ -2,13 +2,12 @@
 
 ## Scope
 Review of the Kotlin implementation under `context/knowledge-base/archive/old` with focus on the Phase 1 roadmap task
-“Audit
-existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.”
+“Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.”
 
 ## Reusable Ideas
 - `InteractiveCommandExecutor` keeps a warm process for repeated invocations and caps reuse with
-`MAX_COMMAND_BEFORE_RESTART` (see `InteractiveCommandExecutor.kt:28`), which is useful for amortizing expensive
-startups while still mitigating leaks.
+`MAX_COMMAND_BEFORE_RESTART` (see `InteractiveCommandExecutor.kt:28`), which is useful for amortizing expensive startups
+while still mitigating leaks.
 - The executor pool builds on Apache Commons Pool (`InteractiveCommandExecutorPool.kt:15`), giving us an off-the-shelf
 eviction model and bounded concurrency that we can reapply with a modernized worker implementation.
 - `TimeoutScheduler` wraps `CompletableFuture` with an internal scheduler (`TimeoutScheduler.kt:15`) to avoid
@@ -16,11 +15,10 @@ eviction model and bounded concurrency that we can reapply with a modernized wor
 
 ## Pain Points
 - Output collection relies on `BufferedReader.ready()` busy loops with `Thread.sleep(0, 100)`
-(`InteractiveCommandExecutor.kt:104`), so commands that emit partial lines or binary data can hang indefinitely; we
-also lose line separators because `readLine()` strips them.
+(`InteractiveCommandExecutor.kt:104`), so commands that emit partial lines or binary data can hang indefinitely; we also
+lose line separators because `readLine()` strips them.
 - `InteractiveCommandExecutor` hardcodes a single command/argument pair per process and throws for any mismatch
-(`InteractiveCommandExecutor.kt:58`), blocking use cases that need to send heterogeneous commands through one
-session.
+(`InteractiveCommandExecutor.kt:58`), blocking use cases that need to send heterogeneous commands through one session.
 - The interactive writers/readers close around platform default charsets and always append `newLine()`
 (`InteractiveCommandExecutor.kt:70`), making it impossible to deliver raw bytes or control encoding.
 - `ActiveProcess` constructs fixed thread pools with virtual thread factories (`ActiveProcess.kt:22`), an anti-pattern
