@@ -6,3 +6,6 @@
   remains.
 - Definition of Done: code, tests, and documentation updated together; required Gradle checks succeed; relevant context
   files are refreshed.
+- Maintain per-task dossiers under `context/tasks/` using the assistant-managed workflow described in
+  [`context/tasks/README.md`](../tasks/README.md); ensure analysis, research, and execution logs are current before
+  opening a pull request.

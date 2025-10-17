@@ -6,10 +6,10 @@ iCLI live under [`context/guidelines/icli/`](../icli/).
 ## Orientation
 
 - Review the repo root [`AGENTS.md`](../../../AGENTS.md) before starting work and add scoped agents when new modules
-  require
-  additional rules.
+  require additional rules.
 - Use [`context/README.md`](../../README.md) as the entry point for domain knowledge, research history, and workflow
-  playbooks.
+  playbooks. Follow the assistant-managed process in [`context/tasks/README.md`](../../tasks/README.md) when executing
+  backlog work.
 - Follow the Markdown formatting standards in
   [`context/guidelines/general/markdown-formatting.md`](markdown-formatting.md).
 

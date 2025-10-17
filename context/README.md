@@ -9,7 +9,8 @@ specific theme and files are written in English.
 - `roadmap/` – phase-level plans and historical planning documents.
 - `workflow/` – collaboration, release, and operational playbooks.
 - `testing/` – detailed guidance for test strategy, fixtures, and expectations.
-- `tasks/` – backlog, active task dossiers, and templates for assistant-managed work.
+- `tasks/` – backlog, active task dossiers, and templates for the assistant-managed workflow (start with
+  [`context/tasks/README.md`](tasks/README.md)).
 
 When adding new material, extend the most relevant section and link back to it from higher-level guides so future work
 can discover it quickly.
