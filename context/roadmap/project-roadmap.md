@@ -2,8 +2,8 @@
 
 ## Phase 1 — Foundations
 - [x] Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
-- [ ] Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
-  *(In progress — current focus.)*
+- [x] Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
+  *Published in `context/guidelines/general/contributor-guidelines.md`.*
 
 ## Phase 2 — Discovery & Architecture
 - Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers.

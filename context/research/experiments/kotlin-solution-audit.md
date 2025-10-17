@@ -1,7 +1,8 @@
 # Kotlin Legacy Solution Audit
 
 ## Scope
-Review of the Kotlin implementation under `ai/knowledgeBase/old` with focus on the Phase 1 roadmap task “Audit
+Review of the Kotlin implementation under `context/knowledge-base/archive/old` with focus on the Phase 1 roadmap task
+“Audit
 existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.”
 
 ## Reusable Ideas
