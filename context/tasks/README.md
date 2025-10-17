@@ -61,7 +61,7 @@ stable so historical links remain valid.
 | `ID`          | Canonical task identifier (e.g., `ICLI-001`).                                       |
 | `Title`       | Short headline that describes the change.                                           |
 | `Status`      | High-level state (`Backlog`, `Active`, `Blocked`, `Done`).                          |
-| `Stage`       | Current workflow stage (`Planning`, `Analysis`, `Research`, `Execution`, `Review`). |
+| `Stage`       | Current workflow stage (`Planning`, `Analysis`, `Research`, `Execution`, `Review`, `Done`). |
 | `Goal`        | Desired outcome or success condition.                                               |
 | `Constraints` | Non-negotiable rules, dependencies, or tooling requirements.                        |
 | `Dossier`     | Relative path to the task dossier `README.md`.                                      |

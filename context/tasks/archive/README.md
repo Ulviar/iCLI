@@ -4,6 +4,10 @@ Completed task dossiers move here once their Definition of Done is satisfied and
 Each archived task retains its original structure (dossier, logs, research requests) so historical context remains
 intact.
 
+## Contents
+
+- [`ICLI-001`](ICLI-001/README.md) — Assistant-managed workflow documentation and templates (archived 2025-10-17).
+
 ## Archival checklist
 
 1. Confirm the final execution history entry documents verification steps and follow-up actions.
