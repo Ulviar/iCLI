@@ -6,7 +6,8 @@
   *Published in `context/guidelines/general/contributor-guidelines.md`.*
 
 ## Phase 2 — Discovery & Architecture
-- Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers.
+- Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers
+  (see [execution requirements brief](execution-requirements.md)).
 - Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints (cross-platform,
   resource usage).
 - Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies.
