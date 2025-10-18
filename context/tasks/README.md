@@ -21,6 +21,8 @@ discoverable inside the repository.
 5. **Retrospective** — confirm deliverables against the task goal and Definition of Done, then capture assistant-facing
    process improvement suggestions before closing the work. Record these suggestions in the final execution history
    entry so future tasks benefit from the feedback loop.
+   - During execution, apply test-driven development (TDD): add/adjust tests first, watch them fail, implement code to
+     pass, then rerun the suite before moving on. Never leave a task with a red build.
 
 Assistants should update the dossier status field as the work advances (e.g., `Planning`, `Analysis`, `Research`,
 `Execution`, `Retrospective`, `Review`, `Done`) and note blockers explicitly. Each stage expects a corresponding log
@@ -143,6 +145,8 @@ index at [`context/tasks/archive/README.md`](archive/README.md) contains the det
 - Use research request logs to trigger human-in-the-loop support. Assistants document the request and pause work until a
   human responds with results or declines the investigation.
 - Record every test or verification command in execution history files, including both successes and failures.
+- Verify dependency/tool version updates by checking their official release feeds and capturing the consulted source in
+  the execution log when a version bump occurs.
 - Close the final execution history entry with a short retrospective: restate whether outcomes met the goal/DoD and list
   at least one assistant process improvement suggestion (even if it is “none this time”).
 - Update the dossier `README.md` as the single source of truth: current stage, links to logs, Definition of Done

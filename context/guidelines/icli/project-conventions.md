@@ -25,6 +25,15 @@ library.
 - Re-interrupt threads after catching `InterruptedException` and document any non-trivial lifetime management decisions
   with Javadoc or KDoc.
 
+## Development workflow
+
+- Format Java sources with **Palantir Java Format** through Spotless; Kotlin continues to follow Kotlin conventions.
+- Practice TDD: write or update tests first, then implement changes to make them pass, keeping the build green at all
+  times.
+- Run the relevant Gradle compile/test tasks before committing or sharing changes to guarantee the code compiles.
+- TODO markers are welcome during design—annotate them with context/owner and create backlog items if the follow-up
+  will not be addressed immediately.
+
 ## Documentation hooks
 
 - Capture novel findings about process execution in the knowledge base under `context/knowledge-base/operations/`.

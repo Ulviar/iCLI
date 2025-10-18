@@ -37,7 +37,7 @@ tasks.test {
 
 spotless {
     java {
-        googleJavaFormat("1.30.0")
+        palantirJavaFormat("2.80.0")
         target("src/**/*.java")
     }
     kotlin {

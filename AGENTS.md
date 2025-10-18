@@ -13,7 +13,7 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 
 ## Code Style
 
-- Java sources must follow **Google Java Format** and be enforced via **Spotless**.
+- Java sources must follow **Palantir Java Format** and be enforced via **Spotless**.
 - Kotlin sources must follow the official **Kotlin coding conventions** and be enforced via **Spotless**.
 
 ## Quality Gates
@@ -32,6 +32,15 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
    work session so it reflects changes since the last commit (the file is ignored by Git).
 5. Before completing any task, explicitly review and refresh the `.commit-message` file to ensure it captures only the
    current work.
+
+## Development Practices
+
+- Apply **test-driven development (TDD)**: write or update failing tests before implementing behaviour, keep the suite
+  passing, and ensure every proposed change is backed by automated coverage.
+- Never leave the repository in a broken state—run the relevant Gradle compile/test tasks before sharing code to confirm
+  it builds.
+- Use `TODO` markers where helpful during iterative design; include owner/context in the comment and raise backlog
+  follow-ups when the remaining work cannot be resolved immediately.
 
 ## Documentation
 
