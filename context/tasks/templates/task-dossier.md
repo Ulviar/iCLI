@@ -40,6 +40,8 @@
 - **Implementation highlights:** Capture major code or documentation changes.
 - **Testing:** List verification steps (commands, tools, environments).
 - **Follow-up work:** Record any issues deferred to future tasks.
+- **Retrospective:** Reference the execution history entry that contains the goal/DoD confirmation and process
+  improvement suggestions.
 
 ## Completion & archive
 - **Archive status:** Active / Ready to archive / Archived (include date).

@@ -18,10 +18,13 @@ discoverable inside the repository.
    before resuming work.
 4. **Execution** — implement the change, document tests and verification steps, and log follow-up actions. Execution
    history entries should call out code changes, documentation updates, and any deviations from the plan.
+5. **Retrospective** — confirm deliverables against the task goal and Definition of Done, then capture assistant-facing
+   process improvement suggestions before closing the work. Record these suggestions in the final execution history
+   entry so future tasks benefit from the feedback loop.
 
 Assistants should update the dossier status field as the work advances (e.g., `Planning`, `Analysis`, `Research`,
-`Executing`, `Review`, `Done`) and note blockers explicitly. Each stage expects a corresponding log entry before moving
-forward.
+`Execution`, `Retrospective`, `Review`, `Done`) and note blockers explicitly. Each stage expects a corresponding log
+entry before moving forward.
 
 Role expectations for the maintainer, assistants, and future consumers are defined in
 [`context/guidelines/icli/project-roles.md`](../guidelines/icli/project-roles.md); reference that document whenever a
@@ -140,6 +143,8 @@ index at [`context/tasks/archive/README.md`](archive/README.md) contains the det
 - Use research request logs to trigger human-in-the-loop support. Assistants document the request and pause work until a
   human responds with results or declines the investigation.
 - Record every test or verification command in execution history files, including both successes and failures.
+- Close the final execution history entry with a short retrospective: restate whether outcomes met the goal/DoD and list
+  at least one assistant process improvement suggestion (even if it is “none this time”).
 - Update the dossier `README.md` as the single source of truth: current stage, links to logs, Definition of Done
   updates, and outstanding risks.
 - Maintain `.commit-message` at the repository root with a single proposed commit message reflecting all changes since

@@ -17,5 +17,9 @@
 ## Follow-up & risks
 - Outstanding bugs, tech debt, or tasks to schedule next.
 
+## Retrospective & process improvement
+- Confirm whether outputs met the task goal and Definition of Done.
+- Suggested tweaks that could improve future assistant workflow (note “none” explicitly if there are no ideas).
+
 ## Links
 - Pull requests, commits, or related dossiers.
