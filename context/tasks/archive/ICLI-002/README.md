@@ -1,8 +1,8 @@
 # ICLI-002 — Consolidate Execution Requirements
 
 ## Status
-- **Lifecycle stage:** Analysis
-- **Overall status:** Active
+- **Lifecycle stage:** Done
+- **Overall status:** Done
 - **Last updated:** 2025-10-18
 - **Owner:** Assistant (Codex)
 
@@ -24,7 +24,7 @@
 - **Proposed deliverables:** Requirements markdown file, updated research registry entries, enriched task dossier logs.
 - **Open questions / risks:** Need to surface legacy use cases from prior audits; ensure coverage of both PTY and
   non-PTY scenarios.
-- **Backlog link:** [context/tasks/backlog.md](../backlog.md)
+- **Backlog link:** [context/tasks/backlog.md](../../backlog.md)
 
 ## Analysis
 - **Log entries:** [2025-10-18](analysis/2025-10-18.md)
@@ -44,13 +44,14 @@
 - **Follow-up work:** None identified after publishing the requirements brief.
 
 ## Completion & archive
-- **Archive status:** Active (not archived).
-- **Archive location:** Pending — remains under `context/tasks/ICLI-002/`.
-- **Final verification:** To be completed once Definition of Done is satisfied.
+- **Archive status:** Archived 2025-10-18.
+- **Archive location:** `context/tasks/archive/ICLI-002/`.
+- **Final verification:** Definition of Done met on 2025-10-18 via `context/roadmap/execution-requirements.md`; no
+  automated tests required for documentation changes.
 
 ## Decisions & notes
-- **Key decisions:** None yet.
+- **Key decisions:** Requirements baseline captured in `context/roadmap/execution-requirements.md`.
 - **Risks:** Requirements gathering may be limited by historical documentation quality; capture assumptions explicitly.
-- **Links:** None currently.
+- **Links:** [Execution requirements brief](../../roadmap/execution-requirements.md)
 - **Maintainer priorities:** Focus on cross-platform parity, resilient interactive session controls (timeouts, PTY),
   and predictable recycling of pooled workers, derived from roadmap goals and legacy pain points.

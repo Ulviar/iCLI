@@ -11,11 +11,11 @@ discoverable inside the repository.
    questions are documented.
 2. **Analysis** — consult the knowledge base, roadmap, research registry, and relevant source files. Record findings in
    dated analysis logs, call out gaps, and note whether additional research is required. Each knowledge entry must link
-   (via relative Markdown paths) to the exact document or file that materially changed your understanding relative to the
-   initial task description.
-3. **Research** *(optional)* — when missing information blocks progress, pause execution, prepare a research request log,
-   and hand it to a human collaborator. The assistant must not run external prompts; wait for the human to respond with
-   results or a decision before resuming work.
+   (via relative Markdown paths) to the exact document or file that materially changed your understanding. Capture how
+   that source shifted the plan compared with the initial task description.
+3. **Research** *(optional)* — when missing information blocks progress, pause execution. Prepare a research request log
+   and hand it to a human collaborator. The assistant must not run external prompts; wait for the human to respond
+   before resuming work.
 4. **Execution** — implement the change, document tests and verification steps, and log follow-up actions. Execution
    history entries should call out code changes, documentation updates, and any deviations from the plan.
 
@@ -43,6 +43,9 @@ context/tasks/<TASK-ID>/
 └── execution-history/         # Execution logs
     └── YYYY-MM-DD.md
 ```
+
+Create each subdirectory only when you have actual files for it. Leave the dossier with just `README.md` until logs or
+requests exist, and do not add placeholder files (e.g., `.gitkeep`) solely to populate empty directories.
 
 - **Analysis logs** capture knowledge consulted (with Markdown links), insights gained, and readiness to proceed. Only
   reference sources that significantly altered your approach versus the initial brief, and record how each source helped

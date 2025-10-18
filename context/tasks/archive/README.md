@@ -7,6 +7,8 @@ intact.
 ## Contents
 
 - [`ICLI-001`](ICLI-001/README.md) — Assistant-managed workflow documentation and templates (archived 2025-10-17).
+- [`ICLI-002`](ICLI-002/README.md) — Execution requirements brief covering single-run, interactive, and pooled process
+  modes (archived 2025-10-18).
 
 ## Archival checklist
 
