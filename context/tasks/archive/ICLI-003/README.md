@@ -1,8 +1,8 @@
 # ICLI-003 — Catalogue Execution Use Cases & Constraints
 
 ## Status
-- **Lifecycle stage:** Execution
-- **Overall status:** Active
+- **Lifecycle stage:** Done
+- **Overall status:** Done
 - **Last updated:** 2025-10-18
 - **Owner:** Assistant (Codex)
 
@@ -22,7 +22,7 @@
   priorities.
 - **Open questions / risks:** Need to validate whether legacy Kotlin audit covers all maintainer scenarios; gaps may
   require follow-up interviews.
-- **Backlog link:** [context/tasks/backlog.md](../backlog.md)
+- **Backlog link:** [context/tasks/backlog.md](../../backlog.md)
 
 ## Analysis
 - **Log entries:** [2025-10-18](analysis/2025-10-18.md)
@@ -44,28 +44,29 @@
 
 ## Constraint summary
 - Single-run automation requires structured results, bounded streaming, and direct binary execution to minimise quoting
-  issues ([Execution requirements](../../roadmap/execution-requirements.md);
-  [Process integration KB](../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  issues ([Execution requirements](../../../roadmap/execution-requirements.md);
+  [Process integration KB](../../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Interactive sessions must expose PTY toggles, control signals, and expect-friendly hooks for REPLs and prompt-driven
   flows while remaining headless (visual TUIs out of scope)
-  ([Execution requirements](../../roadmap/execution-requirements.md);
-  [Process integration KB](../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  ([Execution requirements](../../../roadmap/execution-requirements.md);
+  [Process integration KB](../../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Pooled workers need usage-based recycling, isolation resets, request-level deadlines, and health metrics to avoid
-  legacy leaks ([Execution requirements](../../roadmap/execution-requirements.md);
-  [Legacy audit](../../research/experiments/kotlin-solution-audit.md)).
+  legacy leaks ([Execution requirements](../../../roadmap/execution-requirements.md);
+  [Legacy audit](../../../research/experiments/kotlin-solution-audit.md)).
 - Cross-cutting policies enforce a unified command spec, concurrent stream draining, explicit charset selection, and
-  Kotlin-friendly testing hooks ([Execution requirements](../../roadmap/execution-requirements.md);
-  [Process integration KB](../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md);
-  [Project conventions](../../guidelines/icli/project-conventions.md); [Testing strategy](../../testing/strategy.md)).
+  Kotlin-friendly testing hooks ([Execution requirements](../../../roadmap/execution-requirements.md);
+  [Process integration KB](../../../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md);
+  [Project conventions](../../../guidelines/icli/project-conventions.md); [Testing strategy](../../../testing/strategy.md)).
 
 ## Out-of-scope goals
 - Supporting full-screen TUIs or terminal window management (resize events, cursor layout).
 - Guaranteeing colour-rich rendering or graphical output beyond plain-text automation flows.
 
 ## Completion & archive
-- **Archive status:** Active.
-- **Archive location:** Pending — remains under `context/tasks/ICLI-003/`.
-- **Final verification:** To be completed when Definition of Done is met.
+- **Archive status:** Archived 2025-10-18.
+- **Archive location:** `context/tasks/archive/ICLI-003/`.
+- **Final verification:** Definition of Done met on 2025-10-18 via `context/roadmap/execution-use-case-catalogue.md`
+  and constraint summary updates in this dossier.
 
 ## Decisions & notes
 - **Key decisions:** Execution use case catalogue maintained at `context/roadmap/execution-use-case-catalogue.md`.
