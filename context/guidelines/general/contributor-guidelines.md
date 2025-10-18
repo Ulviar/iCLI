@@ -51,3 +51,6 @@ iCLI live under [`context/guidelines/icli/`](../icli/).
   [`context/research/registry.md`](../../research/registry.md).
 - Follow the collaboration checklist in [`context/workflow/collaboration.md`](../../workflow/collaboration.md) and
   consult [`context/workflow/releases.md`](../../workflow/releases.md) before tagging a release.
+- Maintain a single proposed commit message in the repository root `.commit-message` file. Update it before ending a
+  work session so it describes the cumulative changes since the last commit. The file is ignored from version control
+  but serves as the assistant’s staging note for commit text.

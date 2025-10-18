@@ -28,6 +28,8 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 2. Keep README and other documentation up to date when behavior or tooling changes.
 3. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding
    the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
+4. Maintain a single proposed commit message in the repository root `.commit-message` file, updating it before ending a
+   work session so it reflects changes since the last commit (the file is ignored by Git).
 
 ## Documentation
 

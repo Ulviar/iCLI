@@ -139,6 +139,8 @@ index at [`context/tasks/archive/README.md`](archive/README.md) contains the det
 - Record every test or verification command in execution history files, including both successes and failures.
 - Update the dossier `README.md` as the single source of truth: current stage, links to logs, Definition of Done
   updates, and outstanding risks.
+- Maintain `.commit-message` at the repository root with a single proposed commit message reflecting all changes since
+  the previous Git commit; refresh it before ending the session.
 
 ## Getting started checklist
 

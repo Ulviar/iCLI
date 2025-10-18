@@ -5,3 +5,5 @@ build/
 .idea/
 *.iml
 out/
+# Local commit message proposals
+.commit-message
