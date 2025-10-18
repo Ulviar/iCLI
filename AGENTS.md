@@ -30,6 +30,8 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
    the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
 4. Maintain a single proposed commit message in the repository root `.commit-message` file, updating it before ending a
    work session so it reflects changes since the last commit (the file is ignored by Git).
+5. Before completing any task, explicitly review and refresh the `.commit-message` file to ensure it captures only the
+   current work.
 
 ## Documentation
 

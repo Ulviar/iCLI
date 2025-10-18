@@ -10,4 +10,5 @@ directory unless a task explicitly requires a full survey.
 ## Entries
 - `kotlin-solution-audit.md` — Findings from the Phase 1 audit of the legacy Kotlin implementation, including reusable
 ideas, pain points, and capability gaps.
-
+- `icli-execution-engine-benchmarks.md` — Comparative study of process execution libraries across ecosystems, capturing
+  PTY, I/O, cancellation, and pooling insights for iCLI architecture planning.

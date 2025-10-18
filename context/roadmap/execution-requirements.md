@@ -25,6 +25,8 @@
 ### Timeout and cancellation policy
 - Support caller-specified execution timeouts with a soft kill (`destroy`) followed by configurable hard kill
   escalation.
+- Attempt graceful interrupts first (Ctrl+C/SIGINT where available), with optional process-tree termination to prevent
+  straggling children before resorting to forceful kill.
 - Deliver timeout diagnostics that surface elapsed time, exit state, and whether the process was force-terminated.
 - Permit optional deadline-free runs but expose hooks for external cancellation (e.g., `Future` cancellation).
 
@@ -46,6 +48,7 @@
 - Allow switching between pipe-based and PTY-backed modes when a TTY is required for prompt-driven flows; window resize
   APIs are not in scope.
 - Surface convenience methods for control signals (Ctrl+C, Ctrl+D) without requiring consumers to craft raw bytes.
+- Offer optional transcript logging hooks so interactive dialogues can be replayed for debugging without manual capture.
 - Offer event hooks or futures for process exit, along with graceful shutdown mechanisms that close stdin or destroy the
   session.
 
@@ -59,6 +62,8 @@
   colour support.
 - On Windows, integrate with ConPTY for TTY detection and prompt handling while keeping visual rendering out of scope.
 - Map platform-specific signals (e.g., Ctrl+Break on Windows) to a consistent API surface.
+- Keep PTY-backed behaviour consistent across Linux, macOS, and Windows (ConPTY/WinPTY) with documented fallbacks when
+  only pipes are available.
 - Propagate locale and code page settings to avoid mojibake when interacting with non-UTF-8 environments.
 
 ### Out-of-scope behaviours
@@ -95,7 +100,7 @@
   PTY preference, and shell usage.
 - Offer launch options controlling output capture (bounded buffers, discard policies), timeouts, and logging verbosity.
 - Expose diagnostics hooks (structured events or callbacks) for process state changes, output truncation, and
-  termination.
+  termination, including optional unified transcript logging for troubleshooting.
 - Support dependency injection of clock/scheduler components to enable deterministic testing of timeouts and retries.
 - Ensure APIs are thread-safe and use virtual threads for IO pumping where advantageous, falling back gracefully if
   unavailable.
@@ -122,7 +127,9 @@
 - [Java Terminal & Process Integration — Knowledge Base][kb-pty]
 - [Kotlin legacy solution audit][legacy-audit]
 - [Testing strategy][testing-strategy]
+- [Execution engine benchmarks][exec-benchmarks]
 
 [kb-pty]: ../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md
 [legacy-audit]: ../research/experiments/kotlin-solution-audit.md
 [testing-strategy]: ../testing/strategy.md
+[exec-benchmarks]: ../research/icli-execution-engine-benchmarks.md

@@ -75,10 +75,14 @@ and rapid feedback loops in headless environments ([Execution requirements](exec
   [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Detect idle or hung sessions through configurable timeouts and expose completion futures so callers can recycle
   misbehaving REPLs ([Execution requirements](execution-requirements.md)).
+- Keep PTY-backed flows consistent across Linux, macOS, and Windows (ConPTY/WinPTY) with clear fallbacks when only
+  pipes are available ([Execution requirements](execution-requirements.md);
+  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
 - [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)
 
 ### Expect-style prompt orchestration
 **Scenario.** Automate tools that prompt for credentials or multi-step responses, combining scripted input with
@@ -93,10 +97,13 @@ verification of prompt text while staying in text-only environments
   ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Surface control characters (Ctrl+C, Ctrl+D) and EOF semantics so scripts can terminate interactions cleanly
   ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+- Provide optional transcript logging hooks so prompt dialogues can be debugged and audited without reproducing runs
+  ([Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
 - [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)
 
 ## Pooled interactive worker use cases
 
@@ -164,6 +171,14 @@ for tooling such as morphology analyzers mentioned in roadmap notes ([Project ro
   [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Ensure Kotlin-friendly APIs and testing hooks (bounded fixtures, PTY/non-PTY matrix) in line with the repository
   testing strategy ([Execution requirements](execution-requirements.md); [Testing strategy](../testing/strategy.md)).
+- Support both buffered and streaming output capture with configurable caps to prevent OOM conditions while retaining
+  automation-friendly summaries
+  ([Execution requirements](execution-requirements.md);
+  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
+- Implement cancellation flows that send gentle interrupts (Ctrl+C/SIGINT) before forceful termination and optionally
+  clean up process trees to avoid stragglers
+  ([Execution requirements](execution-requirements.md);
+  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
 ## Out-of-scope scenarios
 - Full-screen TUIs (e.g., `top`, curses dashboards) that depend on terminal window sizing or cursor positioning.
@@ -177,3 +192,4 @@ for tooling such as morphology analyzers mentioned in roadmap notes ([Project ro
 - [Project roadmap](project-roadmap.md)
 - [Project conventions](../guidelines/icli/project-conventions.md)
 - [Testing strategy](../testing/strategy.md)
+- [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)
