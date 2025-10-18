@@ -36,14 +36,15 @@
 
 ## Interactive session requirements
 ### Core use cases
-- Drive REPLs and shells (`python`, `node`, `/bin/bash`, `pwsh`) for developer automation and scripting.
-- Interact with text-based TUIs (e.g., `top`, database consoles) that require a terminal for correct behaviour.
-- Automate tools that prompt for credentials or multi-step user input, including expect-style scripting.
+- Drive REPLs and shells (`python`, `node`, `/bin/bash`, `pwsh`) for developer automation and scripting in headless
+  environments.
+- Automate tools that prompt for credentials or multi-step user input, including expect-style scripting, without
+  relying on visible terminal rendering.
 
 - Provide a session handle exposing `stdin`, `stdout`, and `stderr` streams plus high-level helpers (`sendLine`,
   `closeStdin`).
-- Allow switching between pipe-based and PTY-backed modes, exposing PTY resize operations (`cols`, `rows`) when
-  enabled.
+- Allow switching between pipe-based and PTY-backed modes when a TTY is required for prompt-driven flows; window resize
+  APIs are not in scope.
 - Surface convenience methods for control signals (Ctrl+C, Ctrl+D) without requiring consumers to craft raw bytes.
 - Offer event hooks or futures for process exit, along with graceful shutdown mechanisms that close stdin or destroy the
   session.
@@ -54,10 +55,15 @@
 - Detect hung reads or stalled writes, surfacing them via timeouts or callbacks so callers can recover gracefully.
 
 ### Cross-platform considerations
-- On Unix-like systems, rely on native PTY support; default TERM to `xterm-256color` when unspecified.
-- On Windows, integrate with ConPTY and provide fallback behaviour when PTY cannot be established.
+- On Unix-like systems, rely on native PTY support when required but avoid assumptions about terminal dimensions or
+  colour support.
+- On Windows, integrate with ConPTY for TTY detection and prompt handling while keeping visual rendering out of scope.
 - Map platform-specific signals (e.g., Ctrl+Break on Windows) to a consistent API surface.
 - Propagate locale and code page settings to avoid mojibake when interacting with non-UTF-8 environments.
+
+### Out-of-scope behaviours
+- Full-screen TUIs (e.g., `top`, curses dashboards) that depend on terminal window sizing or cursor addressing.
+- Dynamic PTY resize APIs or TERM negotiation aimed at visual layout fidelity.
 
 ## Pooled interactive worker requirements
 ### Core use cases

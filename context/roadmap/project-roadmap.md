@@ -27,11 +27,12 @@ cancellation hooks.
 handling.
 
 ## Phase 4 — Interactive Session Support
-- Implement interactive session API returning a handle with streaming IO, lifecycle controls, and PTY resizing when
-applicable.
+- Implement interactive session API returning a handle with streaming IO and lifecycle controls suitable for headless
+  PTY interactions.
 - Support both pipe-based and PTY-backed sessions; abstract differences behind a unified interface.
 - Provide expect-style helper utilities for scripted interactions and build sample usage documentation.
-- Extend test coverage with simulated REPLs, echo servers, and PTY-required tools.
+- Extend test coverage with simulated REPLs, echo servers, and PTY-required prompt workflows (visual TUIs remain out of
+  scope).
 
 ## Phase 5 — Process Pooling for Heavy Initializers
 - Design a configurable worker pool that pre-warms interactive applications with expensive startups.
