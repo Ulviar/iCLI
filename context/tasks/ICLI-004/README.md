@@ -55,7 +55,9 @@
 - **Implementation highlights:** Added `context/roadmap/execution-architecture-brief.md` outlining API, runtime,
   session, and pooling layers with cross-cutting policies; clarified Essential API facades (simple service pooling plus
   optional batch), documented default behaviours (timeouts, capture limits, retries, exception types), and sketched
-  method signatures/configuration points alongside the advanced API; updated open-question handling.
+  method signatures/configuration points alongside the advanced API; implemented `CommandSpec`, `ShellSpec`,
+  `LaunchOptions`, `OutputCapturePolicy`, and termination primitives with Kotlin unit tests via TDD while broader
+  runtime remains pending; updated open-question handling.
 - **Testing:** Not applicable.
 - **Follow-up work:** Draft implementation tasks for single-run executor, session manager, worker pool, Essential
   service pool facade, optional batch processor, and Essential defaults registry; prototype PTY integration.

@@ -15,6 +15,10 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 
 - Java sources must follow **Palantir Java Format** and be enforced via **Spotless**.
 - Kotlin sources must follow the official **Kotlin coding conventions** and be enforced via **Spotless**.
+- Review `context/guidelines/icli/assistant-notes.md` for assistant-specific implementation preferences (e.g., when to
+  use Java records).
+- Answer detailed design questions in `EXPLANATION.md` (Russian) when requested; capture reasoning, alternatives, and
+  test strategy there instead of the console when longer narratives are helpful.
 
 ## Quality Gates
 

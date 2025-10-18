@@ -14,11 +14,7 @@ java {
 }
 
 kotlin {
-    jvmToolchain(25)
-
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
-    }
+    jvmToolchain(24)
 }
 
 repositories {
