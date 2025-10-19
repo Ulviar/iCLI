@@ -1,23 +1,13 @@
 package com.github.ulviar.icli.api;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /** Shell invocation descriptor; empty command means direct execution. */
 public record ShellSpec(List<String> command, InvocationStyle style) {
     private static final ShellSpec NONE = new ShellSpec(List.of(), InvocationStyle.DEFAULT);
 
     public ShellSpec {
-        style = Objects.requireNonNull(style, "style");
-        Objects.requireNonNull(command, "command");
-        if (command.isEmpty()) {
-            command = List.of();
-        } else {
-            List<String> immutable = List.copyOf(command);
-            immutable.forEach(arg -> Objects.requireNonNull(arg, "shell command must not contain null entries"));
-            command = immutable;
-        }
+        command = List.copyOf(command);
     }
 
     public static ShellSpec none() {
@@ -41,19 +31,17 @@ public record ShellSpec(List<String> command, InvocationStyle style) {
         private Builder() {}
 
         public Builder command(List<String> value) {
-            Objects.requireNonNull(value, "command");
-            this.command = new ArrayList<>(value);
+            this.command = List.copyOf(value);
             return this;
         }
 
         public Builder command(String... argv) {
-            Objects.requireNonNull(argv, "argv");
-            this.command = List.of(argv.clone());
+            this.command = List.of(argv);
             return this;
         }
 
         public Builder style(InvocationStyle value) {
-            this.style = Objects.requireNonNull(value, "style");
+            this.style = value;
             return this;
         }
 

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     java
     kotlin("jvm") version "2.2.20"
@@ -22,6 +20,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains:annotations:26.0.2-1")
+
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(kotlin("test"))

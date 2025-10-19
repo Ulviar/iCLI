@@ -1,37 +1,26 @@
 package com.github.ulviar.icli.api;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 /** Immutable description of how to launch a command. */
 public record CommandSpec(
         List<String> command,
-        Path workingDirectory,
+        @Nullable Path workingDirectory,
         Map<String, String> environment,
         PtyPreference ptyPreference,
         ShellSpec shell) {
 
     public CommandSpec {
-        Objects.requireNonNull(command, "command");
+        command = List.copyOf(command);
         if (command.isEmpty()) {
             throw new IllegalArgumentException("command must not be empty");
         }
-        List<String> immutableCommand = List.copyOf(command);
-        immutableCommand.forEach(arg -> Objects.requireNonNull(arg, "command must not contain null entries"));
-        command = immutableCommand;
 
-        if (environment == null || environment.isEmpty()) {
-            environment = Map.of();
-        } else {
-            environment = Map.copyOf(environment);
-        }
-
-        ptyPreference = Objects.requireNonNullElse(ptyPreference, PtyPreference.AUTO);
-        shell = Objects.requireNonNullElse(shell, ShellSpec.none());
+        environment = Map.copyOf(environment);
     }
 
     public static Builder builder() {
@@ -44,7 +33,7 @@ public record CommandSpec(
 
     public static final class Builder {
         private List<String> command = List.of();
-        private Path workingDirectory;
+        private @Nullable Path workingDirectory;
         private Map<String, String> environment = Map.of();
         private PtyPreference ptyPreference = PtyPreference.AUTO;
         private ShellSpec shell = ShellSpec.none();
@@ -52,31 +41,26 @@ public record CommandSpec(
         private Builder() {}
 
         public Builder command(List<String> value) {
-            Objects.requireNonNull(value, "command");
-            this.command = new ArrayList<>(value);
+            this.command = List.copyOf(value);
             return this;
         }
 
         public Builder command(String... argv) {
-            Objects.requireNonNull(argv, "argv");
-            this.command = List.of(argv.clone());
+            this.command = List.of(argv);
             return this;
         }
 
-        public Builder workingDirectory(Path value) {
+        public Builder workingDirectory(@Nullable Path value) {
             this.workingDirectory = value;
             return this;
         }
 
         public Builder environment(Map<String, String> value) {
-            Objects.requireNonNull(value, "environment");
             this.environment = new LinkedHashMap<>(value);
             return this;
         }
 
         public Builder putEnvironment(String key, String value) {
-            Objects.requireNonNull(key, "key");
-            Objects.requireNonNull(value, "value");
             if (environment.isEmpty()) {
                 environment = new LinkedHashMap<>();
             }
@@ -85,18 +69,17 @@ public record CommandSpec(
         }
 
         public Builder ptyPreference(PtyPreference value) {
-            this.ptyPreference = Objects.requireNonNull(value, "ptyPreference");
+            this.ptyPreference = value;
             return this;
         }
 
         public Builder shell(ShellSpec value) {
-            this.shell = Objects.requireNonNull(value, "shell");
+            this.shell = value;
             return this;
         }
 
         public CommandSpec build() {
-            Map<String, String> envCopy = environment.isEmpty() ? Map.of() : new LinkedHashMap<>(environment);
-            return new CommandSpec(command, workingDirectory, envCopy, ptyPreference, shell);
+            return new CommandSpec(command, workingDirectory, environment, ptyPreference, shell);
         }
     }
 }

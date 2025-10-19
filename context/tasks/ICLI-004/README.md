@@ -57,7 +57,8 @@
   optional batch), documented default behaviours (timeouts, capture limits, retries, exception types), and sketched
   method signatures/configuration points alongside the advanced API; implemented `CommandSpec`, `ShellSpec`,
   `LaunchOptions`, `OutputCapturePolicy`, and termination primitives with Kotlin unit tests via TDD while broader
-  runtime remains pending; updated open-question handling.
+  runtime remains pending; adopted JetBrains `@NotNullByDefault`/`@Nullable` annotations and removed redundant null
+  guards to align with the new guideline; updated open-question handling.
 - **Testing:** Not applicable.
 - **Follow-up work:** Draft implementation tasks for single-run executor, session manager, worker pool, Essential
   service pool facade, optional batch processor, and Essential defaults registry; prototype PTY integration.

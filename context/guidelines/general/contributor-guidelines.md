@@ -24,16 +24,20 @@ iCLI live under [`context/guidelines/icli/`](../icli/).
 
 ## Code standards
 
-- Target Java 25 for production code and apply Google Java Format using Spotless (`./gradlew spotlessApply`).
-- Format Kotlin sources with the official style via Spotless and keep tests idiomatic Kotlin.
-- Prefer immutable data structures, explicit null handling (`Optional` or Kotlin nullable types), and documented
-  concurrency decisions.
+- Target Java 25 for production code and follow the mandatory rules in
+  [`context/guidelines/coding/standards.md`](../coding/standards.md).
+- Format Java with Palantir Java Format via Spotless; Kotlin continues to use the official style (ktlint through
+  Spotless). Keep tests idiomatic Kotlin.
+- Prefer immutable data structures, explicit null handling (JetBrains annotations with `@NotNullByDefault` /
+  `@Nullable`), and documented concurrency decisions.
 
 ## Build & automation
 
-- Run all tasks through the Gradle wrapper: `./gradlew <task>`.
-- Minimum verification before merging: `./gradlew spotlessCheck`, `./gradlew test`, and `./gradlew spotbugsMain`.
-- Use `./gradlew build` for full verification and keep tooling versions in sync with the configured Gradle toolchain.
+- Invoke Gradle through the MCP Gradle tools (`execute_gradle_task`, `run_gradle_tests`) rather than calling the wrapper
+  directly; see the repository `AGENTS.md` for details.
+- Minimum verification before merging: run `spotlessCheck`, `test`, and `spotbugsMain` through the MCP Gradle tools.
+- Use the aggregated `build` task for full verification and keep tooling versions in sync with the configured Gradle
+  toolchain.
 - For Markdown files run `python scripts/format_markdown.py --check` (or `format_markdown.py` to auto-format).
 
 ## Testing expectations

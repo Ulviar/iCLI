@@ -37,6 +37,8 @@ library.
   records for immutable configuration objects).
 - When a longer design explanation is required, capture it in `EXPLANATION.md` (written in the current conversation
   language). Document motivation, key decisions, alternatives, and the planned tests there on demand.
+- Apply JetBrains annotations consistently: each Java package declares `@NotNullByDefault`, opt-out points use
+  `@Nullable`, and other nullability annotations remain off-limits unless agreed otherwise.
 
 ## Documentation hooks
 

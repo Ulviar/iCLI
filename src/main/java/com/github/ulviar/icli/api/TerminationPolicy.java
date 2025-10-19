@@ -1,7 +1,6 @@
 package com.github.ulviar.icli.api;
 
 import java.time.Duration;
-import java.util.Objects;
 
 /**
  * Describes how the runtime escalates termination once a timeout or cancellation occurs.
@@ -13,9 +12,6 @@ import java.util.Objects;
 public record TerminationPolicy(Duration softTimeout, Duration gracePeriod, TerminationSignal signal) {
 
     public TerminationPolicy {
-        Objects.requireNonNull(softTimeout, "softTimeout");
-        Objects.requireNonNull(gracePeriod, "gracePeriod");
-        Objects.requireNonNull(signal, "signal");
         if (softTimeout.isZero() || softTimeout.isNegative()) {
             throw new IllegalArgumentException("softTimeout must be positive");
         }

@@ -1,7 +1,6 @@
 package com.github.ulviar.icli.api;
 
 import java.time.Duration;
-import java.util.Objects;
 
 /**
  * Execution-time configuration shared across single-run and session workflows.
@@ -12,12 +11,6 @@ public record LaunchOptions(
         boolean mergeErrorIntoOutput,
         TerminationPolicy terminationPolicy,
         boolean destroyProcessTree) {
-
-    public LaunchOptions {
-        stdoutPolicy = Objects.requireNonNull(stdoutPolicy, "stdoutPolicy");
-        stderrPolicy = Objects.requireNonNull(stderrPolicy, "stderrPolicy");
-        terminationPolicy = Objects.requireNonNull(terminationPolicy, "terminationPolicy");
-    }
 
     public static Builder builder() {
         return new Builder();
@@ -38,12 +31,12 @@ public record LaunchOptions(
         private Builder() {}
 
         public Builder stdoutPolicy(OutputCapturePolicy policy) {
-            this.stdoutPolicy = Objects.requireNonNull(policy, "stdoutPolicy");
+            this.stdoutPolicy = policy;
             return this;
         }
 
         public Builder stderrPolicy(OutputCapturePolicy policy) {
-            this.stderrPolicy = Objects.requireNonNull(policy, "stderrPolicy");
+            this.stderrPolicy = policy;
             return this;
         }
 
@@ -53,7 +46,7 @@ public record LaunchOptions(
         }
 
         public Builder terminationPolicy(TerminationPolicy policy) {
-            this.terminationPolicy = Objects.requireNonNull(policy, "terminationPolicy");
+            this.terminationPolicy = policy;
             return this;
         }
 

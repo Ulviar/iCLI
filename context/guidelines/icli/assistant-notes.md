@@ -10,3 +10,5 @@ iterations apply them automatically. Review this file before writing or refactor
   top when callers benefit from fluent configuration.
 - When refactoring existing classes, actively consider converting simple immutable POJOs (only fields + getters) into
   records, migrating validation into the canonical constructor and ensuring accessories return defensively copied data.
+- Declare every production package with `@NotNullByDefault` (JetBrains annotations). Only mark explicit opt-outs with
+  `@Nullable`; avoid other JetBrains annotations until the team greenlights them.

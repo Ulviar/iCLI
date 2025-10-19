@@ -19,6 +19,10 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 - Kotlin sources must follow the official **Kotlin coding conventions** and be enforced via **Spotless**.
 - Review `context/guidelines/icli/assistant-notes.md` for assistant-specific implementation preferences (e.g., when to
   use Java records).
+- Read `context/guidelines/coding/standards.md` before making code changes; its rules are mandatory for all
+  contributions.
+- Use JetBrains nullability annotations: annotate packages with `@NotNullByDefault`, mark exceptional cases with
+  `@Nullable`, and avoid other annotations until explicitly approved.
 - Answer detailed design questions in `EXPLANATION.md` (Russian) when requested; capture reasoning, alternatives, and
   test strategy there instead of the console when longer narratives are helpful.
 

@@ -2,7 +2,6 @@ package com.github.ulviar.icli.api;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.OptionalLong;
 
 /**
@@ -28,7 +27,6 @@ public sealed interface OutputCapturePolicy
             if (maxBytes <= 0) {
                 throw new IllegalArgumentException("maxBytes must be positive");
             }
-            charset = Objects.requireNonNullElse(charset, StandardCharsets.UTF_8);
         }
 
         @Override
@@ -49,10 +47,6 @@ public sealed interface OutputCapturePolicy
 
     /** Streaming capture that passes data to subscribers without retaining it. */
     record Streaming(Charset charset) implements OutputCapturePolicy {
-        public Streaming {
-            charset = Objects.requireNonNullElse(charset, StandardCharsets.UTF_8);
-        }
-
         @Override
         public OptionalLong maxRetainedBytes() {
             return OptionalLong.empty();
