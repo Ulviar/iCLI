@@ -10,6 +10,8 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 - Test language and framework: **Kotlin 2.2.20** with **JUnit 6**.
 - Build system: **Gradle 9.1.0** with Kotlin DSL (`build.gradle.kts`).
 - Minimum JDK and target JVM version: **25 (LTS)**.
+- Invoke Gradle exclusively through the MCP tools (`get_gradle_project_info`, `execute_gradle_task`,
+  `run_gradle_tests`); do not call `./gradlew` directly from the shell.
 
 ## Code Style
 
@@ -27,8 +29,9 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 
 ## Workflow Expectations
 
-1. Prefer Gradle tasks for building, testing, formatting, and linting once the Gradle project is initialized (e.g.,
-   `./gradlew build`, `./gradlew spotlessApply`, `./gradlew spotbugsMain`).
+1. Prefer Gradle tasks for building, testing, formatting, and linting by calling the MCP tools (e.g., use
+   `execute_gradle_task` with `["build"]` or `["spotlessApply"]`, `run_gradle_tests` for suites); skip direct shell
+   invocations of `./gradlew`.
 2. Keep README and other documentation up to date when behavior or tooling changes.
 3. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding
    the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
