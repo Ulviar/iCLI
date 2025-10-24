@@ -1,4 +1,4 @@
-package com.github.ulviar.icli.api
+package com.github.ulviar.icli.core
 
 import java.nio.file.Paths
 import kotlin.test.Test
@@ -7,11 +7,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class CommandSpecTest {
+class CommandDefinitionTest {
     @Test
     fun `builder copies command and environment defensively`() {
         val builder =
-            CommandSpec
+            CommandDefinition
                 .builder()
                 .command(listOf("/bin/echo", "hello"))
                 .workingDirectory(Paths.get("/tmp"))
@@ -30,20 +30,20 @@ class CommandSpecTest {
 
     @Test
     fun `shell defaults to none`() {
-        val spec = CommandSpec.builder().command("echo", "hi").build()
-        assertEquals(ShellSpec.none(), spec.shell())
+        val spec = CommandDefinition.builder().command("echo", "hi").build()
+        assertEquals(ShellConfiguration.none(), spec.shell())
     }
 
     @Test
     fun `throws when command is empty`() {
-        val builder = CommandSpec.builder()
+        val builder = CommandDefinition.builder()
         assertFailsWith<IllegalArgumentException> { builder.build() }
     }
 
     @Test
     fun `builder allows resetting command`() {
         val spec =
-            CommandSpec
+            CommandDefinition
                 .builder()
                 .command("first")
                 .command("second", "arg")

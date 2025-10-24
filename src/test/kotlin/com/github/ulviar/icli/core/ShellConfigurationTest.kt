@@ -1,27 +1,27 @@
-package com.github.ulviar.icli.api
+package com.github.ulviar.icli.core
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ShellSpecTest {
+class ShellConfigurationTest {
     @Test
     fun `builder defaults to empty command with default style`() {
-        val spec = ShellSpec.builder().build()
+        val spec = ShellConfiguration.builder().build()
 
         assertEquals(emptyList(), spec.command())
-        assertEquals(ShellSpec.InvocationStyle.DEFAULT, spec.style())
+        assertEquals(ShellConfiguration.InvocationStyle.DEFAULT, spec.style())
     }
 
     @Test
     fun `builder applies custom command and style`() {
         val spec =
-            ShellSpec
+            ShellConfiguration
                 .builder()
                 .command("bash", "-lc")
-                .style(ShellSpec.InvocationStyle.LOGIN)
+                .style(ShellConfiguration.InvocationStyle.LOGIN)
                 .build()
 
         assertEquals(listOf("bash", "-lc"), spec.command())
-        assertEquals(ShellSpec.InvocationStyle.LOGIN, spec.style())
+        assertEquals(ShellConfiguration.InvocationStyle.LOGIN, spec.style())
     }
 }

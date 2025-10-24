@@ -1,4 +1,4 @@
-package com.github.ulviar.icli.api;
+package com.github.ulviar.icli.core;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -9,8 +9,7 @@ import java.util.OptionalLong;
  *
  * <p>Policies may retain bounded in-memory buffers, stream to consumers, or discard output entirely.
  */
-public sealed interface OutputCapturePolicy
-        permits OutputCapturePolicy.Bounded, OutputCapturePolicy.Streaming, OutputCapturePolicy.Discard {
+public sealed interface OutputCapture permits OutputCapture.Bounded, OutputCapture.Streaming, OutputCapture.Discard {
 
     /** Maximum bytes retained in memory, if applicable. */
     OptionalLong maxRetainedBytes();
@@ -22,7 +21,7 @@ public sealed interface OutputCapturePolicy
     boolean isStreaming();
 
     /** Bounded in-memory capture retaining up to {@link #maxBytes()} bytes. */
-    record Bounded(long maxBytes, Charset charset) implements OutputCapturePolicy {
+    record Bounded(long maxBytes, Charset charset) implements OutputCapture {
         public Bounded {
             if (maxBytes <= 0) {
                 throw new IllegalArgumentException("maxBytes must be positive");
@@ -46,7 +45,7 @@ public sealed interface OutputCapturePolicy
     }
 
     /** Streaming capture that passes data to subscribers without retaining it. */
-    record Streaming(Charset charset) implements OutputCapturePolicy {
+    record Streaming(Charset charset) implements OutputCapture {
         @Override
         public OptionalLong maxRetainedBytes() {
             return OptionalLong.empty();
@@ -64,7 +63,7 @@ public sealed interface OutputCapturePolicy
     }
 
     /** Discards output entirely. */
-    record Discard() implements OutputCapturePolicy {
+    record Discard() implements OutputCapture {
         @Override
         public OptionalLong maxRetainedBytes() {
             return OptionalLong.empty();
@@ -81,15 +80,15 @@ public sealed interface OutputCapturePolicy
         }
     }
 
-    static OutputCapturePolicy bounded(long maxBytes) {
+    static OutputCapture bounded(long maxBytes) {
         return new Bounded(maxBytes, StandardCharsets.UTF_8);
     }
 
-    static OutputCapturePolicy streaming() {
+    static OutputCapture streaming() {
         return new Streaming(StandardCharsets.UTF_8);
     }
 
-    static OutputCapturePolicy discard() {
+    static OutputCapture discard() {
         return new Discard();
     }
 }

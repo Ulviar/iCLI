@@ -1,4 +1,4 @@
 @NotNullByDefault
-package com.github.ulviar.icli.api;
+package com.github.ulviar.icli;
 
 import org.jetbrains.annotations.NotNullByDefault;

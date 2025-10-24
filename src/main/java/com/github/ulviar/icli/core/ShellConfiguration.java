@@ -1,16 +1,16 @@
-package com.github.ulviar.icli.api;
+package com.github.ulviar.icli.core;
 
 import java.util.List;
 
 /** Shell invocation descriptor; empty command means direct execution. */
-public record ShellSpec(List<String> command, InvocationStyle style) {
-    private static final ShellSpec NONE = new ShellSpec(List.of(), InvocationStyle.DEFAULT);
+public record ShellConfiguration(List<String> command, InvocationStyle style) {
+    private static final ShellConfiguration NONE = new ShellConfiguration(List.of(), InvocationStyle.DEFAULT);
 
-    public ShellSpec {
+    public ShellConfiguration {
         command = List.copyOf(command);
     }
 
-    public static ShellSpec none() {
+    public static ShellConfiguration none() {
         return NONE;
     }
 
@@ -45,8 +45,8 @@ public record ShellSpec(List<String> command, InvocationStyle style) {
             return this;
         }
 
-        public ShellSpec build() {
-            return new ShellSpec(command, style);
+        public ShellConfiguration build() {
+            return new ShellConfiguration(command, style);
         }
     }
 }

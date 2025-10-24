@@ -1,7 +1,7 @@
-package com.github.ulviar.icli.api;
+package com.github.ulviar.icli.core;
 
 /** Preferred PTY behaviour when launching a command. */
-public enum PtyPreference {
+public enum TerminalPreference {
     /** Let the runtime decide based on defaults and heuristics. */
     AUTO,
     /** Require a PTY; fail if unavailable. */

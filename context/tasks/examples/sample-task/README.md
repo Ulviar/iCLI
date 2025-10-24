@@ -22,7 +22,8 @@
 
 ## Analysis
 - **Log entries:** [`analysis/2025-10-17.md`](analysis/2025-10-17.md)
-- **Knowledge consulted:** [`context/tasks/templates/analysis-log.md`](../../templates/analysis-log.md) clarified the focus on impactful references; the path was easy to infer from the templates directory.
+- **Knowledge consulted:** [`context/tasks/templates/analysis-log.md`](../../templates/analysis-log.md) clarified the
+  focus on impactful references; the path was easy to infer from the templates directory.
 - **Readiness decision:** Ready to proceed; example content can be drafted immediately.
 
 ## Research

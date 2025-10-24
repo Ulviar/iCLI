@@ -6,6 +6,9 @@
   remains.
 - Definition of Done: code, tests, and documentation updated together; required Gradle checks succeed; relevant context
   files are refreshed.
+- Before handing off work (pull request, review request, or assistant yield), perform an explicit coding-standards
+  compliance pass: compare touched files against `context/guidelines/coding/standards.md`, fix deviations, and note the
+  verification in the task log or PR description.
 - Maintain per-task dossiers under `context/tasks/` using the assistant-managed workflow described in
   [`context/tasks/README.md`](../tasks/README.md); ensure analysis, research, and execution logs are current before
   opening a pull request.
