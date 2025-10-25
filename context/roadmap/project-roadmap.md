@@ -8,16 +8,19 @@
 ## Phase 2 — Discovery & Architecture
 - ✅ Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers
   (documented in [execution-requirements.md](execution-requirements.md)).
-- ✅ Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints (cross-platform,
+- ✅ Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints
+  (cross-platform,
   resource usage) (documented in [execution-use-case-catalogue.md](execution-use-case-catalogue.md)).
-- ❓ Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies —
-  comparative notes live in [icli-execution-engine-benchmarks.md](../research/icli-execution-engine-benchmarks.md), but the
-  dependency decision remains open in the architecture brief.
+- ✅ Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies —
+  adopt **pty4j** (EPL-1.0) as the baseline PTY backend, record legal follow-up, and track WinPTY→ConPTY migration needs
+  alongside [icli-execution-engine-benchmarks.md](../research/icli-execution-engine-benchmarks.md).
 - ✅ Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout
   model (see [execution-architecture-brief.md](execution-architecture-brief.md)).
-- ❓ Evaluate support for both blocking and non-blocking client APIs, ensuring the architecture can expose synchronous and
+- ❓ Evaluate support for both blocking and non-blocking client APIs, ensuring the architecture can expose synchronous
+  and
   asynchronous workflows — requirements are recognised, yet no dedicated evaluation or decision record exists.
-- ✅ Define data contracts (command specification, execution options, result types) and public API surface (captured in the
+- ✅ Define data contracts (command specification, execution options, result types) and public API surface (captured in
+  the
   "Data contracts" section of [execution-architecture-brief.md](execution-architecture-brief.md)).
 
 ## Phase 3 — Core Execution Engine

@@ -11,6 +11,10 @@ intact.
   modes (archived 2025-10-18).
 - [`ICLI-003`](ICLI-003/README.md) — Execution use case catalogue and constraint summary for roadmap Phase 2 (archived
   2025-10-18).
+- [`ICLI-004`](ICLI-004/README.md) — Process execution architecture outline aligning API surfaces with roadmap guidance
+  (archived 2025-10-24).
+- [`ICLI-006`](ICLI-006/README.md) — PTY dependency evaluation selecting pty4j and documenting optional JLine usage for
+  prompt experiments (archived 2025-10-25).
 
 ## Archival checklist
 
