@@ -11,18 +11,18 @@ public final class LineSessionClient implements AutoCloseable {
 
     private final InteractiveSessionClient delegate;
     private final ResponseDecoder responseDecoder;
+    private final ClientScheduler scheduler;
 
-    private LineSessionClient(InteractiveSessionClient delegate, ResponseDecoder responseDecoder) {
+    private LineSessionClient(
+            InteractiveSessionClient delegate, ResponseDecoder responseDecoder, ClientScheduler scheduler) {
         this.delegate = delegate;
         this.responseDecoder = responseDecoder;
+        this.scheduler = scheduler;
     }
 
-    static LineSessionClient create(InteractiveSessionClient session) {
-        return new LineSessionClient(session, DEFAULT_DECODER);
-    }
-
-    static LineSessionClient create(InteractiveSessionClient session, ResponseDecoder decoder) {
-        return new LineSessionClient(session, decoder);
+    static LineSessionClient create(
+            InteractiveSessionClient session, ResponseDecoder decoder, ClientScheduler scheduler) {
+        return new LineSessionClient(session, decoder, scheduler);
     }
 
     public CommandResult<String> process(String input) {
@@ -41,6 +41,16 @@ public final class LineSessionClient implements AutoCloseable {
 
     public CompletableFuture<Integer> onExit() {
         return delegate.onExit();
+    }
+
+    /**
+     * Asynchronously invoke {@link #process(String)} using the configured {@link ClientScheduler}.
+     *
+     * @param input line to send to the interactive session
+     * @return future delivering the {@link CommandResult}
+     */
+    public CompletableFuture<CommandResult<String>> processAsync(String input) {
+        return scheduler.submit(() -> process(input));
     }
 
     public Charset charset() {

@@ -63,6 +63,29 @@
   application configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded capture,
   conservative timeouts, graceful shutdown) before throughput.
 
+### Client modality strategy
+- Keep the core runtime (`ProcessEngine.run/startSession`) synchronous and blocking so diagnostics, timeout
+  supervision, and PTY handling stay deterministic; blocking calls run on virtual threads by default to avoid tying up
+  platform threads.
+- Introduce a small `ClientScheduler` abstraction (Closable executor facade) that backs every asynchronous helper. The
+  default scheduler uses `Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())`, while advanced callers can
+  inject their own `Executor`/`StructuredTaskScope` to integrate with existing pools.
+- `CommandService` gains `runAsync(...)` overloads that delegate to the scheduler and return
+  `CompletableFuture<CommandResult<String>>`. Cancelling the future interrupts the underlying virtual thread, which in
+  turn triggers the runtime’s shutdown plan (soft signal → hard kill); completion events mirror the blocking API.
+- `LineSessionClient` adds `processAsync(String input)` (plus builder overloads) that performs the send/read loop on the
+  scheduler, returning the same `CommandResult` type. Callers can await the future, attach callbacks, or convert it to
+  coroutines using provided Kotlin extensions.
+- `InteractiveSessionClient` continues exposing `onExit` but now also ships lightweight adapters that turn stdout/stderr
+  into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, so listen-only clients can consume data
+  reactively without manually managing threads.
+- `ProcessPoolClient` surfaces `processAsync`, `processBytesAsync`, and lease-level async helpers. Each request still
+  executes on a worker session, but scheduling and completion notifications run on the same `ClientScheduler`, ensuring
+  blocking pool semantics and async projections stay consistent.
+- Kotlin support layers on top of the futures: `suspend fun CommandService.runSuspend(...)`,
+  `suspend fun LineSessionClient.processSuspend(...)`, and flow helpers live in the Kotlin module so tests and coroutine
+  clients do not handle `CompletableFuture` manually.
+
 ### Pooling usage modes
 - **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`) that
   exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it scales
@@ -161,12 +184,15 @@
 ## Data contracts
 - `ProcessResult`: command echo, exit code, timings, stdout/stderr capture (bounded indicators), termination signal,
   diagnostics snapshot.
-- `InteractiveSession`: exposes `InputStream`, `OutputStream`, `Flow`-style async adapters (optional), `closeStdin`,
-  `sendSignal`, `resizePty` (no-op when pipes), `onExit`.
+- `InteractiveSession`: exposes `InputStream`, `OutputStream`, `Flow`-style async adapters for stdout/stderr,
+  `closeStdin`, `sendSignal`, `resizePty` (no-op when pipes), `onExit`.
+- `ClientScheduler`: closable adapter around an `Executor`/`StructuredTaskScope` that submits blocking work on virtual
+  threads, returns `CompletableFuture<T>`, and ensures `cancel(true)` interrupts the task so the runtime can execute its
+  shutdown plan.
 - `ClientResult<T>`: Essential API summary containing merged text output, truncated indicators, elapsed time, and exit
   status.
-- `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle enforcement, and
-  optional raw stream access.
+- `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle enforcement, raw stream access,
+  futures for completion, and Flow/Coroutine adapters for streaming consumption.
 - `WorkerLease`: wraps session handle with per-request transcript context, reset hooks, and guarantees around state
   isolation.
 - `ServiceProcessor`: Essential API projection that routes individual requests to pooled workers while applying builtin

@@ -4,6 +4,7 @@ import com.github.ulviar.icli.core.CommandDefinition;
 import com.github.ulviar.icli.core.ExecutionOptions;
 import com.github.ulviar.icli.core.ProcessEngine;
 import com.github.ulviar.icli.core.ProcessResult;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -17,15 +18,22 @@ public final class CommandService {
     private final ProcessEngine engine;
     private final CommandDefinition baseCommand;
     private final ExecutionOptions options;
+    private final ClientScheduler scheduler;
 
     public CommandService(ProcessEngine engine, CommandDefinition baseCommand) {
         this(engine, baseCommand, ExecutionOptions.builder().build());
     }
 
     public CommandService(ProcessEngine engine, CommandDefinition baseCommand, ExecutionOptions options) {
+        this(engine, baseCommand, options, ClientSchedulers.virtualThreads());
+    }
+
+    public CommandService(
+            ProcessEngine engine, CommandDefinition baseCommand, ExecutionOptions options, ClientScheduler scheduler) {
         this.engine = engine;
         this.baseCommand = baseCommand;
         this.options = options;
+        this.scheduler = scheduler;
     }
 
     public CommandResult<String> run() {
@@ -49,6 +57,33 @@ public final class CommandService {
         }
     }
 
+    /**
+     * Run the base command asynchronously, returning a future that can be cancelled to interrupt the underlying
+     * process.
+     */
+    public CompletableFuture<CommandResult<String>> runAsync() {
+        return runAsync(baseCall());
+    }
+
+    /**
+     * Run a customised command asynchronously.
+     *
+     * @param customizer builder hook for adjusting command arguments and execution options
+     */
+    public CompletableFuture<CommandResult<String>> runAsync(Consumer<CommandCallBuilder> customizer) {
+        return runAsync(buildCall(customizer));
+    }
+
+    /**
+     * Run the provided {@link CommandCall} asynchronously.
+     *
+     * @param call fully built command definition and options
+     * @return future that resolves to the {@link CommandResult}
+     */
+    public CompletableFuture<CommandResult<String>> runAsync(CommandCall call) {
+        return scheduler.submit(() -> run(call));
+    }
+
     public LineSessionClient openLineSession() {
         return openLineSession(baseCall());
     }
@@ -60,7 +95,7 @@ public final class CommandService {
 
     public LineSessionClient openLineSession(CommandCall call) {
         InteractiveSessionClient interactive = openInteractiveSession(call);
-        return LineSessionClient.create(interactive, call.decoder());
+        return LineSessionClient.create(interactive, call.decoder(), scheduler);
     }
 
     public InteractiveSessionClient openInteractiveSession() {

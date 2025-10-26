@@ -6,6 +6,7 @@ import com.github.ulviar.icli.core.OutputCapture
 import com.github.ulviar.icli.core.ProcessResult
 import com.github.ulviar.icli.core.ShutdownPlan
 import com.github.ulviar.icli.core.ShutdownSignal
+import com.github.ulviar.icli.testing.ImmediateClientScheduler
 import com.github.ulviar.icli.testing.RecordingExecutionEngine
 import com.github.ulviar.icli.testing.ScriptedInteractiveSession
 import java.time.Duration
@@ -166,5 +167,34 @@ class CommandServiceTest {
         assertSame(sessionHandle.stderr(), interactive.stderr())
         assertSame(sessionHandle.onExit(), interactive.onExit())
         assertSame(sessionHandle, interactive.handle())
+    }
+
+    @Test
+    fun `runAsync delegates to scheduler`() {
+        val scheduler = ImmediateClientScheduler()
+        service = CommandService(engine, baseCommand, runOptions, scheduler)
+        engine.runResponse = ProcessResult(0, "value", "", Optional.empty())
+
+        val future = service.runAsync()
+
+        assertEquals(1, scheduler.submitted.size)
+        val result = future.get()
+        assertTrue(result.success)
+        assertEquals("value", result.value)
+    }
+
+    @Test
+    fun `line session processAsync returns future result`() {
+        val scheduler = ImmediateClientScheduler()
+        service = CommandService(engine, baseCommand, runOptions, scheduler)
+        sessionHandle.queueResponse("async-ok")
+
+        val session = service.openLineSession()
+        val future = session.processAsync("println('hi')")
+
+        assertEquals(1, scheduler.submitted.size)
+        val outcome = future.get()
+        assertTrue(outcome.success)
+        assertEquals("async-ok", outcome.value)
     }
 }
