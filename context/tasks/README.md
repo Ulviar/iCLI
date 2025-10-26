@@ -23,6 +23,8 @@ discoverable inside the repository.
    entry so future tasks benefit from the feedback loop.
    - During execution, apply test-driven development (TDD): add/adjust tests first, watch them fail, implement code to
      pass, then rerun the suite before moving on. Never leave a task with a red build.
+   - Run `spotbugsMain`/`spotbugsTest` once the code compiles. Either fix every reported issue or add a scoped `@SuppressFBWarnings`
+     (with a short justification in the annotation) when the behaviour is intentional; document the outcome in the execution log.
 
 Assistants should update the dossier status field as the work advances (e.g., `Planning`, `Analysis`, `Research`,
 `Execution`, `Retrospective`, `Review`, `Done`) and note blockers explicitly. Each stage expects a corresponding log
@@ -152,7 +154,9 @@ index at [`context/tasks/archive/README.md`](archive/README.md) contains the det
 - Update the dossier `README.md` as the single source of truth: current stage, links to logs, Definition of Done
   updates, and outstanding risks.
 - Maintain `.commit-message` at the repository root with a single proposed commit message reflecting all changes since
-  the previous Git commit; refresh it before ending the session.
+  the previous Git commit (not the entire task history); refresh it before ending the session. Always inspect `git log`
+  / `git status` (or `git diff --stat HEAD`) to understand what is already committed before updating this file, and ensure
+  the message summarizes the entire pending diff.
 
 ## Getting started checklist
 
