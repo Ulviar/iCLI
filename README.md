@@ -14,7 +14,7 @@ Add the dependency (coordinates TBD once publishing is configured) and set up yo
 simplest path is to inject an engine when constructing the high-level clients.
 
 ```java
-var engine = new PooledProcessEngine(); // your implementation backed by PTY/pipes
+var engine = new PipeProcessEngine(); // swap in a pooled/PTY-aware engine when available
 var command = CommandDefinition.builder()
         .command(List.of("python"))
         .build();
@@ -128,6 +128,12 @@ producing a `ProcessResult`.
 ### Testing Utilities (`com.github.ulviar.icli.testing`)
 
 The module ships Kotlin test doubles (`RecordingExecutionEngine`, `ScriptedInteractiveSession`) to help with unit tests.
+
+### Running tests
+
+- `./gradlew test` — runs the default unit test suite.
+- `./gradlew integrationTest` — runs optional integration tests that execute real shell commands. These tests are
+  skipped by default so they can be invoked manually (e.g., on Windows to validate PTY/shell behaviour).
 
 ---
 

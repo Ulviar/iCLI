@@ -8,7 +8,8 @@ code; treat violations as defects that must be corrected before submission.
 - Every production Java package must declare `@NotNullByDefault` (JetBrains annotations).
 - Parameters, return values, and fields are therefore non-null unless explicitly annotated with `@Nullable`.
 - Only apply `@Nullable` when a value is intentionally allowed to be `null`; avoid using it for convenience defaults.
-- Do not duplicate null checks (`Objects.requireNonNull`, manual `null` guards) for values covered by the default contract.
+- Do not duplicate null checks (`Objects.requireNonNull`, manual `null` guards) for values covered by the default
+  contract.
 - Builders may provide optional arguments by accepting `@Nullable` parameters and substituting documented defaults; all
   other parameters must be required and non-null.
 - Rationale: redundant runtime guards weaken the declared contract, mask erroneous call sites, and create churn when
@@ -46,5 +47,26 @@ code; treat violations as defects that must be corrected before submission.
 - Follow test-driven development: write or adjust a failing test before implementing behaviour.
 - All new code must be covered by automated tests and verified with `./gradlew test` locally.
 - Capture design rationales or extended answers in `EXPLANATION.md` when requested.
+- Prefer importing assertion helpers (e.g., `import kotlin.test.fail`) over qualifying them with package names to keep test code concise and readable.
+
+## Documentation
+
+- Document every class and interface with Javadoc that states its responsibility and observable behaviour, even when it
+  is package-private and only referenced internally. Avoid mentioning repository documents or implementation trivia.
+- Provide method-level Javadoc for all public and package-private methods (helpers included). Describe inputs,
+  outputs, error cases, and invariants so tests can be derived directly from the text.
+- Aim the documentation at external/library users first, while still providing enough clarity for reviewers and future
+  maintainers. If implementation context is necessary, prefer clearer code or targeted inline comments over bloating
+  the Javadoc.
+- When suppressing static-analysis warnings, include a justification in the annotation explaining why the flagged
+  behaviour is intentional.
+
+## Parameter validation
+
+- For code that remains entirely inside the iCLI runtime (e.g., collaborators under `core.runtime`), treat the caller as
+  responsible for passing valid arguments; avoid redundant guards on internal call paths so hot code stays lean.
+- Validate inputs that originate from external callers (public API entry points, user-supplied data, configuration).
+- Null-handling follows the repository-wide annotation policy: honour `@NotNullByDefault`, and add explicit checks only
+  when dealing with data sourced outside the annotated packages.
 
 Keep `context/guidelines/icli/assistant-notes.md` updated with project-specific tips derived from these standards.
