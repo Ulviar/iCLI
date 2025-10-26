@@ -12,3 +12,5 @@ directory unless a task explicitly requires a full survey.
 ideas, pain points, and capability gaps.
 - `icli-execution-engine-benchmarks.md` — Comparative study of process execution libraries across ecosystems, capturing
   PTY, I/O, cancellation, and pooling insights for iCLI architecture planning.
+- `pty-dependency-comparison.md` — Snapshot of PTY-capable JVM libraries (pty4j, Commons Exec, JNA, Jansi, JLine) with
+  licensing, maintenance, and Windows strategy notes; feeds interactive session planning tasks.

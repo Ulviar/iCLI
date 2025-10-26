@@ -43,6 +43,8 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
    work session so it reflects changes since the last commit (the file is ignored by Git).
 5. Before completing any task, explicitly review and refresh the `.commit-message` file to ensure it captures only the
    current work.
+6. Prior to ending a session, follow `context/checklists/session-completion.md` (formatting/tests + `.commit-message`
+   refresh) and log the checklist completion inside the active task dossier.
 
 ## Development Practices
 
@@ -59,8 +61,10 @@ All project documentation, comments, and commit messages must be written in **En
 
 ## Knowledge Base
 
-- Before starting any task, review the latest materials under `context/knowledge-base` to stay aligned with project
-  context and decisions.
+- Before starting any task, read `context/context-overview.md` end-to-end; it lists the mandatory documents to revisit
+  each session and links to their latest locations.
+- After completing the overview checklist, review the latest materials under `context/knowledge-base` to stay aligned
+  with project context and decisions.
 - Read `context/roadmap/project-roadmap.md` to stay connected to the overall delivery plan and current phase priorities.
 - Maintain awareness of research outputs stored under `context/research`:
     - Consult `context/research/registry.md` before beginning work to understand which analyses are available and where

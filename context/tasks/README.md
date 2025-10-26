@@ -2,7 +2,8 @@
 
 This directory hosts the backlog, task dossiers, and templates that enable AI assistants to execute work without an
 external tracker. Every task flows through the same lightweight lifecycle so history, decisions, and outputs stay
-discoverable inside the repository.
+discoverable inside the repository. Always start by reading `context/context-overview.md`; it lists the documents that
+must be reviewed before entering the workflow below.
 
 ## Workflow lifecycle
 
@@ -23,7 +24,8 @@ discoverable inside the repository.
    entry so future tasks benefit from the feedback loop.
    - During execution, apply test-driven development (TDD): add/adjust tests first, watch them fail, implement code to
      pass, then rerun the suite before moving on. Never leave a task with a red build.
-   - Run `spotbugsMain`/`spotbugsTest` once the code compiles. Either fix every reported issue or add a scoped `@SuppressFBWarnings`
+   - Run `spotbugsMain`/`spotbugsTest` once the code compiles. Either fix every reported issue or add a scoped
+   `@SuppressFBWarnings`
      (with a short justification in the annotation) when the behaviour is intentional; document the outcome in the execution log.
 
 Assistants should update the dossier status field as the work advances (e.g., `Planning`, `Analysis`, `Research`,
@@ -155,7 +157,8 @@ index at [`context/tasks/archive/README.md`](archive/README.md) contains the det
   updates, and outstanding risks.
 - Maintain `.commit-message` at the repository root with a single proposed commit message reflecting all changes since
   the previous Git commit (not the entire task history); refresh it before ending the session. Always inspect `git log`
-  / `git status` (or `git diff --stat HEAD`) to understand what is already committed before updating this file, and ensure
+  / `git status` (or `git diff --stat HEAD`) to understand what is already committed before updating this file, and
+  ensure
   the message summarizes the entire pending diff.
 
 ## Getting started checklist
