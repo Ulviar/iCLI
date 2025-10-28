@@ -1,5 +1,6 @@
 package com.github.ulviar.icli.core;
 
+import com.github.ulviar.icli.core.runtime.diagnostics.DiagnosticsListener;
 import java.time.Duration;
 
 /**
@@ -18,6 +19,7 @@ import java.time.Duration;
  *     <li>descendant process termination enabled;</li>
  *     <li>a five minute idle timeout for interactive sessions;</li>
  *     <li>{@link SessionLifecycleObserver#NO_OP} for lifecycle notifications.</li>
+ *     <li>{@link DiagnosticsListener#noOp()} for diagnostics output events.</li>
  * </ul>
  *
  * @param stdoutPolicy         output capture strategy applied to stdout. Defaults to bounded text capture up to 64 KiB
@@ -35,6 +37,8 @@ import java.time.Duration;
  *                             tracking. The default is five minutes.
  * @param sessionObserver      lifecycle observer invoked when the session is about to terminate (for example, because
  *                             the idle timeout elapsed). Defaults to {@link SessionLifecycleObserver#NO_OP}.
+ * @param diagnosticsListener  listener notified about streaming output and truncation events. Defaults to
+ *                             {@link DiagnosticsListener#noOp()}.
  */
 public record ExecutionOptions(
         OutputCapture stdoutPolicy,
@@ -43,7 +47,8 @@ public record ExecutionOptions(
         ShutdownPlan shutdownPlan,
         boolean destroyProcessTree,
         Duration idleTimeout,
-        SessionLifecycleObserver sessionObserver) {
+        SessionLifecycleObserver sessionObserver,
+        DiagnosticsListener diagnosticsListener) {
 
     public static Builder builder() {
         return new Builder();
@@ -67,6 +72,7 @@ public record ExecutionOptions(
         private boolean destroyProcessTree = true;
         private Duration idleTimeout = Duration.ofMinutes(5);
         private SessionLifecycleObserver sessionObserver = SessionLifecycleObserver.NO_OP;
+        private DiagnosticsListener diagnosticsListener = DiagnosticsListener.noOp();
 
         private Builder() {}
 
@@ -78,6 +84,7 @@ public record ExecutionOptions(
             this.destroyProcessTree = template.destroyProcessTree;
             this.idleTimeout = template.idleTimeout;
             this.sessionObserver = template.sessionObserver;
+            this.diagnosticsListener = template.diagnosticsListener;
         }
 
         static Builder from(ExecutionOptions template) {
@@ -149,6 +156,17 @@ public record ExecutionOptions(
         }
 
         /**
+         * Sets the diagnostics listener notified about streaming chunks and truncation events.
+         *
+         * <p>Events are dispatched synchronously on the stdout/stderr draining threads; listeners must avoid blocking
+         * or lengthy work to prevent back-pressure on the child process.
+         */
+        public Builder diagnosticsListener(DiagnosticsListener value) {
+            this.diagnosticsListener = value;
+            return this;
+        }
+
+        /**
          * Produces an immutable {@link ExecutionOptions} snapshot reflecting the current builder state. Subsequent
          * modifications to the builder do not affect previously built instances.
          */
@@ -160,7 +178,8 @@ public record ExecutionOptions(
                     shutdownPlan,
                     destroyProcessTree,
                     idleTimeout,
-                    sessionObserver);
+                    sessionObserver,
+                    diagnosticsListener);
         }
     }
 }

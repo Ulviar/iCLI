@@ -15,6 +15,13 @@ intact.
   (archived 2025-10-24).
 - [`ICLI-006`](ICLI-006/README.md) — PTY dependency evaluation selecting pty4j and documenting optional JLine usage for
   prompt experiments (archived 2025-10-25).
+- [`ICLI-007`](ICLI-007/README.md) — Blocking vs non-blocking client API strategy decision record (archived 2025-10-26).
+- [`ICLI-008`](ICLI-008/README.md) — Single command executor implementation with bounded capture and timeout handling
+  (archived 2025-10-26).
+- [`ICLI-009`](ICLI-009/README.md) — PTY-backed interactive session runtime with idle supervision and tests (archived
+  2025-10-28).
+- [`ICLI-010`](ICLI-010/README.md) — Streaming output capture plus diagnostics listener wiring (archived 2025-10-28).
+- [`ICLI-012`](ICLI-012/README.md) — Client async scheduler and helper APIs (archived 2025-10-26).
 
 ## Archival checklist
 

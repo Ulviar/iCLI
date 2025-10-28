@@ -5,6 +5,7 @@ import com.github.ulviar.icli.core.ExecutionOptions;
 import com.github.ulviar.icli.core.InteractiveSession;
 import com.github.ulviar.icli.core.ProcessEngine;
 import com.github.ulviar.icli.core.ProcessResult;
+import com.github.ulviar.icli.core.runtime.diagnostics.StreamType;
 import com.github.ulviar.icli.core.runtime.io.OutputSink;
 import com.github.ulviar.icli.core.runtime.io.OutputSinkFactory;
 import com.github.ulviar.icli.core.runtime.io.StreamDrainer;
@@ -32,15 +33,15 @@ import java.util.concurrent.CompletableFuture;
  *     backend transparently;</li>
  *     <li>captures stdout/stderr according to the configured {@link ExecutionOptions} limits while draining both
  *     streams on virtual threads to avoid deadlocks;</li>
- *     <li>applies the configured {@link com.github.ulviar.icli.core.ShutdownPlan} when terminating commands or interactive
- *     sessions, including process-tree destruction when requested;</li>
+ *     <li>applies the configured {@link com.github.ulviar.icli.core.ShutdownPlan} when terminating commands or
+ *     interactive sessions, including process-tree destruction when requested;</li>
  *     <li>exposes both single-shot execution via {@link #run(CommandDefinition, ExecutionOptions)} and interactive
  *     sessions via {@link #startSession(CommandDefinition, ExecutionOptions)}.</li>
  * </ul>
  *
  * <p>Instances are thread-safe and stateless aside from the collaborators supplied to the constructor, allowing them to
- * be reused safely across threads. A package-private constructor is provided for tests that need to inject deterministic
- * collaborators such as fixed clocks or stubbed sink factories.</p>
+ * be reused safely across threads. A package-private constructor is provided for tests that need to inject
+ * deterministic collaborators such as fixed clocks or stubbed sink factories.</p>
  *
  * <p>Operational failures encountered while supervising a launched process are surfaced as
  * {@link ProcessEngineExecutionException}. Callers should treat these as fatal for the in-flight command and follow the
@@ -80,7 +81,9 @@ public final class StandardProcessEngine implements ProcessEngine {
         this.clock = clock;
     }
 
-    /** Execute {@code spec} with the supplied options, returning the captured result. */
+    /**
+     * Execute {@code spec} with the supplied options, returning the captured result.
+     */
     @Override
     public ProcessResult run(CommandDefinition spec, ExecutionOptions options) {
         boolean redirectErrorStream = options.mergeErrorIntoOutput();
@@ -88,8 +91,11 @@ public final class StandardProcessEngine implements ProcessEngine {
         Process process = launched.process();
         closeQuietly(process.getOutputStream());
 
-        OutputSink stdoutSink = sinkFactory.create(options.stdoutPolicy());
-        OutputSink stderrSink = redirectErrorStream ? stdoutSink : sinkFactory.create(options.stderrPolicy());
+        StreamType stdoutStream = redirectErrorStream ? StreamType.MERGED : StreamType.STDOUT;
+        OutputSink stdoutSink = sinkFactory.create(options.stdoutPolicy(), stdoutStream, options.diagnosticsListener());
+        OutputSink stderrSink = redirectErrorStream
+                ? stdoutSink
+                : sinkFactory.create(options.stderrPolicy(), StreamType.STDERR, options.diagnosticsListener());
 
         CompletableFuture<Void> stdoutPump = streamDrainer.drain(process.getInputStream(), stdoutSink);
         CompletableFuture<Void> stderrPump = redirectErrorStream
@@ -126,7 +132,9 @@ public final class StandardProcessEngine implements ProcessEngine {
                 options.sessionObserver());
     }
 
-    /** Close a resource while ignoring failures. */
+    /**
+     * Close a resource while ignoring failures.
+     */
     private static void closeQuietly(AutoCloseable closeable) {
         try {
             closeable.close();

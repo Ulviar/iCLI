@@ -181,6 +181,11 @@
   (logging, metrics, tracing); provide per-request transcript logging hooks with redaction support.
 - Integrations: IO bridge, timeout supervisor, and session manager all emit events; pooling adds lease lifecycle
   events; Kotlin tests can inject probe listeners.
+- Initial implementation (2025-10-28) ships a lightweight `DiagnosticsListener` with `OutputChunk`
+  and `OutputTruncated` events emitted from the IO bridge to unblock streaming capture consumers; the
+  listener currently operates in-process via callbacks before the full bus abstraction lands.
+  Callers must keep listeners non-blocking because events are dispatched synchronously on the stream
+  draining threads; the future diagnostics bus will decouple delivery.
 
 ### Interactive session module
 

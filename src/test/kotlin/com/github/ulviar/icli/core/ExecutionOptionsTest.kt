@@ -1,5 +1,6 @@
 package com.github.ulviar.icli.core
 
+import com.github.ulviar.icli.core.runtime.diagnostics.DiagnosticsListener
 import java.nio.charset.StandardCharsets
 import java.time.Duration
 import kotlin.test.Test
@@ -33,6 +34,7 @@ class ExecutionOptionsTest {
         val stderrPolicy = OutputCapture.discard()
         val shutdown =
             ShutdownPlan(Duration.ofSeconds(10), Duration.ofSeconds(1), ShutdownSignal.TERMINATE)
+        val diagnostics = DiagnosticsListener { }
 
         val options =
             ExecutionOptions
@@ -42,6 +44,7 @@ class ExecutionOptionsTest {
                 .mergeErrorIntoOutput(true)
                 .shutdownPlan(shutdown)
                 .destroyProcessTree(false)
+                .diagnosticsListener(diagnostics)
                 .build()
 
         assertTrue(options.stdoutPolicy() is OutputCapture.Streaming)
@@ -49,6 +52,7 @@ class ExecutionOptionsTest {
         assertTrue(options.mergeErrorIntoOutput())
         assertFalse(options.destroyProcessTree())
         assertEquals(shutdown, options.shutdownPlan())
+        assertEquals(diagnostics, options.diagnosticsListener())
     }
 
     @Test
@@ -65,5 +69,12 @@ class ExecutionOptionsTest {
 
         assertTrue(discard is OutputCapture.Discard)
         assertFalse(discard.isStreaming())
+    }
+
+    @Test
+    fun `diagnostics listener defaults to no-op`() {
+        val options = ExecutionOptions.builder().build()
+
+        assertEquals(DiagnosticsListener.noOp(), options.diagnosticsListener())
     }
 }

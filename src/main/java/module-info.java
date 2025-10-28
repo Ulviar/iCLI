@@ -5,5 +5,6 @@ module com.github.ulviar.icli {
 
     exports com.github.ulviar.icli.core;
     exports com.github.ulviar.icli.core.runtime;
+    exports com.github.ulviar.icli.core.runtime.diagnostics;
     exports com.github.ulviar.icli.client;
 }

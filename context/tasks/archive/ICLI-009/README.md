@@ -1,9 +1,9 @@
 # ICLI-009 — Implement PTY-backed interactive sessions
 
 ## Status
-- **Lifecycle stage:** Execution
-- **Overall status:** In Progress
-- **Last updated:** 2025-10-26
+- **Lifecycle stage:** Done
+- **Overall status:** Done
+- **Last updated:** 2025-10-28
 - **Owner:** Assistant (Codex)
 
 ## Overview
@@ -58,8 +58,7 @@
   - `analysis/2025-10-26.md`
 - **Knowledge consulted:** Documented in the 2025-10-26 analysis log (roadmap Phase 4, execution architecture brief, PTY
   knowledge base).
-- **Readiness decision:** Proceed to detailed planning and design; open questions revolve around PTY launcher
-  selection/testing and will be resolved during execution planning.
+- **Readiness decision:** Execution cleared after resolving PTY launcher selection/testing strategy.
 
 ## Research
 - **Requests filed:** None.
@@ -68,20 +67,23 @@
 - **Human response:** _N/A_
 
 ## Execution
-- **History entries:** [2025-10-26](execution-history/2025-10-26.md)
-- **Implementation highlights:** Added PTY-aware launcher wiring, interactive session handle extensions, and initial
-  PTY/pipe coverage (see latest execution log for details).
-- **Testing:** `gradle test`
-- **Follow-up work:** Expand PTY coverage (ConPTY matrix, idle policy), document defaults, and update Essential API
-  wiring once runtime stabilises.
-- **Retrospective:** Pending final verification.
+- **History entries:** [2025-10-26](execution-history/2025-10-26.md); [2025-10-28](execution-history/2025-10-28.md)
+- **Implementation highlights:** Added PTY-aware launcher wiring, interactive session handle extensions, idle timeout
+  supervision, and Kotlin test coverage spanning pipe + PTY flows (see execution logs).
+- **Testing:** `gradle test`; `gradle integrationTest`
+- **Follow-up work:** Track ConPTY coverage and diagnostics bus evolution via backlog items ICLI-010 and ICLI-011.
+- **Retrospective:** PTY-backed sessions are now the default capability with graceful fallbacks; remaining work is
+  incremental polish (observability breadth and Windows automation).
 
 ## Completion & archive
-- **Archive status:** Active
-- **Archive location:** _TBD_
-- **Final verification:** _TBD_
+- **Archive status:** Archived (2025-10-28)
+- **Archive location:** `context/tasks/archive/ICLI-009/`
+- **Final verification:** `gradle test`; `gradle integrationTest`; `python scripts/pre_response_checks.py`
 
 ## Decisions & notes
-- **Key decisions:** Bullet points describing irreversible choices.
-- **Risks:** Outstanding concerns that need monitoring.
-- **Links:** Related tasks, pull requests, or specs.
+- **Key decisions:** Default interactive launches to PTY when available with automatic fallback to pipes and lifecycle
+  supervision via `ProcessInteractiveSession`.
+- **Risks:** Windows ConPTY coverage still depends on follow-up automation (ICLI-011); monitor native dependency
+  packaging as Kotlin modules arrive.
+- **Links:** [`context/roadmap/execution-architecture-brief.md`](../../roadmap/execution-architecture-brief.md);
+  [`context/tasks/backlog.md`](../backlog.md)

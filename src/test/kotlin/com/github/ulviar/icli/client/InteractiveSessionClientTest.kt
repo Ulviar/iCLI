@@ -70,7 +70,8 @@ class InteractiveSessionClientTest {
             )
 
         val error =
-            kotlin.runCatching {
+            kotlin
+                .runCatching {
                     client.sendLine("fail")
                 }.exceptionOrNull()
         assertTrue(error is UncheckedIOException)

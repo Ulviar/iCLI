@@ -7,6 +7,9 @@ import com.github.ulviar.icli.core.ShutdownPlan
 import com.github.ulviar.icli.core.ShutdownSignal
 import com.github.ulviar.icli.core.TerminalPreference
 import com.github.ulviar.icli.core.runtime.ProcessEngineExecutionException
+import com.github.ulviar.icli.core.runtime.diagnostics.DiagnosticsEvent
+import com.github.ulviar.icli.core.runtime.diagnostics.DiagnosticsListener
+import com.github.ulviar.icli.core.runtime.diagnostics.StreamType
 import com.github.ulviar.icli.core.runtime.io.OutputSink
 import com.github.ulviar.icli.core.runtime.io.OutputSinkFactory
 import com.github.ulviar.icli.core.runtime.io.StreamDrainer
@@ -115,13 +118,105 @@ class StandardProcessEngineTest {
     }
 
     @Test
-    fun `run rejects streaming capture until implemented`() {
-        val spec = spec("--stdout", "noop")
-        val options = ExecutionOptions.builder().stdoutPolicy(OutputCapture.streaming()).build()
+    fun `run streams output through diagnostics listener`() {
+        val spec = spec("--stdout", "streaming")
+        val recorder = RecordingDiagnostics()
+        val options =
+            ExecutionOptions
+                .builder()
+                .stdoutPolicy(OutputCapture.streaming())
+                .diagnosticsListener(recorder)
+                .build()
 
-        assertFailsWith<UnsupportedOperationException> {
-            engine.run(spec, options)
-        }
+        val result = engine.run(spec, options)
+
+        assertEquals("", result.stdout())
+        val chunk = recorder.events.filterIsInstance<DiagnosticsEvent.OutputChunk>().single()
+        assertEquals(StreamType.STDOUT, chunk.stream())
+        assertEquals("streaming\n", chunk.text(chunk.charset()))
+    }
+
+    @Test
+    fun `run streams stderr through diagnostics listener`() {
+        val spec = spec("--stderr", "alert")
+        val recorder = RecordingDiagnostics()
+        val options =
+            ExecutionOptions
+                .builder()
+                .stdoutPolicy(OutputCapture.discard())
+                .stderrPolicy(OutputCapture.streaming())
+                .diagnosticsListener(recorder)
+                .build()
+
+        val result = engine.run(spec, options)
+
+        assertEquals("", result.stderr())
+        val chunk = recorder.events.filterIsInstance<DiagnosticsEvent.OutputChunk>().single()
+        assertEquals(StreamType.STDERR, chunk.stream())
+        assertEquals("alert\n", chunk.text(chunk.charset()))
+    }
+
+    @Test
+    fun `run merges stderr triggers merged stream diagnostics`() {
+        val spec = spec("--stdout", "one", "--stderr", "two")
+        val recorder = RecordingDiagnostics()
+        val options =
+            ExecutionOptions
+                .builder()
+                .mergeErrorIntoOutput(true)
+                .stdoutPolicy(OutputCapture.streaming())
+                .diagnosticsListener(recorder)
+                .build()
+
+        val result = engine.run(spec, options)
+
+        assertEquals("", result.stdout())
+        val chunkStreams =
+            recorder.events
+                .filterIsInstance<DiagnosticsEvent.OutputChunk>()
+                .map { it.stream() }
+                .toSet()
+        assertEquals(setOf(StreamType.MERGED), chunkStreams)
+    }
+
+    @Test
+    fun `run propagates diagnostics listener failure`() {
+        val spec = spec("--stdout", "data")
+        val options =
+            ExecutionOptions
+                .builder()
+                .stdoutPolicy(OutputCapture.streaming())
+                .diagnosticsListener { throw IllegalStateException("boom") }
+                .build()
+
+        val error =
+            assertFailsWith<ProcessEngineExecutionException> {
+                engine.run(spec, options)
+            }
+        val completion = error.cause
+        assertTrue(completion is java.util.concurrent.CompletionException)
+        assertTrue(completion.cause is IllegalStateException)
+    }
+
+    @Test
+    fun `run emits truncation diagnostics from bounded capture`() {
+        val spec = spec("--stdout", "overflow")
+        val recorder = RecordingDiagnostics()
+        val options =
+            ExecutionOptions
+                .builder()
+                .stdoutPolicy(OutputCapture.bounded(4))
+                .diagnosticsListener(recorder)
+                .build()
+
+        val result = engine.run(spec, options)
+
+        assertEquals("over", result.stdout())
+        val truncated = recorder.events.filterIsInstance<DiagnosticsEvent.OutputTruncated>().single()
+        assertEquals(StreamType.STDOUT, truncated.stream())
+        assertEquals(4, truncated.retainedBytes())
+        assertEquals(5, truncated.discardedBytes())
+        assertEquals("flow\n", truncated.preview(StandardCharsets.UTF_8))
     }
 
     @Test
@@ -176,6 +271,14 @@ class StandardProcessEngineTest {
             assertEquals(tempDir.toRealPath().toString(), lines.last())
         } finally {
             Files.deleteIfExists(tempDir)
+        }
+    }
+
+    private class RecordingDiagnostics : DiagnosticsListener {
+        val events: MutableList<DiagnosticsEvent> = mutableListOf()
+
+        override fun onEvent(event: DiagnosticsEvent) {
+            events += event
         }
     }
 

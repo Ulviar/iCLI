@@ -44,7 +44,14 @@ public sealed interface OutputCapture permits OutputCapture.Bounded, OutputCaptu
         }
     }
 
-    /** Streaming capture that passes data to subscribers without retaining it. */
+    /**
+     * Streaming capture that passes data to subscribers without retaining it.
+     *
+     * <p>The runtime delivers chunks to {@link com.github.ulviar.icli.core.runtime.diagnostics.DiagnosticsListener}
+     * callbacks synchronously on the stdout/stderr draining threads. Callers must keep listeners lightweight to avoid
+     * stalling output processing. Because no data is retained, {@link com.github.ulviar.icli.core.ProcessResult}
+     * surfaces empty {@code stdout}/{@code stderr} fields when this policy is used without an external accumulator.
+     */
     record Streaming(Charset charset) implements OutputCapture {
         @Override
         public OptionalLong maxRetainedBytes() {
