@@ -204,6 +204,7 @@
   lifespan.
 - Integrations: session manager provides worker instances; diagnostics capture pool health; future metrics integration
   exposes utilisation; Kotlin tests simulate churn and failure recovery.
+- Detailed design captured in [process-pool-architecture.md](process-pool-architecture.md).
 
 ### Configuration and testing module
 
