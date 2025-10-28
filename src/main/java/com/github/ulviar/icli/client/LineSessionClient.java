@@ -5,9 +5,18 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 
-/** Request-response interactive session facade (one input line → one output string). */
+/**
+ * Request-response facade that runs on top of {@link InteractiveSessionClient} for line-oriented protocols.
+ *
+ * <p>The client sends one line of input and expects the target process to respond with a single line terminated by the
+ * decoder delimiter (newline by default). It retains the underlying interactive session so callers can switch to
+ * low-level streaming when needed while still benefiting from convenience helpers.</p>
+ *
+ * <p>Instances are obtained via {@link LineSessionRunner}; they inherit the runner's default {@link ResponseDecoder}
+ * and {@link ClientScheduler}. The class is <strong>not</strong> thread-safe: call {@link #process(String)} from a
+ * single thread or coordinate access externally.</p>
+ */
 public final class LineSessionClient implements AutoCloseable {
-    private static final ResponseDecoder DEFAULT_DECODER = new LineDelimitedResponseDecoder();
 
     private final InteractiveSessionClient delegate;
     private final ResponseDecoder responseDecoder;
@@ -25,13 +34,19 @@ public final class LineSessionClient implements AutoCloseable {
         return new LineSessionClient(session, decoder, scheduler);
     }
 
+    /**
+     * Sends {@code input} and decodes the next response according to the configured {@link ResponseDecoder}.
+     *
+     * @return {@link CommandResult#success(Object)} with the decoded payload or a failure containing
+     * {@link LineSessionException} when IO/decoding errors occur
+     */
     public CommandResult<String> process(String input) {
         try {
             delegate.sendLine(input);
             String output = responseDecoder.read(delegate.stdout(), delegate.charset());
             return CommandResult.success(output);
         } catch (UncheckedIOException | IOException e) {
-            return CommandResult.failure(e);
+            return CommandResult.failure(new LineSessionException(input, e));
         }
     }
 
@@ -39,6 +54,10 @@ public final class LineSessionClient implements AutoCloseable {
         delegate.closeStdin();
     }
 
+    /**
+     * Mirrors {@link InteractiveSessionClient#onExit()} so callers can await process shutdown when using the line
+     * facade.
+     */
     public CompletableFuture<Integer> onExit() {
         return delegate.onExit();
     }
@@ -47,6 +66,7 @@ public final class LineSessionClient implements AutoCloseable {
      * Asynchronously invoke {@link #process(String)} using the configured {@link ClientScheduler}.
      *
      * @param input line to send to the interactive session
+     *
      * @return future delivering the {@link CommandResult}
      */
     public CompletableFuture<CommandResult<String>> processAsync(String input) {
@@ -57,10 +77,18 @@ public final class LineSessionClient implements AutoCloseable {
         return delegate.charset();
     }
 
+    /**
+     * Exposes the underlying interactive client for advanced scenarios that require raw stream access.
+     *
+     * @return interactive session client backing this line-oriented facade
+     */
     public InteractiveSessionClient interactive() {
         return delegate;
     }
 
+    /**
+     * Closes the interactive session and releases any associated operating system resources.
+     */
     @Override
     public void close() {
         delegate.close();

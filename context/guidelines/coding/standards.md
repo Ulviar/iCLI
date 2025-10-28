@@ -1,15 +1,15 @@
 # Coding Standards (Mandatory)
 
-These rules are mandatory for all code contributed to the repository. Refer to them before writing or refactoring
-code; treat violations as defects that must be corrected before submission.
+These rules are mandatory for all code contributed to the repository. Refer to them before writing or refactoring code;
+treat violations as defects that must be corrected before submission.
 
 ## Nullability
 
 - Every production Java package must declare `@NotNullByDefault` (JetBrains annotations).
 - Parameters, return values, and fields are therefore non-null unless explicitly annotated with `@Nullable`.
 - Only apply `@Nullable` when a value is intentionally allowed to be `null`; avoid using it for convenience defaults.
-- Do not duplicate null checks (`Objects.requireNonNull`, manual `null` guards) for values covered by the default
-  contract.
+- Do not duplicate null checks for values covered by the default contract. Treat `Objects.requireNonNull(...)` exactly
+  the same as `value != null`: avoid both unless an API explicitly documents that `null` is allowed.
 - Builders may provide optional arguments by accepting `@Nullable` parameters and substituting documented defaults; all
   other parameters must be required and non-null.
 - Rationale: redundant runtime guards weaken the declared contract, mask erroneous call sites, and create churn when
@@ -42,12 +42,19 @@ code; treat violations as defects that must be corrected before submission.
 - Format Java with Palantir Java Format via Spotless (configured for version 2.80.0); Kotlin uses ktlint.
 - Do not introduce custom formatting or manual line wrapping; rely on Spotless for consistency.
 
+## Kotlin conventions
+
+- When a Kotlin call site targets a SAM (single-abstract-method) type, pass a lambda directly instead of invoking the
+  functional interface constructor (e.g., prefer `{ value -> ... }` over `SessionLifecycleObserver { value -> ... }`).
+  Redundant SAM constructors add noise and conflict with the project style.
+
 ## Testing and Process
 
 - Follow test-driven development: write or adjust a failing test before implementing behaviour.
 - All new code must be covered by automated tests and verified with `./gradlew test` locally.
 - Capture design rationales or extended answers in `EXPLANATION.md` when requested.
-- Prefer importing assertion helpers (e.g., `import kotlin.test.fail`) over qualifying them with package names to keep test code concise and readable.
+- Prefer importing assertion helpers (e.g., `import kotlin.test.fail`) over qualifying them with package names to keep
+  test code concise and readable.
 
 ## Documentation
 
@@ -58,6 +65,11 @@ code; treat violations as defects that must be corrected before submission.
 - Aim the documentation at external/library users first, while still providing enough clarity for reviewers and future
   maintainers. If implementation context is necessary, prefer clearer code or targeted inline comments over bloating
   the Javadoc.
+- Treat any type that could be consumed by library users (public or exported via public factory methods) as part of a
+  "high-class documentation surface". Follow the standards of leading open-source projects: describe high-level
+  behaviour, default values, configuration side effects, thread-safety and lifecycle expectations, and include `@param`,
+  `@return`, and `@throws` tags that mirror the actual API surface (records should document components via `@param`).
+  Provide short usage guidance and link to related types with `@see` when it improves navigability.
 - When suppressing static-analysis warnings, include a justification in the annotation explaining why the flagged
   behaviour is intentional.
 

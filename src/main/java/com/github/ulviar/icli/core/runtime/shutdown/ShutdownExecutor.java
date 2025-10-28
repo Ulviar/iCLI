@@ -2,11 +2,15 @@ package com.github.ulviar.icli.core.runtime.shutdown;
 
 import com.github.ulviar.icli.core.ShutdownPlan;
 import com.github.ulviar.icli.core.ShutdownSignal;
+import com.github.ulviar.icli.core.runtime.ProcessShutdownException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Supervises a running process using the configured {@link ShutdownPlan} and delegates termination to a
  * {@link ProcessTerminator}.
+ *
+ * <p>If the supervising thread is interrupted during shutdown, the executor escalates to a force kill and throws
+ * {@link com.github.ulviar.icli.core.runtime.ProcessShutdownException} so callers can react accordingly.</p>
  */
 public final class ShutdownExecutor {
 
@@ -27,7 +31,7 @@ public final class ShutdownExecutor {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             terminator.terminate(process, destroyTree, true);
-            throw new RuntimeException("Interrupted while waiting for process completion", ex);
+            throw new ProcessShutdownException("Interrupted while waiting for process completion", ex);
         }
     }
 }

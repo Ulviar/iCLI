@@ -1,6 +1,7 @@
 package com.github.ulviar.icli.core.runtime.launch;
 
 import com.github.ulviar.icli.core.CommandDefinition;
+import com.github.ulviar.icli.core.runtime.terminal.TerminalController;
 import java.util.List;
 
 /**
@@ -12,15 +13,17 @@ public interface CommandLauncher {
     /**
      * Launch the supplied command.
      *
-     * @param spec fully prepared {@link CommandDefinition}
+     * @param spec                fully prepared {@link CommandDefinition}
      * @param redirectErrorStream whether stderr should be merged into stdout by the underlying process
+     *
      * @return {@link LaunchedProcess} containing the live {@link Process} and the resolved command line
      */
     LaunchedProcess launch(CommandDefinition spec, boolean redirectErrorStream);
 
-    record LaunchedProcess(Process process, List<String> commandLine) {
+    record LaunchedProcess(Process process, List<String> commandLine, TerminalController terminalController) {
+
         /**
-         * @param process live child process handle
+         * @param process     live child process handle
          * @param commandLine effective argv used to start the process (defensively copied)
          */
         public LaunchedProcess {

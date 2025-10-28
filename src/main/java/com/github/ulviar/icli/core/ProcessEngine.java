@@ -33,33 +33,57 @@ public interface ProcessEngine {
      * <p><strong>Postconditions:</strong>
      *
      * <ul>
-     *   <li>The external process has exited (successfully or not) and any resources (pipes, PTY handles) are released.</li>
-     *   <li>{@link ProcessResult#exitCode()} reflects the process exit status. The caller is responsible for turning
-     *       non-zero exits into domain-specific errors.</li>
-     *   <li>{@link ProcessResult#stdout()} and {@link ProcessResult#stderr()} contain decoded output according to the
-     *       configured {@link OutputCapture} policies. When {@link ExecutionOptions#mergeErrorIntoOutput()} is {@code true},
-     *       stderr is merged into stdout and {@code ProcessResult.stderr()} must be empty.</li>
-     *   <li>{@link ProcessResult#duration()} contains the elapsed wall-clock time if the implementation can compute it.</li>
-     *   <li>If {@link ExecutionOptions#destroyProcessTree()} is {@code true}, descendants of the launched process are
-     *       terminated during timeout/cancellation handling.</li>
+     *   <li>
+     *       The external process has exited (successfully or not) and any resources (pipes, PTY handles) are released.
+     *   </li>
+     *   <li>
+     *       {@link ProcessResult#exitCode()} reflects the process exit status. The caller is responsible for turning
+     *       non-zero exits into domain-specific errors.
+     *   </li>
+     *   <li>
+     *       {@link ProcessResult#stdout()} and {@link ProcessResult#stderr()} contain decoded output according to the
+     *       configured {@link OutputCapture} policies. When {@link ExecutionOptions#mergeErrorIntoOutput()} is
+     *       {@code true}, stderr is merged into stdout and {@code ProcessResult.stderr()} must be empty.
+     *       </li>
+     *   <li>
+     *       {@link ProcessResult#duration()} contains the elapsed wall-clock time if the implementation can compute it.
+     *   </li>
+     *   <li>
+     *       If {@link ExecutionOptions#destroyProcessTree()} is {@code true}, descendants of the launched process are
+     *       terminated during timeout/cancellation handling.
+     *   </li>
      * </ul>
      *
-     * <p><strong>Errors:</strong> IO failures when starting the process surface as {@link RuntimeException}s (typically
-     * {@link java.io.UncheckedIOException}); interrupts must restore the thread interrupt flag and terminate the child
-     * process according to the shutdown plan.</p>
+     * <p><strong>Errors:</strong>
+     *
+     * <ul>
+     *   <li>IO failures when starting the process surface as {@link RuntimeException}s (typically
+     *       {@link java.io.UncheckedIOException}).</li>
+     *   <li>Interruptions or pump failures that occur after launch are wrapped in
+     *       {@link com.github.ulviar.icli.core.runtime.ProcessEngineExecutionException}.</li>
+     *   <li>If the supervising thread is interrupted while enforcing the shutdown plan, implementations throw
+     *       {@link com.github.ulviar.icli.core.runtime.ProcessShutdownException} after escalating to a forceful kill.</li>
+     * </ul>
+     *
+     * <p>In all cases, implementations must restore the thread interrupt flag and attempt to terminate the process tree
+     * according to the shutdown plan.</p>
      */
     ProcessResult run(CommandDefinition spec, ExecutionOptions options);
 
     /**
      * Start an interactive session for the command described by {@code spec}.
      *
-     * <p>The returned {@link InteractiveSession} exposes stdin/stdout/stderr streams and an {@link java.util.concurrent.CompletableFuture
-     * completion future}. Implementations must respect {@link ExecutionOptions} for capture/timeout/shutdown policies
-     * the same way as {@link #run(CommandDefinition, ExecutionOptions)}. The lifecycle of the session (idle timeout,
-     * explicit shutdown) is delegated to higher layers, but the engine must ensure resources are reclaimed when the
+     * <p>The returned {@link InteractiveSession} exposes stdin/stdout/stderr streams and an
+     * {@link java.util.concurrent.CompletableFuture completion future}. Implementations must respect
+     * {@link ExecutionOptions} for capture/timeout/shutdown policies the same way as
+     * {@link #run(CommandDefinition, ExecutionOptions)}. The lifecycle of the session (idle timeout, explicit
+     * shutdown) is delegated to higher layers, but the engine must ensure resources are reclaimed when the
      * {@link InteractiveSession} is closed.</p>
      *
-     * <p>Terminal requirements follow the same rules as {@link #run(CommandDefinition, ExecutionOptions)}.</p>
+     * <p>Terminal requirements follow the same rules as {@link #run(CommandDefinition, ExecutionOptions)}.
+     * Error handling mirrors the single-run contract: IO failures bubble as {@link RuntimeException}s, supervisory
+     * issues surface as {@link com.github.ulviar.icli.core.runtime.ProcessEngineExecutionException}, and interrupted
+     * shutdowns surface as {@link com.github.ulviar.icli.core.runtime.ProcessShutdownException}.</p>
      */
     InteractiveSession startSession(CommandDefinition spec, ExecutionOptions options);
 }

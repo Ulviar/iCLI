@@ -1,6 +1,7 @@
 package com.github.ulviar.icli.testing
 
 import com.github.ulviar.icli.core.InteractiveSession
+import com.github.ulviar.icli.core.ShutdownSignal
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -41,6 +42,10 @@ class ScriptedInteractiveSession : InteractiveSession {
         private set
     var closed: Boolean = false
         private set
+    var lastSignal: ShutdownSignal? = null
+        private set
+    var lastResize: Pair<Int, Int>? = null
+        private set
 
     override fun stdin(): OutputStream = stdinStream
 
@@ -49,6 +54,21 @@ class ScriptedInteractiveSession : InteractiveSession {
     override fun stderr(): InputStream = stderrStream
 
     override fun onExit(): CompletableFuture<Int> = exitFuture
+
+    override fun closeStdin() {
+        stdinClosed = true
+    }
+
+    override fun sendSignal(signal: ShutdownSignal) {
+        lastSignal = signal
+    }
+
+    override fun resizePty(
+        columns: Int,
+        rows: Int,
+    ) {
+        lastResize = columns to rows
+    }
 
     override fun close() {
         closed = true

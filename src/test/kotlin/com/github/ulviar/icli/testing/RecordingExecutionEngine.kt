@@ -6,6 +6,7 @@ import com.github.ulviar.icli.core.InteractiveSession
 import com.github.ulviar.icli.core.ProcessEngine
 import com.github.ulviar.icli.core.ProcessResult
 import java.time.Duration
+import java.util.ArrayDeque
 import java.util.Optional
 
 class RecordingExecutionEngine : ProcessEngine {
@@ -17,6 +18,8 @@ class RecordingExecutionEngine : ProcessEngine {
         private set
     var lastSessionOptions: ExecutionOptions? = null
         private set
+    val sessionInvocations: MutableList<CommandDefinition> = mutableListOf()
+    val sessionStartFailures: ArrayDeque<RuntimeException> = ArrayDeque()
 
     var runResponse: ProcessResult =
         ProcessResult(0, "ok", "", Optional.of(Duration.ZERO))
@@ -38,8 +41,12 @@ class RecordingExecutionEngine : ProcessEngine {
         spec: CommandDefinition,
         options: ExecutionOptions,
     ): InteractiveSession {
+        sessionInvocations += spec
         lastSessionSpec = spec
         lastSessionOptions = options
+        if (sessionStartFailures.isNotEmpty()) {
+            throw sessionStartFailures.removeFirst()
+        }
         return sessionHandleFactory()
     }
 }

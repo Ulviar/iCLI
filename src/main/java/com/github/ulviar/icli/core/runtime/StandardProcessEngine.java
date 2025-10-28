@@ -5,7 +5,6 @@ import com.github.ulviar.icli.core.ExecutionOptions;
 import com.github.ulviar.icli.core.InteractiveSession;
 import com.github.ulviar.icli.core.ProcessEngine;
 import com.github.ulviar.icli.core.ProcessResult;
-import com.github.ulviar.icli.core.TerminalPreference;
 import com.github.ulviar.icli.core.runtime.io.OutputSink;
 import com.github.ulviar.icli.core.runtime.io.OutputSinkFactory;
 import com.github.ulviar.icli.core.runtime.io.StreamDrainer;
@@ -13,6 +12,8 @@ import com.github.ulviar.icli.core.runtime.io.VirtualThreadStreamDrainer;
 import com.github.ulviar.icli.core.runtime.launch.CommandLauncher;
 import com.github.ulviar.icli.core.runtime.launch.PipeCommandLauncher;
 import com.github.ulviar.icli.core.runtime.launch.ProcessBuilderStarter;
+import com.github.ulviar.icli.core.runtime.launch.PtyCommandLauncher;
+import com.github.ulviar.icli.core.runtime.launch.TerminalAwareCommandLauncher;
 import com.github.ulviar.icli.core.runtime.shutdown.ShutdownExecutor;
 import com.github.ulviar.icli.core.runtime.shutdown.TreeAwareProcessTerminator;
 import java.time.Clock;
@@ -22,10 +23,33 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * {@link ProcessEngine} implementation that executes commands via plain pipes while honouring all
- * {@link ExecutionOptions} policies (capture limits, shutdown plans, and merge behaviour).
+ * Standard {@link ProcessEngine} implementation that launches commands using pipes or PTY transport based on the
+ * declared {@link CommandDefinition#terminalPreference()}.
+ *
+ * <p>The engine provides the production defaults for the library:
+ * <ul>
+ *     <li>delegates launch decisions to {@link TerminalAwareCommandLauncher}, which selects between pipes and the PTY
+ *     backend transparently;</li>
+ *     <li>captures stdout/stderr according to the configured {@link ExecutionOptions} limits while draining both
+ *     streams on virtual threads to avoid deadlocks;</li>
+ *     <li>applies the configured {@link com.github.ulviar.icli.core.ShutdownPlan} when terminating commands or interactive
+ *     sessions, including process-tree destruction when requested;</li>
+ *     <li>exposes both single-shot execution via {@link #run(CommandDefinition, ExecutionOptions)} and interactive
+ *     sessions via {@link #startSession(CommandDefinition, ExecutionOptions)}.</li>
+ * </ul>
+ *
+ * <p>Instances are thread-safe and stateless aside from the collaborators supplied to the constructor, allowing them to
+ * be reused safely across threads. A package-private constructor is provided for tests that need to inject deterministic
+ * collaborators such as fixed clocks or stubbed sink factories.</p>
+ *
+ * <p>Operational failures encountered while supervising a launched process are surfaced as
+ * {@link ProcessEngineExecutionException}. Callers should treat these as fatal for the in-flight command and follow the
+ * remediation guidance documented on that exception.</p>
+ *
+ * @see com.github.ulviar.icli.client.CommandService
+ * @see TerminalAwareCommandLauncher
  */
-public final class PipeProcessEngine implements ProcessEngine {
+public final class StandardProcessEngine implements ProcessEngine {
 
     private final CommandLauncher launcher;
     private final OutputSinkFactory sinkFactory;
@@ -33,16 +57,17 @@ public final class PipeProcessEngine implements ProcessEngine {
     private final ShutdownExecutor shutdownExecutor;
     private final Clock clock;
 
-    public PipeProcessEngine() {
+    public StandardProcessEngine() {
         this(
-                new PipeCommandLauncher(new ProcessBuilderStarter()),
+                new TerminalAwareCommandLauncher(
+                        new PipeCommandLauncher(new ProcessBuilderStarter()), new PtyCommandLauncher()),
                 new OutputSinkFactory(),
                 new VirtualThreadStreamDrainer(),
                 new ShutdownExecutor(new TreeAwareProcessTerminator()),
                 Clock.systemUTC());
     }
 
-    private PipeProcessEngine(
+    StandardProcessEngine(
             CommandLauncher launcher,
             OutputSinkFactory sinkFactory,
             StreamDrainer streamDrainer,
@@ -55,11 +80,7 @@ public final class PipeProcessEngine implements ProcessEngine {
         this.clock = clock;
     }
 
-    /**
-     * Execute {@code spec} with the supplied options, returning the captured result.
-     *
-     * @throws UnsupportedOperationException if {@link TerminalPreference#REQUIRED} is requested
-     */
+    /** Execute {@code spec} with the supplied options, returning the captured result. */
     @Override
     public ProcessResult run(CommandDefinition spec, ExecutionOptions options) {
         boolean redirectErrorStream = options.mergeErrorIntoOutput();
@@ -90,10 +111,19 @@ public final class PipeProcessEngine implements ProcessEngine {
         return new ProcessResult(exitCode, stdout, stderr, Optional.of(duration));
     }
 
-    /** This implementation exposes only single-run behaviour; interactive sessions are not supported. */
     @Override
     public InteractiveSession startSession(CommandDefinition spec, ExecutionOptions options) {
-        throw new UnsupportedOperationException("Interactive sessions are not implemented yet.");
+        boolean redirectErrorStream = options.mergeErrorIntoOutput();
+        CommandLauncher.LaunchedProcess launched = launcher.launch(spec, redirectErrorStream);
+        return new ProcessInteractiveSession(
+                spec,
+                launched.process(),
+                launched.terminalController(),
+                shutdownExecutor,
+                options.shutdownPlan(),
+                options.destroyProcessTree(),
+                options.idleTimeout(),
+                options.sessionObserver());
     }
 
     /** Close a resource while ignoring failures. */
@@ -105,22 +135,28 @@ public final class PipeProcessEngine implements ProcessEngine {
         }
     }
 
-    /** Wait for the child process to exit, rethrowing interruptions as runtime failures. */
+    /**
+     * Waits for the child process to exit, propagating interruptions as {@link ProcessEngineExecutionException}
+     * instances so callers can react consistently to supervisory failures.
+     */
     private static int waitForExit(Process process) {
         try {
             return process.waitFor();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while waiting for process exit", ex);
+            throw new ProcessEngineExecutionException("Interrupted while waiting for process exit", ex);
         }
     }
 
-    /** Block until a stdout/stderr pump finishes transferring all remaining data. */
+    /**
+     * Blocks until a stdout/stderr pump finishes transferring all remaining data, wrapping underlying failures in
+     * {@link ProcessEngineExecutionException}.
+     */
     private static void waitForPump(CompletableFuture<Void> future) {
         try {
             future.join();
         } catch (RuntimeException ex) {
-            throw new RuntimeException("Failed to drain process output", ex);
+            throw new ProcessEngineExecutionException("Failed to drain process output", ex);
         }
     }
 }

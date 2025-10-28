@@ -37,4 +37,6 @@ iterations apply them automatically. Review this file before writing or refactor
   (inputs/outputs/errors/invariants) with external users as the primary audience. Reviewers benefit too, but favour 
   API clarity over implementation notes.
 - Unit tests must cover happy paths, edge cases, error propagation, and state transitions. They are cheap, so prefer
-  many small, focused checks over a few large ones.
+  many small, focused checks over a few large ones. Design tests with the published documentation in hand: every
+  documented behaviour should have coverage, and missing docs should be written before adding tests so expectations are
+  explicit.

@@ -2,7 +2,7 @@ package com.github.ulviar.icli.core.runtime.launch;
 
 import com.github.ulviar.icli.core.CommandDefinition;
 import com.github.ulviar.icli.core.TerminalPreference;
-import java.util.ArrayList;
+import com.github.ulviar.icli.core.runtime.terminal.TerminalController;
 import java.util.List;
 
 /**
@@ -23,20 +23,8 @@ public final class PipeCommandLauncher implements CommandLauncher {
         if (spec.terminalPreference() == TerminalPreference.REQUIRED) {
             throw new UnsupportedOperationException("PTY execution is not available yet.");
         }
-        List<String> commandLine = buildCommandLine(spec);
+        List<String> commandLine = CommandLineBuilder.compose(spec);
         Process process = starter.start(commandLine, spec.workingDirectory(), spec.environment(), redirectErrorStream);
-        return new LaunchedProcess(process, commandLine);
-    }
-
-    /**
-     * Merge shell wrapper (if any) with the direct command definition.
-     */
-    private static List<String> buildCommandLine(CommandDefinition spec) {
-        List<String> shell = spec.shell().command();
-        List<String> command = spec.command();
-        List<String> combined = new ArrayList<>(shell.size() + command.size());
-        combined.addAll(shell);
-        combined.addAll(command);
-        return combined;
+        return new LaunchedProcess(process, commandLine, TerminalController.NO_OP);
     }
 }

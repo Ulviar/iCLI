@@ -193,8 +193,11 @@ shutdown.
     - via PTY: write Ctrl+C (`\u0003`) or send `exit\n` depending on app semantics,
     - via API: `process.destroy()` (SIGTERM on Unix, TerminateProcess on Windows).
 - Hard kill: `process.destroyForcibly()` after a grace period.
-- **Half‑close stdin:** some tools proceed only after EOF on stdin; provide `closeStdin()` API.
-- **Process groups:** consider OS‑specific “kill entire tree” options if you spawn sub‑processes via shell; otherwise
+- **Half-close stdin:** some tools proceed only after EOF on stdin; provide `closeStdin()` API.
+- **Idle supervision:** enforce a sensible default (iCLI uses 5 minutes) and allow callers to override via
+  `ExecutionOptions.idleTimeout` while emitting observer callbacks (`SessionLifecycleObserver`) when the library closes
+  sessions automatically.
+- **Process groups:** consider OS-specific “kill entire tree” options if you spawn sub-processes via shell; otherwise
 children may outlive the parent process.
 
 ---
@@ -368,4 +371,3 @@ final class Exec {
 ---
 
 *End of knowledge base.*
-

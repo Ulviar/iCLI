@@ -9,6 +9,8 @@ non-compliant state.
    - Format the code via `execute_gradle_task` with `tasks: ["spotlessApply"]` (add other Spotless targets if needed).
    - Execute the relevant Gradle test suites using `run_gradle_tests` (e.g., `gradleTasks: ["test"]` or targeted tasks).
    - Rerun formatting/tests until they pass and log the commands plus outcomes in the task dossier.
+   - Review the updated source against the coding standards, explicitly checking for redundant null checks (per
+     `context/guidelines/coding/standards.md`) before finishing the session.
 3. **When Markdown files changed:**
    - Run `python scripts/format_markdown.py <FILE ...>` on every modified `.md` file (or `--check` once the files are
      formatted) to enforce the repository’s wrapping rules.

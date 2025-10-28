@@ -1,5 +1,8 @@
 package com.github.ulviar.icli.testing.processes
 
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
@@ -46,6 +49,8 @@ object TestProcess {
                             .normalize()
                             .toString(),
                     )
+                "--echo-stdin" -> echoStdin()
+                "--interactive" -> interactive()
                 else -> throw IllegalArgumentException("Unknown arg: $arg")
             }
         }
@@ -53,5 +58,27 @@ object TestProcess {
         System.out.flush()
         System.err.flush()
         exitProcess(exitCode)
+    }
+
+    private fun echoStdin() {
+        val reader = BufferedReader(InputStreamReader(System.`in`, StandardCharsets.UTF_8))
+        while (true) {
+            val line = reader.readLine() ?: break
+            println(line)
+        }
+    }
+
+    private fun interactive() {
+        val reader = BufferedReader(InputStreamReader(System.`in`, StandardCharsets.UTF_8))
+        println("READY")
+        System.out.flush()
+        while (true) {
+            val line = reader.readLine() ?: break
+            println("OUT:$line")
+            System.out.flush()
+            if (line == "exit") {
+                break
+            }
+        }
     }
 }

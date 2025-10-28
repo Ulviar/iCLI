@@ -12,13 +12,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class PipeProcessEngineIntegrationTest {
-    private lateinit var engine: PipeProcessEngine
+class StandardProcessEngineIntegrationTest {
+    private lateinit var engine: StandardProcessEngine
     private val isWindows = System.getProperty("os.name").lowercase().contains("win")
 
     @BeforeTest
     fun setUp() {
-        engine = PipeProcessEngine()
+        engine = StandardProcessEngine()
     }
 
     @AfterTest

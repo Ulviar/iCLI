@@ -3,121 +3,113 @@ package com.github.ulviar.icli.client;
 import com.github.ulviar.icli.core.CommandDefinition;
 import com.github.ulviar.icli.core.ExecutionOptions;
 import com.github.ulviar.icli.core.ProcessEngine;
-import com.github.ulviar.icli.core.ProcessResult;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.Objects;
 
 /**
- * Service wrapper tuned for a single console application. Encapsulates the base command definition, preferred run and
- * session options, and exposes convenience methods for one-off executions or interactive sessions.
+ * High-level facade for running a pre-configured command line in one-shot or interactive modes.
+ *
+ * <p>A {@code CommandService} captures the immutable {@link CommandDefinition} of a console application together with
+ * the preferred {@link ExecutionOptions}, a {@link ProcessEngine} implementation, and a {@link ClientScheduler} for
+ * asynchronous work. Consumers obtain {@link CommandRunner}, {@link LineSessionRunner}, and
+ * {@link InteractiveSessionRunner} instances that honour the same defaults. All helpers respect the defaults declared
+ * in the supplied {@link ExecutionOptions}; callers can further customise per-invocation behaviour using
+ * {@link CommandCallBuilder}.
+ *
+ * <p>Instances are thread-safe and designed for reuse. The service does not hold any per-invocation state; each helper
+ * constructs a fresh {@link CommandCall} that can be inspected or reused by advanced consumers when necessary.
+ *
+ * @see CommandDefinition
+ * @see ExecutionOptions
+ * @see CommandRunner
+ * @see LineSessionRunner
+ * @see InteractiveSessionRunner
+ * @see CommandCallBuilder
+ * @see InteractiveSessionClient
+ * @see LineSessionClient
  */
 public final class CommandService {
+    private final CommandRunner runner;
+    private final InteractiveSessionRunner interactiveRunner;
+    private final LineSessionRunner lineRunner;
 
-    private static final ResponseDecoder DEFAULT_DECODER = new LineDelimitedResponseDecoder();
-
-    private final ProcessEngine engine;
-    private final CommandDefinition baseCommand;
-    private final ExecutionOptions options;
-    private final ClientScheduler scheduler;
-
+    /**
+     * Creates a service using default execution options and the virtual-thread scheduler.
+     *
+     * @param engine process engine responsible for launching commands
+     * @param baseCommand immutable command definition to execute for every request
+     */
     public CommandService(ProcessEngine engine, CommandDefinition baseCommand) {
         this(engine, baseCommand, ExecutionOptions.builder().build());
     }
 
+    /**
+     * Creates a service with caller-specified execution options and the virtual-thread scheduler.
+     *
+     * @param engine process engine responsible for launching commands
+     * @param baseCommand immutable command definition to execute for every request
+     * @param options default execution-time configuration applied to every run or session
+     */
     public CommandService(ProcessEngine engine, CommandDefinition baseCommand, ExecutionOptions options) {
         this(engine, baseCommand, options, ClientSchedulers.virtualThreads());
     }
 
+    /**
+     * Creates a fully customised service instance.
+     *
+     * @param engine process engine responsible for launching commands
+     * @param baseCommand immutable command definition to execute for every request
+     * @param options default execution-time configuration applied to every run or session
+     * @param scheduler scheduler used for {@code runAsync} and session helper futures
+     */
     public CommandService(
             ProcessEngine engine, CommandDefinition baseCommand, ExecutionOptions options, ClientScheduler scheduler) {
-        this.engine = engine;
-        this.baseCommand = baseCommand;
-        this.options = options;
-        this.scheduler = scheduler;
+        this(engine, baseCommand, options, scheduler, new LineDelimitedResponseDecoder());
     }
 
-    public CommandResult<String> run() {
-        return run(baseCall());
-    }
-
-    public CommandResult<String> run(Consumer<CommandCallBuilder> customizer) {
-        return run(buildCall(customizer));
-    }
-
-    public CommandResult<String> run(CommandCall call) {
-        try {
-            ProcessResult result = engine.run(call.command(), call.options());
-            if (result.exitCode() == 0) {
-                return CommandResult.success(result.stdout());
-            }
-            return CommandResult.failure(
-                    new ProcessExecutionException(result.exitCode(), result.stdout(), result.stderr()));
-        } catch (RuntimeException ex) {
-            return CommandResult.failure(ex);
-        }
+    CommandService(
+            ProcessEngine engine,
+            CommandDefinition baseCommand,
+            ExecutionOptions options,
+            ClientScheduler scheduler,
+            ResponseDecoder defaultDecoder) {
+        ProcessEngine ensuredEngine = Objects.requireNonNull(engine, "engine");
+        CommandDefinition ensuredCommand = Objects.requireNonNull(baseCommand, "baseCommand");
+        ExecutionOptions ensuredOptions = Objects.requireNonNull(options, "options");
+        ClientScheduler ensuredScheduler = Objects.requireNonNull(scheduler, "scheduler");
+        ResponseDecoder ensuredDecoder = Objects.requireNonNull(defaultDecoder, "defaultDecoder");
+        InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(ensuredEngine);
+        this.runner =
+                new CommandRunner(ensuredEngine, ensuredCommand, ensuredOptions, ensuredScheduler, ensuredDecoder);
+        this.interactiveRunner =
+                new InteractiveSessionRunner(sessionStarter, ensuredCommand, ensuredOptions, ensuredDecoder);
+        this.lineRunner =
+                new LineSessionRunner(sessionStarter, ensuredScheduler, ensuredCommand, ensuredOptions, ensuredDecoder);
     }
 
     /**
-     * Run the base command asynchronously, returning a future that can be cancelled to interrupt the underlying
-     * process.
-     */
-    public CompletableFuture<CommandResult<String>> runAsync() {
-        return runAsync(baseCall());
-    }
-
-    /**
-     * Run a customised command asynchronously.
+     * Returns the configured command runner for one-shot executions.
      *
-     * @param customizer builder hook for adjusting command arguments and execution options
+     * @return the command runner sharing the service defaults
      */
-    public CompletableFuture<CommandResult<String>> runAsync(Consumer<CommandCallBuilder> customizer) {
-        return runAsync(buildCall(customizer));
+    public CommandRunner runner() {
+        return runner;
     }
 
     /**
-     * Run the provided {@link CommandCall} asynchronously.
+     * Returns a runner that opens interactive sessions using the service defaults.
      *
-     * @param call fully built command definition and options
-     * @return future that resolves to the {@link CommandResult}
+     * @return interactive session runner
      */
-    public CompletableFuture<CommandResult<String>> runAsync(CommandCall call) {
-        return scheduler.submit(() -> run(call));
+    public InteractiveSessionRunner interactiveSessionRunner() {
+        return interactiveRunner;
     }
 
-    public LineSessionClient openLineSession() {
-        return openLineSession(baseCall());
-    }
-
-    public LineSessionClient openLineSession(Consumer<CommandCallBuilder> customizer) {
-        CommandCall call = buildCall(customizer);
-        return openLineSession(call);
-    }
-
-    public LineSessionClient openLineSession(CommandCall call) {
-        InteractiveSessionClient interactive = openInteractiveSession(call);
-        return LineSessionClient.create(interactive, call.decoder(), scheduler);
-    }
-
-    public InteractiveSessionClient openInteractiveSession() {
-        return openInteractiveSession(baseCall());
-    }
-
-    public InteractiveSessionClient openInteractiveSession(Consumer<CommandCallBuilder> customizer) {
-        CommandCall call = buildCall(customizer);
-        return openInteractiveSession(call);
-    }
-
-    public InteractiveSessionClient openInteractiveSession(CommandCall call) {
-        return InteractiveSessionClient.wrap(engine.startSession(call.command(), call.options()));
-    }
-
-    private CommandCall baseCall() {
-        return new CommandCall(baseCommand, options, DEFAULT_DECODER);
-    }
-
-    private CommandCall buildCall(Consumer<CommandCallBuilder> customizer) {
-        CommandCallBuilder builder = CommandCallBuilder.from(baseCommand, options, DEFAULT_DECODER);
-        customizer.accept(builder);
-        return builder.build();
+    /**
+     * Returns a runner that opens line-oriented sessions using the service defaults.
+     *
+     * @return line session runner
+     */
+    public LineSessionRunner lineSessionRunner() {
+        return lineRunner;
     }
 }

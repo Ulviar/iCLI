@@ -14,7 +14,7 @@ Add the dependency (coordinates TBD once publishing is configured) and set up yo
 simplest path is to inject an engine when constructing the high-level clients.
 
 ```java
-var engine = new PipeProcessEngine(); // swap in a pooled/PTY-aware engine when available
+var engine = new StandardProcessEngine(); // default engine selects pipes or PTY automatically
 var command = CommandDefinition.builder()
         .command(List.of("python"))
         .build();
@@ -40,17 +40,19 @@ seconds followed by a 5 second hard kill. Adjust per invocation via the builder 
 ### Drive an interactive REPL
 
 ```java
-var python = service.openLineSession("-i");
+LineSessionRunner pythonRunner = service.lineSessionRunner();
 
-var response = python.process("print(6 * 7)");
-System.out.println(response.value()); // -> "42"
+try (var python = pythonRunner.open(builder -> builder.args("-i"))) {
+    var response = python.process("print(6 * 7)");
+    System.out.println(response.value()); // -> "42"
 
-python.closeStdin();
-python.close();
+    python.closeStdin();
+}
 ```
 
-`LineSessionClient` serialises requests internally so concurrent callers cannot interleave writes/reads accidentally. Use
-`SessionClient.interactive` when you need raw stream access or to send control signals.
+`LineSessionClient` serialises requests internally so concurrent callers cannot interleave writes/reads accidentally.
+Reuse the runner whenever you need new sessions and switch to `session.interactive()` when raw stream access or control
+signals are required.
 
 ### Advanced: customise execution
 
@@ -98,12 +100,14 @@ producing a `ProcessResult`.
 
 ### Client Package (`com.github.ulviar.icli.client`)
 
-- `CommandService` — opinionated wrapper for a single console application; exposes `run(...)`,
-  `openLineSession(...)`, and `openInteractiveSession(...)` built on shared defaults. Callers may work with
-  `CommandCall` objects directly or supply a lambda that customises a `CommandCallBuilder` provided by the service.
+- `CommandService` — opinionated wrapper for a single console application; exposes `runner()`, `lineSessionRunner()`,
+  and `interactiveSessionRunner()` built on shared defaults. Callers may work with `CommandCall` objects directly or
+  supply a lambda that customises a `CommandCallBuilder` provided by the service.
 - `CommandCall` / `CommandCallBuilder` — immutable snapshot of a prepared invocation and its fluent assembler for
   composing arguments, environment overrides, working directory, per-call option tweaks, and response decoder
   selection.
+- `LineSessionRunner`, `InteractiveSessionRunner` — reusable launchers for interactive workflows; callers reuse their
+  shared defaults and create new sessions on demand.
 - `ClientResult<T>` — success/failure container; callers inspect `success()` then pull `value()` or `error()`.
 - `ProcessExecutionException` — wrap for non-zero exits, exposing exit code plus truncated stdout/stderr.
 - `InteractiveSessionClient`, `LineSessionClient` — convenience wrappers around raw interactive handles.
@@ -140,9 +144,11 @@ The module ships Kotlin test doubles (`RecordingExecutionEngine`, `ScriptedInter
 ## Conceptual Workflow
 
 1. Build a `CommandDefinition` capturing argv, working directory, environment, and terminal requirements.
-2. Configure `CommandService` with your `ProcessEngine`, command definition, and optional `ExecutionOptions` defaults (applied to both single runs and sessions).
-3. Use `CommandService.run(...)` for single-shot invocations or `openLineSession(...)` / `openInteractiveSession(...)`
-   for long-lived interactions; tweak timeouts or capture policies per call via the provided customisers.
+2. Configure `CommandService` with your `ProcessEngine`, command definition, and optional `ExecutionOptions` defaults
+   (applied to both single runs and sessions).
+3. Use `CommandService.runner()` for single-shot invocations, and rely on `lineSessionRunner()` /
+   `interactiveSessionRunner()` for long-lived interactions; tweak timeouts or capture policies per call via the
+   provided customisers.
 4. For pooling, layer a planned `WorkerPool`/`CommandService` extension to amortise warmups when needed.
 
 ---

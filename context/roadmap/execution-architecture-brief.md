@@ -1,6 +1,7 @@
 # Execution Architecture Brief
 
 ## Scope and intent
+
 - Capture the Phase 3 baseline architecture for iCLI’s command execution engine before implementation begins.
 - Align single-run, interactive session, and pooled worker capabilities with the execution requirements brief and use
   case catalogue.
@@ -8,6 +9,7 @@
   re-litigating foundation decisions.
 
 ## Architecture overview
+
 - Design targets Java 25 with Kotlin-friendly APIs and virtual-thread aware internals.
 - Public API exposes immutable configuration types plus orchestrators that return structured results or interactive
   handles.
@@ -19,51 +21,62 @@
   performance considered once the first two priorities are satisfied.
 
 ### API composition
-- Provide **Essential API** facades (`CommandService.run`, `CommandService.openLineSession`, `CommandService.openInteractiveSession`, `ProcessPoolClient.create`) with safe defaults, no explicit
+
+- Provide **Essential API** facades (`CommandService.run`, `CommandService.lineSessionRunner()`,
+  `CommandService.interactiveSessionRunner()`, `ProcessPoolClient.create`) with safe defaults, no explicit
   timeout or logging configuration required, and simplified result/exception types for consumers who just need command
   outcomes.
-- Layer the existing **Advanced API** (`ProcessEngine.run`, `ExecutionOptions`, `WorkerPool`) beneath the facades for callers who
+- Layer the existing **Advanced API** (`ProcessEngine.run`, `ExecutionOptions`, `WorkerPool`) beneath the facades for
+  callers who
   must customise timeouts, signals, diagnostics, or PTY behaviour.
 - Essential API calls delegate to the advanced layer using opinionated defaults (timeouts, logging off, PTY heuristics)
   while still benefiting from the shared runtime and reliability guarantees.
 - Kotlin extension functions mirror both tiers so tests and clients can adopt either entry point idiomatically.
 
 ### Essential API behaviour
-- **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer (default
-  64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt followed by
-  5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command echo, exit code,
-  truncated output snippets, and a cause when available; callers who need richer diagnostics can drop to the advanced
-  API.
-- **CommandService.openLineSession** → `LineSessionClient`. Provides high-level `process(String)` returning structured `ClientResult<String>` for
-  the «одна строка → один ответ» сценарий. Uses configurable `ResponseDecoder` strategies (newline by default). Exposes the
-  underlying `InteractiveSessionClient` for advanced needs without forcing stream handling in Essential code.
-- **CommandService.openInteractiveSession** → `InteractiveSessionClient`. Wraps an interactive handle with helpers `sendLine`, `closeStdin`, access to raw
-  streams, and `onExit`. Default idle timeout (5 минут) tear down unresponsive sessions, with automatic restart available
-  through pooling. Serves as the bridge between Essential convenience and Advanced flexibility.
-- **ProcessPoolClient.create** → `ServiceProcessor`. Exposes synchronous `process(String input)`, `processBytes(byte[])`, and
+
+- **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer (
+  default 64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt
+  followed by 5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command
+  echo, exit code, truncated output snippets, and a cause when available; callers who need richer diagnostics can drop
+  to the advanced API.
+- **CommandService.lineSessionRunner()** → `LineSessionRunner`. Provides reusable helpers that return
+  `LineSessionClient` instances with high-level `process(String)` returning structured `ClientResult<String>` for the
+  «одна строка → один ответ» сценарий. Uses configurable `ResponseDecoder` strategies (newline by default) and exposes
+  the underlying `InteractiveSessionClient` for advanced needs without forcing stream handling in Essential code.
+- **CommandService.interactiveSessionRunner()** → `InteractiveSessionRunner`. Wraps the underlying
+  `InteractiveSession` with helpers `sendLine`, `closeStdin`, access to raw streams, and `onExit`. Default idle timeout
+  (5 минут) tear down unresponsive sessions, with automatic restart available through pooling. Serves as the bridge
+  between Essential convenience and Advanced flexibility.
+- **ProcessPoolClient.create** → `ServiceProcessor`. Exposes synchronous `process(String input)`,
+  `processBytes(byte[])`, and
   optional async variants (`processAsync`). Internally maintains an automatically sized worker pool (default:
   `min(max(Runtime.availableProcessors() / 2, 1), configuredMax)`) with per-worker reuse cap (default 1 000 requests).
   Errors surface as `ServiceUnavailableException` (pool exhausted or shattered) or `ServiceProcessingException`
   (command exit failure with captured diagnostics). Retries once on recoverable launch errors before bubbling failure.
 
 ### Essential API signatures and configuration points
+
 - `ClientResult<String> result = service.run(call -> call.args("--foo").option("--bar", "baz"));` — override capture
   limit, timeout, merge policy, and working directory via the fluent builder passed to the lambda.
 - `service.run(builder -> builder.subcommand("run").option("--rm"));` — fluent helper for per-call argument lists,
   environment overrides, working directory, and session/run option tweaks exposed via `CommandCallBuilder`.
-- `LineSessionClient session = CommandService.openLineSession(String... args)` — uses the service's session defaults,
-  returns `ClientResult<String>` values, and allows swapping the `ResponseDecoder` strategy.
-- `InteractiveSessionClient session = CommandService.openInteractiveSession(String... args)` — exposes the underlying `InteractiveSession` for callers who
-  need low-level control while keeping Essential defaults for launch options.
-- `ServiceProcessor processor = ProcessPoolClient.create(ServiceConfig config)` — `ServiceConfig` captures command, desired
+- `LineSessionRunner runner = CommandService.lineSessionRunner()` — uses the service's session defaults and spawns new
+  sessions on demand, returning `ClientResult<String>` values and allowing swaps of the `ResponseDecoder` strategy.
+- `InteractiveSessionRunner interactive = CommandService.interactiveSessionRunner()` — opens fully interactive sessions
+  with the service defaults and exposes the underlying `InteractiveSession` for callers who need low-level control.
+- `ServiceProcessor processor = ProcessPoolClient.create(ServiceConfig config)` — `ServiceConfig` captures command,
+  desired
   concurrency, and optional codec strategies. Provides builders to tweak max concurrency, per-request timeout, and
   retry policy while keeping defaults safe. Processors expose lifecycle hooks (`start()`, `close()`) but also support
   auto-start on first request.
 - Default values live in `ExecutionOptions` defaults provided when building the `CommandService` (e.g., from
-  application configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded capture,
+  application configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded
+  capture,
   conservative timeouts, graceful shutdown) before throughput.
 
 ### Client modality strategy
+
 - Keep the core runtime (`ProcessEngine.run/startSession`) synchronous and blocking so diagnostics, timeout
   supervision, and PTY handling stay deterministic; blocking calls run on virtual threads by default to avoid tying up
   platform threads.
@@ -87,7 +100,9 @@
   clients do not handle `CompletableFuture` manually.
 
 ### Pooling usage modes
-- **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`) that
+
+- **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`)
+  that
   exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it scales
   across multiple warm workers and surfaces either a result or an exception, hiding leases, state resets, and recovery
   logic. Designed for integrations like Lucene token filters that operate “one in, one out” without batching.
@@ -121,25 +136,30 @@
 ## Module responsibilities
 
 ### Command specification module
+
 - Types: `CommandDefinition`, `Argument`, `EnvironmentDelta`, `TerminalPreference`, `ShellConfiguration`.
 - Responsibilities: capture executable path, argv, working directory, PTY request, shell wrapping, and environment
   overrides; validate invariants (e.g., mutually exclusive shell vs direct execution).
 - Integrations: consumed by `ProcessLauncher`; serialised into diagnostics; mirrored by Kotlin DSL builders.
 
 ### Launch options module
+
 - Types: `ExecutionOptions`, `OutputCapture`, `TimeoutPolicy`, `SignalPolicy`, `LoggingPolicy`.
 - Responsibilities: describe stdout/stderr capture (stream, bounded buffer, discard), charset handling, per-run clocks,
   and cancellation hooks; configure soft versus hard kill sequencing.
 - Integrations: injected into runtime core; defaults sourced from configuration service with overrides per invocation.
 
 ### Process launcher module
+
 - Types: `ProcessLauncher`, `PipeProcessFactory`, `PtyProcessFactory`, `PlatformDetector`, `ProcessTreeKiller`.
-- Responsibilities: start processes using plain pipes or PTY/ConPTY depending on `TerminalPreference` and platform; inject
-  environment deltas; expose low-level handles to IOBridge; apply shell wrapping only when encoded in `CommandDefinition`.
+- Responsibilities: start processes using plain pipes or PTY/ConPTY depending on `TerminalPreference` and platform;
+  inject environment deltas; expose low-level handles to IOBridge; apply shell wrapping only when encoded in
+  `CommandDefinition`.
 - Integrations: depends on third-party PTY provider (see Dependencies section); consumed by session manager and
   single-run executor.
 
 ### IO bridge module
+
 - Types: `IOBridge`, `StreamPump`, `BoundedAccumulator`, `StreamSink`, `TranscriptTap`.
 - Responsibilities: drain stdout/stderr concurrently with virtual threads; expose raw byte and decoded text streams;
   enforce capture limits; surface incremental output to observers while retaining structured summaries.
@@ -147,6 +167,7 @@
   events on the diagnostics bus.
 
 ### Timeout and signal module
+
 - Types: `TimeoutSupervisor`, `Deadline`, `SignalDispatcher`, `ShutdownPlan`.
 - Responsibilities: coordinate soft interrupts (Ctrl+C/SIGINT or CTRL_BREAK on Windows) followed by hard termination;
   enforce total and idle timeouts; propagate cancellation back to API callers.
@@ -154,6 +175,7 @@
   `ProcessTreeKiller` for recursive termination when requested.
 
 ### Diagnostics module
+
 - Types: `DiagnosticsBus`, `ExecutionEvent`, `TranscriptListener`, `MetricsAdapter`.
 - Responsibilities: collect structured events (launch, output truncation, timeout, exit); allow pluggable listeners
   (logging, metrics, tracing); provide per-request transcript logging hooks with redaction support.
@@ -161,13 +183,16 @@
   events; Kotlin tests can inject probe listeners.
 
 ### Interactive session module
+
 - Types: `InteractiveSessionManager`, `InteractiveSession`, `SessionLifecycle`, `IdlePolicy`.
 - Responsibilities: start and supervise long-lived sessions; expose handles with blocking and async APIs; manage idle
-  timers and heartbeat metrics; allow switching between pipe and PTY modes transparently.
+  timers (default 5 minute timeout with observer callbacks) and heartbeat metrics; allow switching between pipe and PTY
+  modes transparently.
 - Integrations: built on process launcher and IO bridge; timeout module enforces idle limits; diagnostics capture
   session lifecycle; feeds worker pool.
 
 ### Worker pool module
+
 - Types: `WorkerPool`, `PoolConfig`, `WorkerLease`, `WarmupAction`, `RecyclePolicy`.
 - Responsibilities: maintain reusable interactive workers; coordinate lease acquisition, per-request execution, reset,
   and eviction; enforce max usage counts and lifetime caps; integrate request-level timeouts distinct from worker
@@ -176,22 +201,26 @@
   exposes utilisation; Kotlin tests simulate churn and failure recovery.
 
 ### Configuration and testing module
+
 - Types: `ExecutionConfig`, `ClockProvider`, `SchedulerFacade`, `TestFixtures`.
 - Responsibilities: centralise defaults for timeouts, capture sizes, PTY enablement; support dependency injection for
   deterministic testing; house cross-platform test fixtures referenced in `context/testing/strategy.md`.
 - Integrations: consumed by launch options builders and pooling; tests swap in fake clocks or schedulers.
 
 ## Data contracts
+
 - `ProcessResult`: command echo, exit code, timings, stdout/stderr capture (bounded indicators), termination signal,
   diagnostics snapshot.
 - `InteractiveSession`: exposes `InputStream`, `OutputStream`, `Flow`-style async adapters for stdout/stderr,
-  `closeStdin`, `sendSignal`, `resizePty` (no-op when pipes), `onExit`.
+  `closeStdin`, `sendSignal`, `resizePty` (no-op when pipes), `onExit`, and enforces idle timeouts using
+  `SessionLifecycleObserver` notifications.
 - `ClientScheduler`: closable adapter around an `Executor`/`StructuredTaskScope` that submits blocking work on virtual
   threads, returns `CompletableFuture<T>`, and ensures `cancel(true)` interrupts the task so the runtime can execute its
   shutdown plan.
 - `ClientResult<T>`: Essential API summary containing merged text output, truncated indicators, elapsed time, and exit
   status.
-- `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle enforcement, raw stream access,
+- `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle
+  enforcement, raw stream access,
   futures for completion, and Flow/Coroutine adapters for streaming consumption.
 - `WorkerLease`: wraps session handle with per-request transcript context, reset hooks, and guarantees around state
   isolation.
@@ -203,6 +232,7 @@
 ## Execution flows
 
 ### Single-run command
+
 1. Client builds `CommandDefinition` and `ExecutionOptions`.
 2. `ProcessEngine.run` delegates to `ProcessLauncher` to start process.
 3. IO bridge pumps streams; diagnostics bus records events.
@@ -210,6 +240,7 @@
 5. On exit, runtime assembles `ProcessResult` with bounded output indicators and event history.
 
 ### Interactive session
+
 1. Client calls `ProcessEngine.startSession` with `CommandDefinition` + `ExecutionOptions`.
 2. Session manager launches process and returns `InteractiveSession`.
 3. IO bridge streams into handle-provided `InputStream`/`OutputStream`; diagnostics attach transcript listener if
@@ -217,12 +248,14 @@
 4. Idle policy fires timeouts through timeout supervisor; session manager closes stdin or destroys process on demand.
 
 ### Pooled worker request
+
 1. Client acquires `WorkerLease` from pool.
 2. Lease wraps session handle, applies request-specific environment deltas, and attaches transcript scope.
 3. Request executes (possibly through helper like `lease.runScript(...)`); timeout supervisor enforces request SLA.
 4. On completion, pool runs reset hooks (flush buffers, restore cwd/env); recycle policy decides to keep or dispose.
 
 ## Cross-cutting concerns
+
 - **Virtual threads:** default for stream pumps and supervision tasks; fall back to platform threads if unavailable.
 - **Charset handling:** default to UTF-8 for decoded outputs while always exposing raw bytes; allow per-command
   override.
@@ -238,6 +271,7 @@
   targets prompt-driven CLI scenarios.
 
 ## Dependency considerations
+
 - **PTY provider:** prefer `org.jetbrains.pty4j:pty4j` for cross-platform PTY/ConPTY support; evaluate footprint and
   licensing. Alternative libraries (JNA ConPTY bindings) remain fallback options requiring additional maintenance.
 - **Structured logging:** plan to integrate SLF4J facade with user-configurable sinks; confirm no logging impl is forced
@@ -246,6 +280,7 @@
   services required.
 
 ## Open questions and handling
+
 - Confirm whether NuProcess or similar asynchronous process libraries offer tangible benefits over JDK `Process` for
   pipe-based execution, or if native support suffices. *Action:* capture evaluation criteria and, if needed, file a
   research task once implementation reveals performance pressure points.
@@ -258,6 +293,7 @@
   a verification checklist tied to cross-platform testing milestones; no extra research needed today.
 
 ## Follow-up work
+
 - Flesh out API signatures and package layout documentation once the brief is ratified.
 - Prototype PTY integration via pty4j to validate lifecycle hooks and resource cleanup.
 - Draft implementation tasks for single-run executor, session manager, worker pool, Essential service pool facade, and
