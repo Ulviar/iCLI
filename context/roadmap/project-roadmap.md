@@ -16,29 +16,31 @@
   alongside [icli-execution-engine-benchmarks.md](../research/icli-execution-engine-benchmarks.md).
 - ✅ Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout
   model (see [execution-architecture-brief.md](execution-architecture-brief.md)).
-- ❓ Evaluate support for both blocking and non-blocking client APIs, ensuring the architecture can expose synchronous
-  and
-  asynchronous workflows — requirements are recognised, yet no dedicated evaluation or decision record exists.
+- ✅ Evaluate support for both blocking and non-blocking client APIs, documenting the hybrid strategy and surfacing async
+  scheduler + futures in the client layer (captured in ICLI-007/ICLI-012 dossiers).
 - ✅ Define data contracts (command specification, execution options, result types) and public API surface (captured in
   the
   "Data contracts" section of [execution-architecture-brief.md](execution-architecture-brief.md)).
 
 ## Phase 3 — Core Execution Engine
-- Implement command specification builder with explicit handling for shell vs direct execution and environment
-overrides.
-- Build single command executor: process launch, bounded output capture, exit status interpretation, timeout and
-cancellation hooks.
-- Add comprehensive error handling and diagnostics (logs, exception hierarchy, structured result objects).
-- Create initial Kotlin-based integration tests (JUnit 6) covering success, failure, timeouts, large output, encoding
-handling.
+- ✅ Implement command specification builder with explicit handling for shell vs direct execution and environment
+  overrides (CommandDefinition + ShellConfiguration shipped).
+- ✅ Build single command executor: process launch, bounded output capture, exit status interpretation, timeout and
+  cancellation hooks (StandardProcessEngine + ExecutionOptions defaults).
+- ✅ Add comprehensive error handling and diagnostics (logs, exception hierarchy, structured result objects) with
+  ProcessEngineExecutionException, diagnostics bus, and structured ProcessResult in place.
+- ✅ Create initial Kotlin-based integration tests (JUnit 6) covering success, failure, timeouts, large output, encoding
+  handling (integration suite under `src/integrationTest/kotlin`).
 
 ## Phase 4 — Interactive Session Support
-- Implement interactive session API returning a handle with streaming IO and lifecycle controls suitable for headless
-  PTY interactions.
-- Support both pipe-based and PTY-backed sessions; abstract differences behind a unified interface.
-- Provide expect-style helper utilities for scripted interactions and build sample usage documentation.
-- Extend test coverage with simulated REPLs, echo servers, and PTY-required prompt workflows (visual TUIs remain out of
-  scope).
+- ✅ Implement interactive session API returning a handle with streaming IO and lifecycle controls suitable for headless
+  PTY interactions (InteractiveSession + ProcessInteractiveSession clients).
+- ✅ Support both pipe-based and PTY-backed sessions; abstract differences behind a unified interface (TerminalAware
+  launcher with pipe/PTY implementations).
+- ✅ Provide expect-style helper utilities for scripted interactions and build sample usage documentation (LineSession
+  helpers and README quick start).
+- ✅ Extend test coverage with simulated REPLs, echo servers, and PTY-required prompt workflows (TestProcess-driven
+  integration suite; visual TUIs remain out of scope).
 
 ## Phase 5 — Process Pooling for Heavy Initializers
 - Design a configurable worker pool that pre-warms interactive applications with expensive startups.
