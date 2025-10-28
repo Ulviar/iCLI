@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class InteractiveSessionClientTest {
-
     @Test
     fun `sendLine writes payload newline and flushes with default charset`() {
         val session = RecordingInteractiveSession()
@@ -48,9 +47,7 @@ class InteractiveSessionClientTest {
                 object : InteractiveSession {
                     override fun stdin(): OutputStream =
                         object : OutputStream() {
-                            override fun write(b: Int) {
-                                throw IOException("boom")
-                            }
+                            override fun write(b: Int): Unit = throw IOException("boom")
                         }
 
                     override fun stdout(): InputStream = ByteArrayInputStream(ByteArray(0))
@@ -63,7 +60,10 @@ class InteractiveSessionClientTest {
 
                     override fun sendSignal(signal: ShutdownSignal) = fail("not expected")
 
-                    override fun resizePty(columns: Int, rows: Int) = fail("not expected")
+                    override fun resizePty(
+                        columns: Int,
+                        rows: Int,
+                    ) = fail("not expected")
 
                     override fun close() = fail("not expected")
                 },
@@ -71,8 +71,8 @@ class InteractiveSessionClientTest {
 
         val error =
             kotlin.runCatching {
-                client.sendLine("fail")
-            }.exceptionOrNull()
+                    client.sendLine("fail")
+                }.exceptionOrNull()
         assertTrue(error is UncheckedIOException)
         assertTrue(error.cause is IOException)
     }
@@ -163,7 +163,10 @@ class InteractiveSessionClientTest {
             signals += signal
         }
 
-        override fun resizePty(columns: Int, rows: Int) {
+        override fun resizePty(
+            columns: Int,
+            rows: Int,
+        ) {
             resizes += columns to rows
         }
 
@@ -195,7 +198,6 @@ class InteractiveSessionClientTest {
             flushCount += 1
         }
 
-        fun content(charset: Charset): String =
-            buffer.toByteArray().toString(charset)
+        fun content(charset: Charset): String = buffer.toByteArray().toString(charset)
     }
 }

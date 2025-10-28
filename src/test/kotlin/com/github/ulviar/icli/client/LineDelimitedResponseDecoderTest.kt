@@ -8,7 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class LineDelimitedResponseDecoderTest {
-
     @Test
     fun `reads up to newline using default delimiter`() {
         val decoder = LineDelimitedResponseDecoder()
@@ -28,6 +27,17 @@ class LineDelimitedResponseDecoderTest {
         val result = decoder.read(stream, StandardCharsets.UTF_8)
 
         assertEquals("value", result)
+    }
+
+    @Test
+    fun `strips carriage return when using default newline delimiter`() {
+        val decoder = LineDelimitedResponseDecoder()
+        val stream = ByteArrayInputStream("windows\r\nnext".toByteArray(StandardCharsets.UTF_8))
+
+        val result = decoder.read(stream, StandardCharsets.UTF_8)
+
+        assertEquals("windows", result)
+        assertEquals("next", stream.readBytes().toString(StandardCharsets.UTF_8))
     }
 
     @Test

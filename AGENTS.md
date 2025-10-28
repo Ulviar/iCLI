@@ -36,14 +36,20 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 1. Prefer Gradle tasks for building, testing, formatting, and linting by calling the MCP tools (e.g., use
    `execute_gradle_task` with `["build"]` or `["spotlessApply"]`, `run_gradle_tests` for suites); skip direct shell
    invocations of `./gradlew`.
-2. Keep README and other documentation up to date when behavior or tooling changes.
-3. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding
+2. Treat `python scripts/list_changed_files.py` as the canonical definition of “changes since the last commit”. Use it
+   to detect added or modified files instead of ad-hoc `git` commands.
+3. **Before delivering any response while the working tree has changes, run `scripts/pre_response_checks.py`.** This
+   script performs the required inspections (status, change list, markdown formatting) and reminds you to trigger MCP
+   Gradle tasks; do not skip or replace it with manual steps.
+4. Keep README and other documentation up to date when behavior or tooling changes.
+5. When adding or updating build tooling or library dependencies, prefer the latest stable versions available (excluding
    the pinned versions of Java, Kotlin, and Gradle) by checking for updates before committing changes.
-4. Maintain a single proposed commit message in the repository root `.commit-message` file, updating it before ending a
-   work session so it reflects changes since the last commit (the file is ignored by Git).
-5. Before completing any task, explicitly review and refresh the `.commit-message` file to ensure it captures only the
-   current work.
-6. Prior to ending a session, follow `context/checklists/session-completion.md` (formatting/tests + `.commit-message`
+6. Maintain a single proposed commit message in the repository root `.commit-message` file, overwriting the file
+   whenever the diff changes so it contains only one meaningful commit message for the current repository state (the
+   file is ignored by Git).
+7. Before completing any task, explicitly review the refreshed `.commit-message` to confirm no stale bullet points or
+   legacy summaries remain.
+8. Prior to ending a session, follow `context/checklists/session-completion.md` (formatting/tests + `.commit-message`
    refresh) and log the checklist completion inside the active task dossier.
 
 ## Development Practices

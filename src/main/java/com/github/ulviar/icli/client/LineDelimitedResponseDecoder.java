@@ -30,6 +30,10 @@ final class LineDelimitedResponseDecoder implements ResponseDecoder {
             }
             buffer.write(value);
         }
-        return buffer.toString(charset);
+        byte[] bytes = buffer.toByteArray();
+        if (delimiter == '\n' && bytes.length > 0 && bytes[bytes.length - 1] == '\r') {
+            return new String(bytes, 0, bytes.length - 1, charset);
+        }
+        return new String(bytes, charset);
     }
 }
