@@ -22,6 +22,8 @@ intact.
   2025-10-28).
 - [`ICLI-010`](ICLI-010/README.md) — Streaming output capture plus diagnostics listener wiring (archived 2025-10-28).
 - [`ICLI-012`](ICLI-012/README.md) — Client async scheduler and helper APIs (archived 2025-10-26).
+- [`ICLI-015`](ICLI-015/README.md) — ProcessPool runtime implementation with diagnostics, retirement policies, and
+  end-to-end coverage (archived 2025-11-01).
 
 ## Archival checklist
 

@@ -12,6 +12,9 @@ treat violations as defects that must be corrected before submission.
   the same as `value != null`: avoid both unless an API explicitly documents that `null` is allowed.
 - Builders may provide optional arguments by accepting `@Nullable` parameters and substituting documented defaults; all
   other parameters must be required and non-null.
+- Whenever a method, field, or parameter intentionally permits `null`, annotate it explicitly with `@Nullable` (and
+  only then). Returning `null` without the annotation, or checking values that are implicitly non-null under the
+  package default, is treated as a contract violation.
 - Rationale: redundant runtime guards weaken the declared contract, mask erroneous call sites, and create churn when
   API signatures evolve. Treat `@NotNullByDefault` as the single source of truth and rely on tests or static analysis to
   expose violations instead of defensive checks.
