@@ -3,10 +3,10 @@ module com.github.ulviar.icli {
     requires com.github.spotbugs.annotations;
     requires pty4j;
 
-    exports com.github.ulviar.icli.core;
-    exports com.github.ulviar.icli.core.runtime;
-    exports com.github.ulviar.icli.core.runtime.diagnostics;
-    exports com.github.ulviar.icli.core.pool.api;
-    exports com.github.ulviar.icli.core.pool.api.hooks;
+    exports com.github.ulviar.icli.engine;
+    exports com.github.ulviar.icli.engine.runtime;
+    exports com.github.ulviar.icli.engine.diagnostics;
+    exports com.github.ulviar.icli.engine.pool.api;
+    exports com.github.ulviar.icli.engine.pool.api.hooks;
     exports com.github.ulviar.icli.client;
 }

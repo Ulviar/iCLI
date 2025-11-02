@@ -1,9 +1,9 @@
 package com.github.ulviar.icli.client;
 
-import com.github.ulviar.icli.core.CommandDefinition;
-import com.github.ulviar.icli.core.ExecutionOptions;
-import com.github.ulviar.icli.core.ProcessEngine;
-import com.github.ulviar.icli.core.ProcessResult;
+import com.github.ulviar.icli.engine.CommandDefinition;
+import com.github.ulviar.icli.engine.ExecutionOptions;
+import com.github.ulviar.icli.engine.ProcessEngine;
+import com.github.ulviar.icli.engine.ProcessResult;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 

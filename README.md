@@ -98,6 +98,20 @@ producing a `ProcessResult`.
 
 ---
 
+## Supported Packages
+
+- **Essential API (public):** `com.github.ulviar.icli.client`
+- **Advanced API (public):** `com.github.ulviar.icli.engine`, `com.github.ulviar.icli.engine.runtime`,
+  `com.github.ulviar.icli.engine.pool.api`, `com.github.ulviar.icli.engine.pool.api.hooks`
+- **Diagnostics API (public):** `com.github.ulviar.icli.engine.diagnostics`
+- **Internal (not exported):** `com.github.ulviar.icli.engine.runtime.internal.*`,
+  `com.github.ulviar.icli.engine.pool.internal.*`
+
+These package boundaries align with the Essential/Advanced split described in the architecture brief. Consumers should
+only rely on the exported packages above; everything under `internal` namespaces is subject to change without notice.
+
+---
+
 ## API Overview
 
 ### Client Package (`com.github.ulviar.icli.client`)
@@ -110,12 +124,11 @@ producing a `ProcessResult`.
 - `LineSessionRunner`, `InteractiveSessionRunner` — reusable launchers for interactive workflows; callers reuse their
   shared defaults and create new sessions on demand.
 - `ClientResult<T>` — success/failure container; callers inspect `success()` then pull `value()` or `error()`.
-- `ProcessExecutionException` — wrap for non-zero exits, exposing exit code plus truncated stdout/stderr.
 - `InteractiveSessionClient`, `LineSessionClient` — convenience wrappers around raw interactive handles.
 - `ResponseDecoder` & `LineDelimitedResponseDecoder` — strategies for turning interactive stdout into structured
   responses.
 
-### Core Package (`com.github.ulviar.icli.core`)
+### Core Package (`com.github.ulviar.icli.engine`)
 
 - `CommandDefinition` — immutable launch descriptor (argv, working directory, environment, terminal preference, optional
   shell).
@@ -129,6 +142,20 @@ producing a `ProcessResult`.
 - `InteractiveSession` — low-level handle exposing streams and `onExit`.
 - `ProcessEngine` — SPI implemented by the runtime; provides the actual process management implementation consumed by
   `CommandService`.
+
+### Runtime Package (`com.github.ulviar.icli.engine.runtime`)
+
+- `StandardProcessEngine` — default runtime implementation that selects pipe or PTY transports, supervises child
+  processes, and surfaces results through `ProcessResult`.
+- `ProcessEngineExecutionException` — signals operational failures while supervising a running process (e.g., stream
+  drains, interruptions).
+- `ProcessShutdownException` — indicates the configured shutdown plan failed to complete gracefully.
+
+### Diagnostics Package (`com.github.ulviar.icli.engine.diagnostics`)
+
+- `DiagnosticsListener` — callback interface for streaming output events and truncation notices.
+- `DiagnosticsEvent` — sealed hierarchy describing emitted diagnostics payloads.
+- `StreamType` — enum identifying stdout, stderr, or merged streams when reporting diagnostics.
 
 ### Testing Utilities (`com.github.ulviar.icli.testing`)
 

@@ -1,8 +1,8 @@
 package com.github.ulviar.icli.client;
 
-import com.github.ulviar.icli.core.CommandDefinition;
-import com.github.ulviar.icli.core.ProcessEngine;
-import com.github.ulviar.icli.core.TerminalPreference;
+import com.github.ulviar.icli.engine.CommandDefinition;
+import com.github.ulviar.icli.engine.ProcessEngine;
+import com.github.ulviar.icli.engine.TerminalPreference;
 
 /**
  * Package-private helper that prepares and launches interactive sessions while honouring PTY fallbacks.

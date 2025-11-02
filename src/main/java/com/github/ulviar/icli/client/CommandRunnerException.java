@@ -4,7 +4,7 @@ package com.github.ulviar.icli.client;
  * Indicates that {@link CommandRunner} failed before a {@link CommandResult} could be produced.
  *
  * <p>The exception wraps unexpected runtime failures originating from lower layers (for example process launch issues
- * or {@link com.github.ulviar.icli.core.runtime.ProcessEngineExecutionException}). The original {@link CommandCall} is
+ * or {@link com.github.ulviar.icli.engine.runtime.ProcessEngineExecutionException}). The original {@link CommandCall} is
  * retained so callers can inspect the attempted command and {@link CommandCall#options()} for diagnostics.</p>
  *
  * <h2>Recommended handling</h2>

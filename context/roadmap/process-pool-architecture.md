@@ -33,7 +33,7 @@
 ## API surface
 
 ### Core interfaces (advanced API)
-- `ProcessPool` (package `com.github.ulviar.icli.core.pool`):
+- `ProcessPool` (package `com.github.ulviar.icli.engine.pool`):
   - `WorkerLease acquire(Duration timeout)` — block until a worker is available or timeout elapses; throws
   `ServiceUnavailableException` on timeout or pool shutdown.
   - `CompletionStage<WorkerLease> acquireAsync(ClientScheduler scheduler, Duration timeout)` — optional helper for async
@@ -42,7 +42,7 @@
   - `boolean drain(Duration timeout)` — cooperative drain that waits for active leases to finish and retires workers;
   returns false when the timeout expires before completion.
   - `PoolMetrics snapshot()` — immutable view of utilisation counters (workers active/idle, queue depth, failures).
-- `WorkerLease` (package `com.github.ulviar.icli.core.pool`):
+- `WorkerLease` (package `com.github.ulviar.icli.engine.pool`):
   - `InteractiveSession session()` — expose the underlying session for custom dialogues.
   - `ExecutionOptions executionOptions()` — per-worker options used for request-level deadlines.
   - `LeaseScope scope()` — context object providing helpers and metadata (request id, worker id, diagnostics context).

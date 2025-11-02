@@ -1,7 +1,7 @@
 package com.github.ulviar.icli.client;
 
-import com.github.ulviar.icli.core.CommandDefinition;
-import com.github.ulviar.icli.core.ExecutionOptions;
+import com.github.ulviar.icli.engine.CommandDefinition;
+import com.github.ulviar.icli.engine.ExecutionOptions;
 import java.util.function.Consumer;
 
 /**

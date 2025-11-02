@@ -1,11 +1,11 @@
 package com.github.ulviar.icli.client
 
-import com.github.ulviar.icli.core.CommandDefinition
-import com.github.ulviar.icli.core.ExecutionOptions
-import com.github.ulviar.icli.core.OutputCapture
-import com.github.ulviar.icli.core.ProcessResult
-import com.github.ulviar.icli.core.ShutdownSignal
-import com.github.ulviar.icli.core.TerminalPreference
+import com.github.ulviar.icli.engine.CommandDefinition
+import com.github.ulviar.icli.engine.ExecutionOptions
+import com.github.ulviar.icli.engine.OutputCapture
+import com.github.ulviar.icli.engine.ProcessResult
+import com.github.ulviar.icli.engine.ShutdownSignal
+import com.github.ulviar.icli.engine.TerminalPreference
 import com.github.ulviar.icli.testing.ImmediateClientScheduler
 import com.github.ulviar.icli.testing.RecordingExecutionEngine
 import com.github.ulviar.icli.testing.ScriptedInteractiveSession

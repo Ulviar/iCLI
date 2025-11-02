@@ -121,14 +121,15 @@ class LineExpectTest {
     private fun newClient(
         session: ScriptedInteractiveSession,
         scheduler: ClientScheduler,
-    ): LineSessionClient = LineSessionClient.create(InteractiveSessionClient.wrap(session), LineDelimitedResponseDecoder(), scheduler)
+    ): LineSessionClient =
+        LineSessionClient.create(InteractiveSessionClient.wrap(session), LineDelimitedResponseDecoder(), scheduler)
 
     private fun trackScheduler(scheduler: ClientScheduler): ClientScheduler {
         toClose += scheduler
         return scheduler
     }
 
-    private class BlockingInteractiveSession : com.github.ulviar.icli.core.InteractiveSession {
+    private class BlockingInteractiveSession : com.github.ulviar.icli.engine.InteractiveSession {
         private val stdoutPipe = PipedInputStream()
         private val stdoutSink = PipedOutputStream(stdoutPipe)
         private val stdinBuffer = ByteArrayOutputStream()
@@ -167,7 +168,7 @@ class LineExpectTest {
             // no-op
         }
 
-        override fun sendSignal(signal: com.github.ulviar.icli.core.ShutdownSignal) {
+        override fun sendSignal(signal: com.github.ulviar.icli.engine.ShutdownSignal) {
             // no-op
         }
 

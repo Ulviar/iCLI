@@ -1,10 +1,10 @@
 package com.github.ulviar.icli.testing
 
-import com.github.ulviar.icli.core.CommandDefinition
-import com.github.ulviar.icli.core.ExecutionOptions
-import com.github.ulviar.icli.core.InteractiveSession
-import com.github.ulviar.icli.core.ProcessEngine
-import com.github.ulviar.icli.core.ProcessResult
+import com.github.ulviar.icli.engine.CommandDefinition
+import com.github.ulviar.icli.engine.ExecutionOptions
+import com.github.ulviar.icli.engine.InteractiveSession
+import com.github.ulviar.icli.engine.ProcessEngine
+import com.github.ulviar.icli.engine.ProcessResult
 import java.time.Duration
 import java.util.ArrayDeque
 import java.util.Optional

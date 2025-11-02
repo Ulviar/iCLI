@@ -1,9 +1,9 @@
 package com.github.ulviar.icli.client
 
-import com.github.ulviar.icli.core.CommandDefinition
-import com.github.ulviar.icli.core.ExecutionOptions
-import com.github.ulviar.icli.core.TerminalPreference
-import com.github.ulviar.icli.core.runtime.StandardProcessEngine
+import com.github.ulviar.icli.engine.CommandDefinition
+import com.github.ulviar.icli.engine.ExecutionOptions
+import com.github.ulviar.icli.engine.TerminalPreference
+import com.github.ulviar.icli.engine.runtime.StandardProcessEngine
 import com.github.ulviar.icli.testing.TestProcessCommand
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.condition.EnabledOnOs

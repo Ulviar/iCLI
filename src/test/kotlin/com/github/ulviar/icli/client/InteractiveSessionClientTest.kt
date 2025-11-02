@@ -1,7 +1,7 @@
 package com.github.ulviar.icli.client
 
-import com.github.ulviar.icli.core.InteractiveSession
-import com.github.ulviar.icli.core.ShutdownSignal
+import com.github.ulviar.icli.engine.InteractiveSession
+import com.github.ulviar.icli.engine.ShutdownSignal
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
