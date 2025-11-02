@@ -66,7 +66,8 @@
 - `ServiceProcessor processor = ProcessPoolClient.create(ServiceConfig config)` — `ServiceConfig` captures command,
   desired concurrency, and optional codec strategies. Provides builders to tweak max concurrency, per-request timeout,
   and retry policy while keeping defaults safe. Processors expose lifecycle hooks (`start()`, `close()`) but also
-  support auto-start on first request.
+  support auto-start on first request, forming the backbone for CLI-backed MCP adapters documented in
+  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
 - Default values live in `ExecutionOptions` defaults provided when building the `CommandService` (e.g., from application
   configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded capture,
   conservative timeouts, graceful shutdown) before throughput.
@@ -86,8 +87,9 @@
   scheduler, returning the same `CommandResult` type. Callers can await the future, attach callbacks, or convert it to
   coroutines using provided Kotlin extensions.
 - `InteractiveSessionClient` continues exposing `onExit` but now also ships lightweight adapters that turn stdout/stderr
-  into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, so listen-only clients can consume data
-  reactively without manually managing threads.
+  into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, enabling listen-only clients to consume data
+  reactively without manual thread management and matching the listen-only monitoring scenario in
+  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
 - `ProcessPoolClient` surfaces `processAsync`, `processBytesAsync`, and lease-level async helpers. Each request still
   executes on a worker session, but scheduling and completion notifications run on the same `ClientScheduler`, ensuring
   blocking pool semantics and async projections stay consistent.
@@ -100,12 +102,13 @@
 - **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`)
   that exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it
   scales across multiple warm workers and surfaces either a result or an exception, hiding leases, state resets, and
-  recovery logic. Designed for integrations like Lucene token filters that operate “one in, one out” without batching.
+  recovery logic. This path satisfies the catalogue’s warm REPL and command multiplexing scenarios while keeping the API
+  approachable.
 - **Batch processor (Essential API, optional).** Builds on the same pool runtime to fan out collections or reactive
   streams of requests. Useful for high-throughput pipelines; can be layered later without changing the core runtime.
 - **Lease-driven pool (Advanced API).** Retains the existing `WorkerPool`/`WorkerLease` surface so advanced consumers
   can borrow a process, run custom dialogues, and return it with full control over timeouts, diagnostics, and PTY
-  options.
+  options—covering the stateful conversation scenario that requires worker affinity and manual reset control.
 
 ```text
 ┌───────────────────────────────────────────────────────────────────────────┐
@@ -198,14 +201,14 @@
   lifespan.
 - Integrations: session manager provides worker instances; diagnostics capture pool health; future metrics integration
   exposes utilisation; Kotlin tests simulate churn and failure recovery.
-- Detailed design captured in [process-pool-architecture.md](process-pool-architecture.md).
+- Detailed design captured in [process-pool-architecture.md](/context/roadmap/process-pool-architecture.md).
 
 ### Configuration and testing module
 
 - Types: `ExecutionConfig`, `ClockProvider`, `SchedulerFacade`, `TestFixtures`.
 - Responsibilities: centralise defaults for timeouts, capture sizes, PTY enablement; support dependency injection for
   deterministic testing; house cross-platform test fixtures referenced in
-  [context/testing/strategy.md](../testing/strategy.md).
+  [context/testing/strategy.md](/context/testing/strategy.md).
 - Integrations: consumed by launch options builders and pooling; tests swap in fake clocks or schedulers.
 
 ## Data contracts

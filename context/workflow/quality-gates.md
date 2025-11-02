@@ -14,8 +14,8 @@ assistants, but human contributors should follow the same checklist to guarantee
 - `python scripts/format_markdown.py --check`: Validate Markdown formatting prior to committing. Use the write mode if
   formatting fixes are required.
 
-Invoke Gradle exclusively through the MCP tools as required by [AGENTS.md](../../AGENTS.md); never call `./gradlew` from
-the shell.
+Invoke Gradle exclusively through the MCP tools as required by [AGENTS.md](/AGENTS.md); never call `./gradlew` from the
+shell.
 
 ## 2. Recording evidence
 - Log every command and outcome in the active task dossier's execution history. Include timestamps, tool arguments, and
@@ -31,6 +31,6 @@ the shell.
 
 ## 4. Continuous improvement
 - Update this guide whenever new tooling or CI jobs are added. Reflect the change in the [Project Guidelines
-  Overview](../guidelines/project-overview.md) and the guidelines rollout checklist.
-- Treat missing or flaky automation as defects; capture them in [backlog.md](../tasks/backlog.md) and prioritise fixes
-  to keep assistant workflows reliable.
+  Overview](/context/guidelines/project-overview.md) and the guidelines rollout checklist.
+- Treat missing or flaky automation as defects; capture them in [backlog.md](/context/tasks/backlog.md) and prioritise
+  fixes to keep assistant workflows reliable.

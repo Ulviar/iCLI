@@ -4,7 +4,7 @@ iCLI is a JVM library (Java 25, Kotlin-friendly) that launches external commands
 supports worker pooling for expensive CLIs. This README introduces the public API as if the runtime is already
 implemented, so we can evaluate how the design reads from a consumer perspective.
 
-Project-wide AI assistant instructions live in [`AGENTS.md`](AGENTS.md).
+Project-wide AI assistant instructions live in [AGENTS.md](AGENTS.md).
 
 ---
 
@@ -106,8 +106,7 @@ producing a `ProcessResult`.
   and `interactiveSessionRunner()` built on shared defaults. Callers may work with `CommandCall` objects directly or
   supply a lambda that customises a `CommandCallBuilder` provided by the service.
 - `CommandCall` / `CommandCallBuilder` — immutable snapshot of a prepared invocation and its fluent assembler for
-  composing arguments, environment overrides, working directory, per-call option tweaks, and response decoder
-  selection.
+  composing arguments, environment overrides, working directory, per-call option tweaks, and response decoder selection.
 - `LineSessionRunner`, `InteractiveSessionRunner` — reusable launchers for interactive workflows; callers reuse their
   shared defaults and create new sessions on demand.
 - `ClientResult<T>` — success/failure container; callers inspect `success()` then pull `value()` or `error()`.
@@ -164,7 +163,7 @@ The project is built with the Gradle wrapper pinned to **Gradle 9.1.0**, and the
 ## Project Guidelines
 
 The canonical development workflow, coding standards, testing expectations, and release checkpoints are documented in
-[`context/guidelines/general/contributor-guidelines.md`](context/guidelines/general/contributor-guidelines.md). Consult
+[context/guidelines/general/contributor-guidelines.md](context/guidelines/general/contributor-guidelines.md). Consult
 that document before starting new work or reviewing changes.
 
 ---
@@ -172,4 +171,4 @@ that document before starting new work or reviewing changes.
 ## Context Library
 
 Detailed background material, research history, roadmap notes, and project-specific conventions are organized under
-[`context/`](context/). Begin with [`context/README.md`](context/README.md) to navigate the available references.
+[`context/`](/context). Begin with [context/README.md](context/README.md) to navigate the available references.

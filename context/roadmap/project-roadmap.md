@@ -1,30 +1,32 @@
 # iCLI Command Execution Library — Roadmap
 
 > **Scenario alignment.** Every roadmap milestone and API task must trace back to the authoritative > > > > > > > > > >
-> > > > > > > > > > > > [execution-use-case-catalogue.md](execution-use-case-catalogue.md). Before proposing new
-> features > or > > > > > modifying > > > > > > > > > > > > > > > existing ones, confirm the scenario catalogue covers
-> the intended > > > workflow; if > > > not, update > the > > > catalogue > > > first.
+> > > > > > > > > > > > > > > > > > [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
+> Before proposing > new > > > > > features > or > > > > > modifying > > > > > > > > > > > > > > > existing ones,
+> confirm the scenario > catalogue > > covers > > > the intended > > > workflow; if > > > not, update > the > > >
+> catalogue > > > first.
 
 ## Phase 1 — Foundations
 - ✅ Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
 - ✅ Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
   *Published in
-  [context/guidelines/general/contributor-guidelines.md](../guidelines/general/contributor-guidelines.md).*
+  [context/guidelines/general/contributor-guidelines.md](/context/guidelines/general/contributor-guidelines.md).*
 
 ## Phase 2 — Discovery & Architecture
 - ✅ Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers
-  (documented in [execution-requirements.md](execution-requirements.md)).
+  (documented in [execution-requirements.md](/context/roadmap/execution-requirements.md)).
 - ✅ Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints
-  (cross-platform, resource usage) (documented in [execution-use-case-catalogue.md](execution-use-case-catalogue.md)).
+  (cross-platform, resource usage) (documented in
+  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md)).
 - ✅ Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies —
   adopt **pty4j** (EPL-1.0) as the baseline PTY backend, record legal follow-up, and track WinPTY→ConPTY migration needs
-  alongside [icli-execution-engine-benchmarks.md](../research/icli-execution-engine-benchmarks.md).
+  alongside [icli-execution-engine-benchmarks.md](/context/research/icli-execution-engine-benchmarks.md).
 - ✅ Draft high-level architecture: process abstraction layer, session lifecycle, pooling strategy, error and timeout
-  model (see [execution-architecture-brief.md](execution-architecture-brief.md)).
+  model (see [execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md)).
 - ✅ Evaluate support for both blocking and non-blocking client APIs, documenting the hybrid strategy and surfacing async
   scheduler + futures in the client layer (captured in ICLI-007/ICLI-012 dossiers).
 - ✅ Define data contracts (command specification, execution options, result types) and public API surface (captured in
-  the "Data contracts" section of [execution-architecture-brief.md](execution-architecture-brief.md)).
+  the "Data contracts" section of [execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md)).
 
 ## Phase 3 — Core Execution Engine
 - ✅ Implement command specification builder with explicit handling for shell vs direct execution and environment
@@ -53,13 +55,29 @@
   failure.
 - Ensure safe shutdown semantics (graceful drain with optional force stop) and metrics for pool health.
 
+## Scenario alignment — 2025-11-02 refresh
+- **Completed coverage** — Single-run automation and interactive session scenarios are satisfied by Phases 3–4; keep
+  defaults aligned with [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md) during
+  maintenance.
+- **Next focus after Phase 5** — Upcoming pooled client work (ICLI-016) must deliver both stateless service processors
+  and stateful conversation workflows, including worker affinity, reset hooks, and diagnostics surfaced to Essential
+  APIs.
+- **Documentation outlook** — Phase 6 tasks remain responsible for scenario-driven guides (listen-only streaming, MCP
+  adapters) so consumers can map APIs to catalogue entries quickly.
+- **Release gate** — Phase 7 should retain the final scenario coverage audit to confirm single-run, interactive, pooled,
+  and MCP workflows behave consistently across supported platforms.
+
 ## Phase 6 — Tooling, Observability, and Documentation
 - Integrate logging/tracing hooks for debugging process interactions and pooling behavior.
 - Document public API with Javadoc and guides: quick start, interactive sessions, pooling scenarios, troubleshooting.
 - Provide code samples and migration notes for users coming from the legacy Kotlin library.
 - Prepare release checklist and changelog.
+- Produce scenario-driven guides, including CLI-backed MCP server adapters and listen-only streaming examples referenced
+  in the catalogue, so documentation stays aligned with Essential API targets.
 
 ## Phase 7 — Hardening & Release
 - Run stress and soak tests (large output, pool churn, rapid session restarts) and address bottlenecks.
 - Validate cross-platform compatibility (Linux, macOS, Windows with ConPTY).
 - Finalize versioning, publish artifacts, and hand off maintenance plan.
+- Perform a final scenario coverage audit against the catalogue to confirm single-run, interactive, pooled, and MCP
+  workflows behave consistently across supported platforms.

@@ -20,7 +20,7 @@
   - Spotless/SpotBugs clean; all Gradle tests and relevant verification steps recorded in execution history.
 - **Constraints:** Must reuse the pty4j dependency picked in ICLI-006, follow Java 25 + Spotless standards, enforce
   JetBrains nullability defaults, and honour roadmap requirements for soft-then-hard termination and diagnostics hooks.
-- **Roles to notify:** Maintainer (per [project-roles.md](../../../guidelines/icli/project-roles.md)).
+- **Roles to notify:** Maintainer (per [project-roles.md](/context/guidelines/icli/project-roles.md)).
 
 ## Planning
 - **Scope summary:** Build the interactive session runtime: PTY-capable launcher, IO pumps, lifecycle supervisor, and
@@ -85,5 +85,5 @@
   supervision via `ProcessInteractiveSession`.
 - **Risks:** Windows ConPTY coverage still depends on follow-up automation (ICLI-011); monitor native dependency
   packaging as Kotlin modules arrive.
-- **Links:** [context/roadmap/execution-architecture-brief.md](../../../roadmap/execution-architecture-brief.md);
+- **Links:** [context/roadmap/execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md);
   [backlog.md](/context/tasks/backlog.md)

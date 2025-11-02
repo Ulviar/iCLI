@@ -27,7 +27,7 @@
 - **Open questions / risks:** Balance stateless convenience against stateful session requirements, define how pooled
   helpers expose reset hooks/diagnostics, clarify lifecycle ownership (pool vs runner), and ensure API ergonomics across
   synchronous/asynchronous paths. Scenario coverage maintained in
-  [execution-use-case-catalogue.md](../../roadmap/execution-use-case-catalogue.md).
+  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
 - **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
@@ -57,5 +57,5 @@
 ## Decisions & notes
 - **Key decisions:** Pending.
 - **Risks:** Open questions listed in planning.
-- **Links:** [Process pool architecture](../../roadmap/process-pool-architecture.md) [Execution use case
-  catalogue](../../roadmap/execution-use-case-catalogue.md)
+- **Links:** [Process pool architecture](/context/roadmap/process-pool-architecture.md) [Execution use case
+  catalogue](/context/roadmap/execution-use-case-catalogue.md)

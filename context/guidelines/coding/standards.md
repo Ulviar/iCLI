@@ -55,7 +55,7 @@ treat violations as defects that must be corrected before submission.
 
 - Follow test-driven development: write or adjust a failing test before implementing behaviour.
 - All new code must be covered by automated tests and verified with `./gradlew test` locally.
-- Capture design rationales or extended answers in [EXPLANATION.md](../../../EXPLANATION.md) when requested.
+- Capture design rationales or extended answers in [EXPLANATION.md](/EXPLANATION.md) when requested.
 - Prefer importing assertion helpers (e.g., `import kotlin.test.fail`) over qualifying them with package names to keep
   test code concise and readable.
 
@@ -84,5 +84,5 @@ treat violations as defects that must be corrected before submission.
 - Null-handling follows the repository-wide annotation policy: honour `@NotNullByDefault`, and add explicit checks only
   when dealing with data sourced outside the annotated packages.
 
-Keep [context/guidelines/icli/assistant-notes.md](../icli/assistant-notes.md) updated with project-specific tips derived
-from these standards.
+Keep [context/guidelines/icli/assistant-notes.md](/context/guidelines/icli/assistant-notes.md) updated with
+project-specific tips derived from these standards.

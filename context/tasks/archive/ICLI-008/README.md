@@ -72,4 +72,4 @@
 - **Risks:** Potential mismatch between interim executor defaults and future ExecutionOptions presets; streaming/PTY
   gaps remain until follow-up tasks land.
 - **Links:**
-  - [context/roadmap/project-roadmap.md](../../../roadmap/project-roadmap.md)
+  - [context/roadmap/project-roadmap.md](/context/roadmap/project-roadmap.md)

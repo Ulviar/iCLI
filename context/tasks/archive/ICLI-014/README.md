@@ -31,13 +31,13 @@
 - **Log entries:**
   - [analysis/2025-10-28.md](analysis/2025-10-28.md)
 - **Knowledge consulted:**
-  - [roadmap/execution-architecture-brief.md](../../../roadmap/execution-architecture-brief.md)
-  - [roadmap/execution-requirements.md](../../../roadmap/execution-requirements.md)
-  - [roadmap/execution-use-case-catalogue.md](../../../roadmap/execution-use-case-catalogue.md)
+  - [roadmap/execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md)
+  - [roadmap/execution-requirements.md](/context/roadmap/execution-requirements.md)
+  - [roadmap/execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md)
   - [Java Terminal & Process Integration
   KB](/context/knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
-  - [research/experiments/kotlin-solution-audit.md](../../../research/experiments/kotlin-solution-audit.md)
-  - [research/icli-execution-engine-benchmarks.md](../../../research/icli-execution-engine-benchmarks.md)
+  - [research/experiments/kotlin-solution-audit.md](/context/research/experiments/kotlin-solution-audit.md)
+  - [research/icli-execution-engine-benchmarks.md](/context/research/icli-execution-engine-benchmarks.md)
 - **Readiness decision:** Ready to draft the process pool specification; remaining questions will be captured as design
   follow-ups.
 
@@ -72,4 +72,4 @@
   - Metrics export strategy still open; implementation needs to pick an approach or defer with clear telemetry gaps.
   - Diagnostics listener execution must remain non-blocking; implementation will need tests around backpressure.
 - **Links:**
-  - [context/roadmap/process-pool-architecture.md](../../../roadmap/process-pool-architecture.md)
+  - [context/roadmap/process-pool-architecture.md](/context/roadmap/process-pool-architecture.md)

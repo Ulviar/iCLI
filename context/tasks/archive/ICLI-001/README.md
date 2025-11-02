@@ -10,13 +10,13 @@
 - **Objective:** Design and document a lightweight workflow that lets assistants plan, analyse, research, and execute
   repository tasks without an external tracker.
 - **Definition of Done:**
-  - [context/tasks/README.md](../../README.md) documents the lifecycle and links to templates.
+  - [context/tasks/README.md](/context/tasks/README.md) documents the lifecycle and links to templates.
   - Templates exist for task dossiers, analysis logs, research requests, and execution histories.
   - [backlog.md](/context/tasks/backlog.md) reflects the workflow fields.
   - Example dossier with lifecycle placeholders is available.
-  - [context/README.md](../../../README.md),
-  [context/guidelines/general/contributor-guidelines.md](../../../guidelines/general/contributor-guidelines.md), and
-  [context/workflow/collaboration.md](../../../workflow/collaboration.md) mention the workflow.
+  - [context/README.md](/context/README.md),
+  [context/guidelines/general/contributor-guidelines.md](/context/guidelines/general/contributor-guidelines.md), and
+  [context/workflow/collaboration.md](/context/workflow/collaboration.md) mention the workflow.
 - **Constraints:** Maintain Markdown style rules, keep tooling references aligned with repo standards, and integrate the
   workflow into existing context docs.
 - **Roles to notify:** Maintainer (project owner) for reviews; assistants implement changes.
@@ -32,9 +32,9 @@
 ## Analysis
 - **Log entries:** [analysis/2025-10-17.md](analysis/2025-10-17.md)
 - **Knowledge consulted:**
-  - [context/roadmap/project-roadmap.md](../../../roadmap/project-roadmap.md) — Reframed the task as a strategic
+  - [context/roadmap/project-roadmap.md](/context/roadmap/project-roadmap.md) — Reframed the task as a strategic
   workflow enabler rather than a narrow documentation tweak; easy to find via the context index. -
-  [context/guidelines/general/markdown-formatting.md](../../../guidelines/general/markdown-formatting.md) — Dictated
+  [context/guidelines/general/markdown-formatting.md](/context/guidelines/general/markdown-formatting.md) — Dictated
   template structure and wrapping rules; immediately accessible from the guidelines overview.
   - [backlog.md](/context/tasks/backlog.md) — Highlighted schema gaps that required new status, stage, and dossier
   fields; required manual inspection of the existing table but no navigation issues.
@@ -62,4 +62,4 @@
 - **Key decisions:** Adopted lifecycle stages (`Planning`, `Analysis`, `Research`, `Execution`, `Review`, `Done`) and
   per-stage log files with dated naming.
 - **Risks:** Need to reinforce that logs require continuous updates to remain useful.
-- **Links:** [context/tasks/README.md](../../README.md), [context/tasks/templates/](../../templates)
+- **Links:** [context/tasks/README.md](/context/tasks/README.md), [context/tasks/templates/](/context/tasks/templates)

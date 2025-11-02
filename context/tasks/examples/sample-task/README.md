@@ -21,9 +21,9 @@
 - **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
-- **Log entries:** [analysis/2025-10-17.md](analysis/2025-10-17.md)
-- **Knowledge consulted:** [context/tasks/templates/analysis-log.md](../../templates/analysis-log.md) clarified the
-  focus on impactful references; the path was easy to infer from the templates directory.
+- **Log entries:** [analysis/2025-10-17.md](/context/tasks/examples/sample-task/analysis/2025-10-17.md)
+- **Knowledge consulted:** [context/tasks/templates/analysis-log.md](/context/tasks/templates/analysis-log.md) clarified
+  the focus on impactful references; the path was easy to infer from the templates directory.
 - **Readiness decision:** Ready to proceed; example content can be drafted immediately.
 
 ## Research
@@ -33,7 +33,8 @@
 - **Human response:** Not applicable — this is a self-contained example.
 
 ## Execution
-- **History entries:** [execution-history/2025-10-17.md](execution-history/2025-10-17.md)
+- **History entries:**
+  [execution-history/2025-10-17.md](/context/tasks/examples/sample-task/execution-history/2025-10-17.md)
 - **Implementation highlights:** Example files contain placeholder bullet points.
 - **Testing:** No tests executed.
 - **Follow-up work:** None.

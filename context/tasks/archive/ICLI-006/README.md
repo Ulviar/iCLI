@@ -67,4 +67,4 @@
   clients.
 - **Risks:** WinPTY backend might limit certain Windows behaviours until ConPTY support is available; monitor JetBrains’
   roadmap and revisit if blockers emerge.
-- **Links:** [context/roadmap/project-roadmap.md](../../../roadmap/project-roadmap.md)
+- **Links:** [context/roadmap/project-roadmap.md](/context/roadmap/project-roadmap.md)

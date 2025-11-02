@@ -47,13 +47,13 @@
 - **Archive status:** Archived 2025-10-18.
 - **Archive location:** `context/tasks/archive/ICLI-002/`.
 - **Final verification:** Definition of Done met on 2025-10-18 via
-  [context/roadmap/execution-requirements.md](../../../roadmap/execution-requirements.md); no automated tests required
+  [context/roadmap/execution-requirements.md](/context/roadmap/execution-requirements.md); no automated tests required
   for documentation changes.
 
 ## Decisions & notes
 - **Key decisions:** Requirements baseline captured in
-  [context/roadmap/execution-requirements.md](../../../roadmap/execution-requirements.md).
+  [context/roadmap/execution-requirements.md](/context/roadmap/execution-requirements.md).
 - **Risks:** Requirements gathering may be limited by historical documentation quality; capture assumptions explicitly.
-- **Links:** [Execution requirements brief](../../../roadmap/execution-requirements.md)
+- **Links:** [Execution requirements brief](/context/roadmap/execution-requirements.md)
 - **Maintainer priorities:** Focus on cross-platform parity, resilient interactive session controls (timeouts, PTY), and
   predictable recycling of pooled workers, derived from roadmap goals and legacy pain points.

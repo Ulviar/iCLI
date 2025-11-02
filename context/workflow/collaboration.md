@@ -8,12 +8,13 @@
   files are refreshed.
 - Before handing off work (pull request, review request, or assistant yield), perform an explicit coding-standards
   compliance pass: compare touched files against
-  [context/guidelines/coding/standards.md](../guidelines/coding/standards.md), fix deviations, and note the verification
-  in the task log or PR description.
-- Consult [workflow/quality-gates.md](quality-gates.md) to ensure mandatory automation (`spotlessCheck`, `spotbugsMain`,
-  `test`, Markdown formatting, `pre_response_checks.py`) has been executed and documented in the dossier.
+  [context/guidelines/coding/standards.md](/context/guidelines/coding/standards.md), fix deviations, and note the
+  verification in the task log or PR description.
+- Consult [workflow/quality-gates.md](/context/workflow/quality-gates.md) to ensure mandatory automation
+  (`spotlessCheck`, `spotbugsMain`, `test`, Markdown formatting, `pre_response_checks.py`) has been executed and
+  documented in the dossier.
 - Maintain per-task dossiers under `context/tasks/` using the assistant-managed workflow described in
-  [context/tasks/README.md](../tasks/README.md); ensure analysis, research, and execution logs are current before
+  [context/tasks/README.md](/context/tasks/README.md); ensure analysis, research, and execution logs are current before
   opening a pull request.
 - Before changing build tooling or dependencies, verify the latest stable version from the official distribution (e.g.,
   Gradle Plugin Portal or Maven Central), record the source in commit notes if the version changes, and rerun the

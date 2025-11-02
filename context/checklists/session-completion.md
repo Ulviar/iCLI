@@ -10,8 +10,8 @@ non-compliant state.
    `tasks: ["spotlessApply"]` and `run_gradle_tests` with the suites it lists (at minimum `["test"]`). Repeat until they
    pass, logging each command and result in the dossier.
 3. **Review coding standards.** After the Gradle tasks succeed, inspect the diffs for compliance with
-   [context/guidelines/coding/standards.md](../guidelines/coding/standards.md), calling out any intentional exceptions
-   in the execution log.
+   [context/guidelines/coding/standards.md](/context/guidelines/coding/standards.md), calling out any intentional
+   exceptions in the execution log.
 4. **Refresh the commit summary.** Rewrite `.commit-message` so it reflects the entire current diff since the last
    commit—replace any previous content so only one proposed message (with optional bullet list) remains. If the script
    flagged issues, resolve them before moving on.

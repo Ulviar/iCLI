@@ -77,4 +77,4 @@
 - **Risks:** Missing integration coverage for real processes; reset hook failures currently retire workers immediately
   without retry logic; timeout scheduler abstraction depends on callers draining pools to release resources; manual
   scheduler helpers live in tests only and may need consolidation for future reuse.
-- **Links:** [Process pool architecture specification](../../../roadmap/process-pool-architecture.md)
+- **Links:** [Process pool architecture specification](/context/roadmap/process-pool-architecture.md)

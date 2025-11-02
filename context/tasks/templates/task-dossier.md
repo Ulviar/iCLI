@@ -12,7 +12,7 @@
 - **Objective:** Describe the intended outcome in one or two sentences.
 - **Definition of Done:** List the acceptance criteria that mark the task complete.
 - **Constraints:** Capture any mandatory tooling, dependencies, or scope limits.
-- **Roles to notify:** Identify which roles from [project-roles.md](../../guidelines/icli/project-roles.md) should
+- **Roles to notify:** Identify which roles from [project-roles.md](/context/guidelines/icli/project-roles.md) should
   review or be informed (e.g., Maintainer).
 
 ## Planning

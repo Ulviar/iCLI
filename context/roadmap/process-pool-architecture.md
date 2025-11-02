@@ -12,6 +12,9 @@
   `ExecutionOptions` defaults and Phase 5 roadmap expectations.
 - Specify scheduling, fairness, and backpressure semantics for lease acquisition and queued requests.
 - Capture shutdown behaviour, failure recovery, and diagnostics events so future tasks can instrument pool health.
+- Map capabilities directly to the catalogue’s pooled scenarios (warm REPL workers, command multiplexing with isolation,
+  long-running automation loops, stateful conversations) so backlog items can target them explicitly
+  ([execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md)).
 
 ## Non-goals
 - Implement the pool runtime (ICLI-015 will translate this spec into code).

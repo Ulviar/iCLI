@@ -56,7 +56,7 @@
   `LineSessionClient`, documented decoder/interactive considerations, reviewed `core` package scope, and queued
   follow-up backlog items for defaults and streaming helpers.
 - **Implementation highlights:** Added
-  [context/roadmap/execution-architecture-brief.md](../../../roadmap/execution-architecture-brief.md) outlining API,
+  [context/roadmap/execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md) outlining API,
   runtime, session, and pooling layers with cross-cutting policies; clarified Essential API facades (simple service
   pooling plus optional batch), documented default behaviours (timeouts, capture limits, retries, exception types), and
   sketched method signatures/configuration points alongside the advanced API; implemented the foundational
@@ -79,4 +79,4 @@
   simple service pool API for one-in/one-out integrations while keeping lease-driven pooling for advanced use; keep TUI
   rendering capabilities out of scope.
 - **Risks:** Architecture may depend on outcomes from ICLI-003 and PTY library evaluation.
-- **Links:** [Execution architecture brief](../../../roadmap/execution-architecture-brief.md)
+- **Links:** [Execution architecture brief](/context/roadmap/execution-architecture-brief.md)

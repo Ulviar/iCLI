@@ -20,7 +20,7 @@
   - Pass formatting, SpotBugs, and Gradle test suites with execution history recorded.
 - **Constraints:** Follow repository coding standards (Java 25, Spotless, JetBrains annotations), adhere to TDD, and
   maintain compatibility with existing bounded/ discard policies.
-- **Roles to notify:** Maintainer (per [project-roles.md](../../../guidelines/icli/project-roles.md)).
+- **Roles to notify:** Maintainer (per [project-roles.md](/context/guidelines/icli/project-roles.md)).
 
 ## Planning
 - **Scope summary:** Replace the placeholder streaming implementation with functional runtime support, build diagnostics
@@ -63,5 +63,5 @@
   `ExecutionOptions` so callers opt in without new entry points.
 - **Risks:** Diagnostics delivery remains synchronous/on-drain threads; high-volume listeners should migrate to the
   planned diagnostics bus (tracked separately) to avoid back-pressure.
-- **Links:** [context/roadmap/execution-architecture-brief.md](../../../roadmap/execution-architecture-brief.md);
+- **Links:** [context/roadmap/execution-architecture-brief.md](/context/roadmap/execution-architecture-brief.md);
   [backlog.md](/context/tasks/backlog.md)

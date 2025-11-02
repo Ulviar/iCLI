@@ -58,9 +58,9 @@
 - **Final verification:** `python scripts/format_markdown.py --check …`; `python scripts/pre_response_checks.py`.
 
 ## Decisions & notes
-- **Key decisions:** Established [context/guidelines/project-overview.md](../../../guidelines/project-overview.md) as
-  the top-level map for standards; published [context/workflow/quality-gates.md](../../../workflow/quality-gates.md) for
+- **Key decisions:** Established [context/guidelines/project-overview.md](/context/guidelines/project-overview.md) as
+  the top-level map for standards; published [context/workflow/quality-gates.md](/context/workflow/quality-gates.md) for
   mandatory automation; added rollout status tracking via
-  [context/checklists/guidelines-rollout.md](../../../checklists/guidelines-rollout.md).
+  [context/checklists/guidelines-rollout.md](/context/checklists/guidelines-rollout.md).
 - **Risks:** Further fixture catalogue entries and Windows CI coverage tracked separately (e.g., backlog ICLI-011).
 - **Links:** [backlog.md](/context/tasks/backlog.md)

@@ -43,5 +43,5 @@ spend a few minutes here—skipping steps has already caused missed instructions
 - Treat the checklist as blocking: do not begin implementation until each item has been reviewed for relevance to the
   current task.
 - Before ending the session, execute the steps in
-  [context/checklists/session-completion.md](checklists/session-completion.md) (formatting/tests and `.commit-message`
-  refresh) and record the outcome in the task dossier.
+  [context/checklists/session-completion.md](/context/checklists/session-completion.md) (formatting/tests and
+  `.commit-message` refresh) and record the outcome in the task dossier.

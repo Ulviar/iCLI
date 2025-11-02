@@ -2,8 +2,8 @@
 
 This directory hosts the backlog, task dossiers, and templates that enable AI assistants to execute work without an
 external tracker. Every task flows through the same lightweight lifecycle so history, decisions, and outputs stay
-discoverable inside the repository. Always start by reading [context/context-overview.md](../context-overview.md); it
-lists the documents that must be reviewed before entering the workflow below.
+discoverable inside the repository. Always start by reading [context/context-overview.md](/context/context-overview.md);
+it lists the documents that must be reviewed before entering the workflow below.
 
 ## Workflow lifecycle
 
@@ -33,13 +33,13 @@ Assistants should update the dossier status field as the work advances (e.g., `P
 entry before moving forward.
 
 Role expectations for the maintainer, assistants, and future consumers are defined in
-[context/guidelines/icli/project-roles.md](../guidelines/icli/project-roles.md); reference that document whenever a
-template requests reviewers or audience notes.
+[context/guidelines/icli/project-roles.md](/context/guidelines/icli/project-roles.md); reference that document whenever
+a template requests reviewers or audience notes.
 
 ## Standard dossier structure
 
 Task dossiers live under `context/tasks/<TASK-ID>/` and own the working notes for a single backlog item. Copy the
-[templates/task-dossier.md](templates/task-dossier.md) file into
+[templates/task-dossier.md](/context/tasks/templates/task-dossier.md) file into
 [context/tasks/<TASK-ID>/README.md](context/tasks/<TASK-ID>/README.md), then maintain the following layout:
 
 ```
@@ -54,17 +54,18 @@ context/tasks/<TASK-ID>/
     └── YYYY-MM-DD.md
 ```
 
-Create each subdirectory only when you have actual files for it. Leave the dossier with just [README.md](README.md)
-until logs or requests exist, and do not add placeholder files (e.g., `.gitkeep`) solely to populate empty directories.
+Create each subdirectory only when you have actual files for it. Leave the dossier with just
+[README.md](/context/tasks/README.md) until logs or requests exist, and do not add placeholder files (e.g., `.gitkeep`)
+solely to populate empty directories.
 
 - **Analysis logs** capture knowledge consulted (with Markdown links), insights gained, and readiness to proceed. Only
   reference sources that significantly altered your approach versus the initial brief, and record how each source helped
-  or hindered the task. Fill them using [templates/analysis-log.md](templates/analysis-log.md).
+  or hindered the task. Fill them using [templates/analysis-log.md](/context/tasks/templates/analysis-log.md).
 - **Research request logs** describe the problem, required information, working hypotheses, prompt, and expected human
-  hand-off details. Create them from [templates/research-request.md](templates/research-request.md) when requesting
-  human assistance.
+  hand-off details. Create them from [templates/research-request.md](/context/tasks/templates/research-request.md) when
+  requesting human assistance.
 - **Execution history logs** chronicle implementation steps, validation commands, test runs, and documentation updates.
-  Use [templates/execution-history.md](templates/execution-history.md).
+  Use [templates/execution-history.md](/context/tasks/templates/execution-history.md).
 
 Archived or superseded dossiers can be moved to an `archive/` directory if project policy evolves, but keep references
 stable so historical links remain valid.
@@ -81,7 +82,7 @@ stable so historical links remain valid.
 | `Stage`       | Current workflow stage (`Planning`, `Analysis`, `Research`, `Execution`, `Review`, `Done`). |
 | `Goal`        | Desired outcome or success condition.                                               |
 | `Constraints` | Non-negotiable rules, dependencies, or tooling requirements.                        |
-| `Dossier`     | Relative path to the task dossier [README.md](README.md).                                      |
+| `Dossier`     | Relative path to the task dossier [README.md](/context/tasks/README.md).                                      |
 | `Notes`       | Optional free-form context or links to related work.                                |
 
 When starting a task, update the backlog row with the dossier link and set the status to `Active`. Once the Definition
@@ -92,10 +93,10 @@ results.
 
 Templates for all logs live under `context/tasks/templates/`:
 
-- [task-dossier.md](templates/task-dossier.md)
-- [analysis-log.md](templates/analysis-log.md)
-- [research-request.md](templates/research-request.md)
-- [execution-history.md](templates/execution-history.md)
+- [task-dossier.md](/context/tasks/templates/task-dossier.md)
+- [analysis-log.md](/context/tasks/templates/analysis-log.md)
+- [research-request.md](/context/tasks/templates/research-request.md)
+- [execution-history.md](/context/tasks/templates/execution-history.md)
 
 Copy the template into the corresponding dossier folder, then replace placeholder text with task-specific details. The
 templates use sentence case headings and 120-character wrapping to comply with the repository Markdown guidelines.
@@ -105,8 +106,8 @@ templates use sentence case headings and 120-character wrapping to comply with t
 When analysis uncovers a knowledge gap that blocks progress:
 
 1. Document the gap in the latest analysis log with links to the consulted material.
-2. Draft a research request using [templates/research-request.md](templates/research-request.md), capture the
-   outstanding questions, and note the proposed prompt or manual steps for the human collaborator. Save the file as
+2. Draft a research request using [templates/research-request.md](/context/tasks/templates/research-request.md), capture
+   the outstanding questions, and note the proposed prompt or manual steps for the human collaborator. Save the file as
    [context/tasks/<TASK-ID>/research/requests/research-request.md](context/tasks/<TASK-ID>/research/requests/research-request.md)
    (add a date suffix if multiple hand-offs occur).
 3. Pause task execution and notify the human owner with the newly created request file path.
@@ -144,7 +145,7 @@ Active work lives directly under `context/tasks/`. After a task meets its Defini
 5. Run `python scripts/normalize_markdown_links.py` and commit any corrections so archived logs retain valid links.
 
 Archived dossiers must remain immutable unless you are fixing broken links or clarifying historical context. The archive
-index at [context/tasks/archive/README.md](archive/README.md) contains the detailed checklist.
+index at [context/tasks/archive/README.md](/context/tasks/archive/README.md) contains the detailed checklist.
 
 ## Activity logging expectations
 
@@ -157,8 +158,8 @@ index at [context/tasks/archive/README.md](archive/README.md) contains the detai
   the execution log when a version bump occurs.
 - Close the final execution history entry with a short retrospective: restate whether outcomes met the goal/DoD and list
   at least one assistant process improvement suggestion (even if it is “none this time”).
-- Update the dossier [README.md](README.md) as the single source of truth: current stage, links to logs, Definition of
-  Done updates, and outstanding risks.
+- Update the dossier [README.md](/context/tasks/README.md) as the single source of truth: current stage, links to logs,
+  Definition of Done updates, and outstanding risks.
 - Maintain `.commit-message` at the repository root with a single proposed commit message reflecting all changes since
   the previous Git commit (not the entire task history); refresh it before ending the session. Always inspect `git log`
   / `git status` (or `git diff --stat HEAD`) to understand what is already committed before updating this file, and
@@ -166,8 +167,8 @@ index at [context/tasks/archive/README.md](archive/README.md) contains the detai
 
 ## Getting started checklist
 
-1. Identify a backlog entry and copy [templates/task-dossier.md](templates/task-dossier.md) into a new dossier
-   directory.
+1. Identify a backlog entry and copy [templates/task-dossier.md](/context/tasks/templates/task-dossier.md) into a new
+   dossier directory.
 2. Update the backlog row with the dossier link, status, and initial stage set to `Planning`.
 3. Complete a planning entry in the dossier, then add an analysis log documenting the knowledge consulted.
 4. Conduct research and execution steps as needed, recording each in their respective log files.

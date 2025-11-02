@@ -6,7 +6,7 @@ library.
 ## Source layout
 
 - Production packages live under `com.github.ulviar`. Tests mirror the package tree from `src/test/kotlin`.
-- Place interactive or benchmarking samples in `samples/` and add a scoped [AGENTS.md](../../../AGENTS.md) when extra
+- Place interactive or benchmarking samples in `samples/` and add a scoped [AGENTS.md](/AGENTS.md) when extra
   instructions are required.
 - Keep shared test fixtures alongside the tests that own them unless they are reused across packages.
 
@@ -44,18 +44,17 @@ library.
 - Run the relevant Gradle compile/test tasks before committing or sharing changes to guarantee the code compiles.
 - TODO markers are welcome during design; annotate them with context/owner and create backlog items if the follow-up
   will not be addressed immediately.
-- Consult [assistant-notes.md](assistant-notes.md) for project-specific patterns expected from AI contributions (e.g.,
-  defaulting to Java records for immutable configuration objects).
-- When a longer design explanation is required, capture it in [EXPLANATION.md](../../../EXPLANATION.md) (written in the
-  current conversation language). Document motivation, key decisions, alternatives, and the planned tests there on
-  demand.
+- Consult [assistant-notes.md](/context/guidelines/icli/assistant-notes.md) for project-specific patterns expected from
+  AI contributions (e.g., defaulting to Java records for immutable configuration objects).
+- When a longer design explanation is required, capture it in [EXPLANATION.md](/EXPLANATION.md) (written in the current
+  conversation language). Document motivation, key decisions, alternatives, and the planned tests there on demand.
 - Apply JetBrains annotations consistently: each Java package declares `@NotNullByDefault`, opt-out points use
   `@Nullable`, and other nullability annotations remain off-limits unless agreed otherwise.
 
 ## Documentation hooks
 
 - Capture novel findings about process execution in the knowledge base under `context/knowledge-base/operations/`.
-- Link new experiments through [context/research/registry.md](../../research/registry.md) so future work can trace prior
-  analysis.
-- Keep release-specific steps in [context/workflow/releases.md](../../workflow/releases.md) once publication processes
-  are formalized.
+- Link new experiments through [context/research/registry.md](/context/research/registry.md) so future work can trace
+  prior analysis.
+- Keep release-specific steps in [context/workflow/releases.md](/context/workflow/releases.md) once publication
+  processes are formalized.
