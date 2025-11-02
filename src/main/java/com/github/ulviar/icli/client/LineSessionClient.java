@@ -87,6 +87,15 @@ public final class LineSessionClient implements AutoCloseable {
     }
 
     /**
+     * Creates an expect-style helper that automates scripted prompt/response interactions using this session.
+     *
+     * @return new helper bound to the current session
+     */
+    public LineExpect expect() {
+        return new LineExpect(this, delegate, responseDecoder, scheduler);
+    }
+
+    /**
      * Closes the interactive session and releases any associated operating system resources.
      */
     @Override

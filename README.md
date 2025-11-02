@@ -54,6 +54,8 @@ try (var python = pythonRunner.open(builder -> builder.args("-i"))) {
 Reuse the runner whenever you need new sessions and switch to `session.interactive()` when raw stream access or control
 signals are required.
 
+### Script expect-style interactions
+
 ### Advanced: customise execution
 
 The low-level `core` package exposes building blocks.

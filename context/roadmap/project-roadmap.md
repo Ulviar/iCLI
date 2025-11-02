@@ -37,7 +37,7 @@
   PTY interactions (InteractiveSession + ProcessInteractiveSession clients).
 - ✅ Support both pipe-based and PTY-backed sessions; abstract differences behind a unified interface (TerminalAware
   launcher with pipe/PTY implementations).
-- Provide expect-style helper utilities for scripted interactions and build sample usage documentation (LineSession
+- ✅ Provide expect-style helper utilities for scripted interactions and build sample usage documentation (LineSession
   helpers and README quick start).
 - ✅ Extend test coverage with simulated REPLs, echo servers, and PTY-required prompt workflows (TestProcess-driven
   integration suite; visual TUIs remain out of scope).

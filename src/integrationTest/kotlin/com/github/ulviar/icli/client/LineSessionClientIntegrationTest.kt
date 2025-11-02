@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import java.nio.charset.StandardCharsets
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -66,6 +67,28 @@ class LineSessionClientIntegrationTest {
 
             it.onExit().get(5, TimeUnit.SECONDS)
         }
+    }
+
+    @Test
+    fun `expect helper orchestrates interactive dialogue`() {
+        val service = commandService()
+
+        service
+            .lineSessionRunner()
+            .open { builder -> builder.terminalPreference(TerminalPreference.DISABLED) }
+            .use { session ->
+                val expect = session.expect().withDefaultTimeout(Duration.ofSeconds(2))
+
+                assertEquals("READY", expect.expectLine("READY"))
+
+                expect.send("ping")
+                assertEquals("OUT:ping", expect.expectAny())
+
+                expect.send("exit")
+                assertEquals("OUT:exit", expect.expectAny())
+
+                session.onExit().get(5, TimeUnit.SECONDS)
+            }
     }
 
     private fun commandService(): CommandService {

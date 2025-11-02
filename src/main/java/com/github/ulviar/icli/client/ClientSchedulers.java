@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Factory helpers for {@link ClientScheduler} implementations.
@@ -68,6 +69,7 @@ public final class ClientSchedulers {
     }
 
     private static final class ScheduledFuture<T> extends CompletableFuture<T> {
+        @Nullable
         private volatile Future<?> delegate;
 
         void attach(Future<?> delegate) {
