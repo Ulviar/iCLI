@@ -1,8 +1,8 @@
 # ICLI-021 — Audit documentation links & formatting
 
 ## Status
-- **Lifecycle stage:** Execution
-- **Overall status:** In Progress
+- **Lifecycle stage:** Done
+- **Overall status:** Done
 - **Last updated:** 2025-11-02
 - **Owner:** Assistant
 
@@ -49,9 +49,9 @@
 - **Retrospective:** Captured in [execution-history/2025-11-02.md](execution-history/2025-11-02.md).
 
 ## Completion & archive
-- **Archive status:** Active.
-- **Archive location:** To be determined.
-- **Final verification:** Pending final task review.
+- **Archive status:** Archived.
+- **Archive location:** `context/tasks/archive/ICLI-021/`.
+- **Final verification:** Link normaliser + markdown formatter executed; Gradle spotless/test rerun.
 
 ## Decisions & notes
 - **Key decisions:** Adopted automated link normalisation script for archive clean-up; formatting enforced via existing
