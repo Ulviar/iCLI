@@ -21,12 +21,12 @@ inside build and CI flows.
   ([Execution requirements](execution-requirements.md);
   [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 
-**Sources.** [Execution requirements](execution-requirements.md);
-[Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md).
+**Sources.** [Execution requirements](execution-requirements.md); [Process integration
+KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md).
 
 ### Environment diagnostics
-**Scenario.** Issue short-lived discovery commands (`which`, `uname`, `java -version`) during setup and health checks
-to confirm environment state ([Execution requirements](execution-requirements.md)).
+**Scenario.** Issue short-lived discovery commands (`which`, `uname`, `java -version`) during setup and health checks to
+confirm environment state ([Execution requirements](execution-requirements.md)).
 
 **Constraints.**
 - Support direct binary invocation across Linux, macOS, and Windows, respecting their quoting, path, and environment
@@ -39,8 +39,8 @@ to confirm environment state ([Execution requirements](execution-requirements.md
 **Sources.** [Execution requirements](execution-requirements.md).
 
 ### High-volume or binary exporters
-**Scenario.** Run commands that emit large logs or binary artifacts (e.g., archivers, diagnostic dumps) while
-preventing hangs or memory pressure.
+**Scenario.** Run commands that emit large logs or binary artifacts (e.g., archivers, diagnostic dumps) while preventing
+hangs or memory pressure.
 
 **Constraints.**
 - Drain stdout and stderr concurrently using bounded buffers to avoid deadlocks and uncontrolled memory growth
@@ -86,8 +86,8 @@ and rapid feedback loops in headless environments ([Execution requirements](exec
 
 ### Expect-style prompt orchestration
 **Scenario.** Automate tools that prompt for credentials or multi-step responses, combining scripted input with
-verification of prompt text while staying in text-only environments
-([Execution requirements](execution-requirements.md)).
+verification of prompt text while staying in text-only environments ([Execution
+requirements](execution-requirements.md)).
 
 **Constraints.**
 - Provide expect-style helpers or integrable hooks that can watch stdout/stderr, send responses, and surface failures
@@ -104,6 +104,49 @@ verification of prompt text while staying in text-only environments
 - [Execution requirements](execution-requirements.md)
 - [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
 - [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)
+
+### Listen-only monitoring sessions
+**Scenario.** Launch a long-lived process and continuously consume its output without sending additional commands after
+startup.
+
+**Examples.**
+- `tail -f /var/log/system.log` piping system logs into observability pipelines.
+- `kubectl logs --follow <pod>` or `docker logs -f` forwarding container logs to consumers.
+- `ffmpeg -i input -f null -` or similar encoders where progress/status needs to be monitored while processing runs.
+
+**Constraints.**
+- Provide helpers that expose streaming stdout/stderr without requiring manual thread management.
+- Allow optional immediate stdin closure or “no input” mode to avoid keeping pipelines open unnecessarily.
+- Surface completion/termination events (process exit, IO stalls) through futures or listeners so callers can restart
+  or alert on failure.
+- Support both pipe and PTY transports (some tools, e.g., interactive log viewers, may probe for TTY).
+
+**Sources.**
+- [Execution requirements](execution-requirements.md)
+- [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- Maintainer-sourced scenarios (ICLI-016 analysis notes).
+
+### Stateful conversation workflows
+**Scenario.** Maintain interactive sessions where each request depends on accumulated in-process state (model context,
+transactions, definitions).
+
+**Examples.**
+- `ollama serve` or other LLM backends retaining conversation history per worker.
+- Database shells like `psql`, `mongo`, or `redis-cli` where sessions track transactions or temporary state.
+- Language REPLs (`python`, `node`, `scala-cli console`) executing cumulative definitions across requests.
+
+**Constraints.**
+- Provide explicit conversation handles bound to a specific worker, with helpers mirroring `InteractiveSessionClient`
+  / `LineSessionClient`.
+- Allow callers to mark a worker unhealthy (dispose) or request manual resets between conversation phases.
+- Support optional worker affinity keys so clients can reacquire the same worker without monopolising leases.
+- Document concurrency expectations (single-threaded by default) and ensure shutdown semantics preserve state integrity
+  or cleanly retire the worker on errors.
+
+**Sources.**
+- [Execution requirements](execution-requirements.md)
+- [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- Maintainer-sourced scenarios (ICLI-016 analysis notes).
 
 ## Pooled interactive worker use cases
 
@@ -142,8 +185,8 @@ client requests ([Execution requirements](execution-requirements.md); [Project r
 - [Legacy audit](../research/experiments/kotlin-solution-audit.md)
 
 ### Long-running automation loops
-**Scenario.** Alternate between computation and CLI interactions without constantly respawning processes, especially
-for tooling such as morphology analyzers mentioned in roadmap notes ([Project roadmap](project-roadmap.md)).
+**Scenario.** Alternate between computation and CLI interactions without constantly respawning processes, especially for
+tooling such as morphology analyzers mentioned in roadmap notes ([Project roadmap](project-roadmap.md)).
 
 **Constraints.**
 - Enforce separate request deadlines and worker lifetime caps, escalating from soft termination to forced kill as
@@ -154,6 +197,29 @@ for tooling such as morphology analyzers mentioned in roadmap notes ([Project ro
   dispose workers ([Execution requirements](execution-requirements.md)).
 
 **Sources.** [Execution requirements](execution-requirements.md); [Project roadmap](project-roadmap.md).
+
+## CLI-backed MCP server use cases
+
+### MVP MCP tool/resource adapters
+**Scenario.** Implement Model Context Protocol (MCP) servers quickly by proxying command-line utilities instead of
+building full JVM implementations from day one.
+
+**Examples.**
+- Using `rg` / `ripgrep` for “search workspace” MCP tools.
+- Wrapping `fd`/`find` to enumerate files or resources exposed through MCP resource listings.
+- Leveraging `curl` or `httpie` to reach HTTP APIs until native integrations arrive.
+
+**Constraints.**
+- Provide codecs for structured JSON (JSON Lines, framed payloads) and resilient stdin/stdout readers tolerant of
+  partial frames.
+- Offer helpers that map MCP requests to one-shot commands or long-lived sessions, with optional pooling for hot paths.
+- Surface cancellation hooks (matching MCP request cancellation) and structured diagnostics for logging/telemetry.
+- Keep the initial API lightweight (non-pooled by default) while remaining compatible with pool-backed upgrades.
+
+**Sources.**
+- [Execution requirements](execution-requirements.md)
+- [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- Maintainer roadmap discussions (ICLI-016 planning).
 
 ## Cross-cutting constraint summary
 - Offer a unified command specification capturing argv, environment overrides, working directory, PTY preferences, and

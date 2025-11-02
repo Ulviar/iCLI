@@ -1,5 +1,9 @@
 # iCLI Command Execution Library — Roadmap
 
+> **Scenario alignment.** Every roadmap milestone and API task must trace back to the authoritative
+> [execution-use-case-catalogue.md](execution-use-case-catalogue.md). Before proposing new features or modifying
+> existing ones, confirm the scenario catalogue covers the intended workflow; if not, update the catalogue first.
+
 ## Phase 1 — Foundations
 - ✅ Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
 - ✅ Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
