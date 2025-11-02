@@ -21,21 +21,20 @@ iterations apply them automatically. Review this file before writing or refactor
 - If the documentation is insufficient, pause implementation work and update the relevant spec/documents. Only resume
   once the API contract alone allows you to derive the required tests.
 - Apply strict TDD:
-    1. Capture/refresh the specification.
-    2. Create test classes with descriptive method names (empty bodies initially are acceptable) derived from the spec.
-    3. Implement each test and run it to observe failure.
-    4. Implement the minimum production code to satisfy the failing test.
-    5. Repeat until the spec is fully covered; keep test logic focused exclusively on documented behaviour (no peeking
-       at
-       internal details).
+  1. Capture/refresh the specification.
+  2. Create test classes with descriptive method names (empty bodies initially are acceptable) derived from the spec.
+  3. Implement each test and run it to observe failure.
+  4. Implement the minimum production code to satisfy the failing test.
+  5. Repeat until the spec is fully covered; keep test logic focused exclusively on documented behaviour (no peeking at
+  internal details).
 - Separate responsibilities aggressively. Any non-trivial logic (launch preparation, IO pumping, timeout handling,
   buffering, etc.) should live in dedicated package-private collaborators so we can thoroughly test every scenario (
   happy path, edge cases, error conditions, state transitions). Favour many small, well-documented types over monolithic
   structures.
 - Treat documentation as part of the public contract: every helper type and method (even package-private ones inside
   `core.runtime`) must carry concise Javadoc that explains what the caller can rely on
-  (inputs/outputs/errors/invariants) with external users as the primary audience. Reviewers benefit too, but favour 
-  API clarity over implementation notes.
+  (inputs/outputs/errors/invariants) with external users as the primary audience. Reviewers benefit too, but favour API
+  clarity over implementation notes.
 - Unit tests must cover happy paths, edge cases, error propagation, and state transitions. They are cheap, so prefer
   many small, focused checks over a few large ones. Design tests with the published documentation in hand: every
   documented behaviour should have coverage, and missing docs should be written before adding tests so expectations are

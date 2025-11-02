@@ -28,7 +28,8 @@ Paste the refined LLM prompt or outline the manual research approach here.
 
 ## Results summary
 - Populate after the human responds: summarise findings or record the decision to decline.
-- Link to detailed outputs (e.g., `context/research/<topic>.md`) provided by the human collaborator.
+- Link to detailed outputs (e.g., [context/research/<topic>.md](context/research/<topic>.md)) provided by the human
+  collaborator.
 
 ## Human response
 - Record the date, decision, and any guidance from the human owner.

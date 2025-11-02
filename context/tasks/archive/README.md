@@ -22,16 +22,24 @@ intact.
   2025-10-28).
 - [`ICLI-010`](ICLI-010/README.md) — Streaming output capture plus diagnostics listener wiring (archived 2025-10-28).
 - [`ICLI-012`](ICLI-012/README.md) — Client async scheduler and helper APIs (archived 2025-10-26).
+- [`ICLI-014`](ICLI-014/README.md) — Process pool architecture specification detailing configuration, diagnostics, and
+  lifecycle policies (archived 2025-10-28).
 - [`ICLI-015`](ICLI-015/README.md) — ProcessPool runtime implementation with diagnostics, retirement policies, and
   end-to-end coverage (archived 2025-11-01).
+- [`ICLI-017`](ICLI-017/README.md) — Expect-style interaction helpers with accompanying documentation updates (archived
+  2025-11-02).
+- [`ICLI-018`](ICLI-018/README.md) — Refreshed execution scenario catalogue aligning roadmap/backlog references
+  (archived 2025-11-02).
 
 ## Archival checklist
 
 1. Confirm the final execution history entry documents verification steps and follow-up actions.
-2. Update `context/tasks/backlog.md`:
+2. Update [backlog.md](/context/tasks/backlog.md):
    - Set the task `Status` to `Done`.
-   - Point the `Dossier` column to the archived location (`context/tasks/archive/<TASK-ID>/README.md`).
+   - Point the `Dossier` column to the archived location
+   ([context/tasks/archive/<TASK-ID>/README.md](context/tasks/archive/<TASK-ID>/README.md)).
 3. Move the entire task directory from `context/tasks/<TASK-ID>/` to `context/tasks/archive/<TASK-ID>/`.
 4. Add an archive note in the dossier’s “Completion & archive” section indicating the move date.
+5. Execute `python scripts/normalize_markdown_links.py` so archived logs keep valid cross-document references.
 
 Do not modify archived dossiers except to correct broken links or add retrospective notes that clarify history.

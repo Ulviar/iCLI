@@ -10,18 +10,17 @@ choices.
   tests, and supporting assets.
 - **Coding standards alignment** — how Google Java Format and official Kotlin conventions translate into day-to-day
   rules (naming, nullability, concurrency patterns, annotations).
-- **Build, tooling, and automation** — required Gradle tasks, Spotless/SpotBugs integration expectations, and default
-  CI checks.
+- **Build, tooling, and automation** — required Gradle tasks, Spotless/SpotBugs integration expectations, and default CI
+  checks.
 - **Testing expectations** — unit vs. integration criteria, fixtures, PTY/process simulators, timeouts, and coverage
   thresholds.
-- **Documentation practices** — `project-overview.md` maintenance, API docs, changelog cadence, diagrams, and knowledge
-  base update
-  triggers.
+- **Documentation practices** — [project-overview.md](/context/guidelines/project-overview.md) maintenance, API docs,
+  changelog cadence, diagrams, and knowledge base update triggers.
 - **Collaboration workflow** — branching, code review expectations, definition of done, and release checklists.
 
 ## Work Plan
-1. Audit existing repository artifacts (`project-overview.md`, build scripts, knowledge base) to identify implicit
-   standards.
+1. Audit existing repository artifacts ([project-overview.md](project-overview.md), build scripts, knowledge base) to
+   identify implicit standards.
 2. Capture maintainer requirements for formatting, testing, CI, and release governance.
 3. Draft structured guideline sections per coverage area, cross-linking to automated enforcement (Spotless, SpotBugs,
    Gradle tasks).

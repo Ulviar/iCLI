@@ -9,17 +9,17 @@ that require a real terminal). Visual styling (colors/ANSI) is deliberately out 
 ## 1) Core concepts (what makes interactive apps special)
 
 - **StdIO pipes vs TTY/PTY.** Many CLI programs change behavior when their stdin/stdout are attached to a **terminal**
-(TTY/PTY) instead of plain pipes. With a terminal, they may:
+  (TTY/PTY) instead of plain pipes. With a terminal, they may:
 - switch to line or raw input modes (read keystrokes without newline),
 - render full‑screen UI, handle window size changes,
 - prompt for passwords, control echo, react to Ctrl+C, etc.
 - **PTY (Unix) / ConPTY (Windows).** A pseudoterminal provides the “it looks like a real terminal” environment. If your
-library needs to drive TUIs (`top`, `vi`), real REPLs (`python`, `node`), or tools that *require* a TTY (e.g., some
-`sudo`/`ssh` configurations), you must spawn the process under a PTY/ConPTY — **not** just pipes.
+  library needs to drive TUIs (`top`, `vi`), real REPLs (`python`, `node`), or tools that *require* a TTY (e.g., some
+  `sudo`/`ssh` configurations), you must spawn the process under a PTY/ConPTY — **not** just pipes.
 - **Shell vs direct exec.** Prefer executing binaries directly with an argument list. Only wrap in a shell when you
-*need* shell features (globbing, pipelines, redirection). Shell wrapping changes quoting rules and error semantics.
+  *need* shell features (globbing, pipelines, redirection). Shell wrapping changes quoting rules and error semantics.
 - **Buffering & deadlocks.** OS pipe buffers are finite. If you don’t timely drain `stdout/stderr`, the child process
-can block waiting for the parent to read. Your library must *always* drain both streams concurrently.
+  can block waiting for the parent to read. Your library must *always* drain both streams concurrently.
 
 ---
 
@@ -28,11 +28,11 @@ can block waiting for the parent to read. Your library must *always* drain both 
 - **Linux & macOS**
 - PTY is native and widely available. Shells are typically `bash` or `zsh`. Interactive tools probe `isatty()`.
 - **Windows**
-- Classic console apps use the Windows Console API. For terminal emulation over byte streams, use **ConPTY**
-    (available on modern Windows 10+). Without ConPTY, many TUIs won’t behave correctly under pipes.
+- Classic console apps use the Windows Console API. For terminal emulation over byte streams, use **ConPTY** (available
+  on modern Windows 10+). Without ConPTY, many TUIs won’t behave correctly under pipes.
 
-> **Rule of thumb:** if a program is meant for humans (curses/TUI editors, full REPLs, password prompts, pagers),
-> default to running it under PTY/ConPTY.
+> **Rule of thumb:** if a program is meant for humans (curses/TUI editors, full REPLs, password prompts, pagers), > > >
+> > > > > > > > > > > > > > > > > > > default to running it under PTY/ConPTY.
 
 ---
 
@@ -190,22 +190,22 @@ shutdown.
 - **Exit code:** always expose `exitCode` (blocking `waitFor()`) and a non‑blocking completion hook.
 - **Timeouts:** allow `waitFor(Duration)`; if expired, send a soft termination then a hard kill.
 - Soft termination strategies:
-    - via PTY: write Ctrl+C (`\u0003`) or send `exit\n` depending on app semantics,
-    - via API: `process.destroy()` (SIGTERM on Unix, TerminateProcess on Windows).
+  - via PTY: write Ctrl+C (`\u0003`) or send `exit\n` depending on app semantics,
+  - via API: `process.destroy()` (SIGTERM on Unix, TerminateProcess on Windows).
 - Hard kill: `process.destroyForcibly()` after a grace period.
 - **Half-close stdin:** some tools proceed only after EOF on stdin; provide `closeStdin()` API.
 - **Idle supervision:** enforce a sensible default (iCLI uses 5 minutes) and allow callers to override via
   `ExecutionOptions.idleTimeout` while emitting observer callbacks (`SessionLifecycleObserver`) when the library closes
   sessions automatically.
 - **Process groups:** consider OS-specific “kill entire tree” options if you spawn sub-processes via shell; otherwise
-children may outlive the parent process.
+  children may outlive the parent process.
 
 ---
 
 ## 6) Encoding and newlines
 
 - **Default charset:** since modern JDKs the default is UTF‑8, but **never rely on defaults** when decoding/encoding
-process I/O — pass an explicit `Charset` where your API returns strings.
+  process I/O — pass an explicit `Charset` where your API returns strings.
 - **Newlines:** normalize if you present line‑oriented APIs; preserve raw bytes for binary‑safe modes.
 
 ---
@@ -217,7 +217,7 @@ process I/O — pass an explicit `Charset` where your API returns strings.
 - Unix: `["/bin/bash", "-lc", command]`
 - Windows (PowerShell): `["pwsh.exe", "-NoProfile", "-Command", command]`
 - **Environment control:** accept `Map<String,String>` for environment overrides; never inherit *unintentionally*
-sensitive variables unless explicit.
+  sensitive variables unless explicit.
 
 ---
 

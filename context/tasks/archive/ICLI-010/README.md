@@ -20,7 +20,7 @@
   - Pass formatting, SpotBugs, and Gradle test suites with execution history recorded.
 - **Constraints:** Follow repository coding standards (Java 25, Spotless, JetBrains annotations), adhere to TDD, and
   maintain compatibility with existing bounded/ discard policies.
-- **Roles to notify:** Maintainer (per [`project-roles.md`](../../guidelines/icli/project-roles.md)).
+- **Roles to notify:** Maintainer (per [project-roles.md](../../../guidelines/icli/project-roles.md)).
 
 ## Planning
 - **Scope summary:** Replace the placeholder streaming implementation with functional runtime support, build diagnostics
@@ -30,12 +30,12 @@
 - **Open questions / risks:** How diagnostics should be surfaced to callers (new event bus vs extending existing APIs);
   defining deterministic tests for streaming capture without flakiness; ensuring no regressions in bounded capture
   performance.
-- **Backlog link:** [`context/tasks/backlog.md`](../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:**
-  - `analysis/2025-10-28.md`
-- **Knowledge consulted:** See `analysis/2025-10-28.md`.
+  - [analysis/2025-10-28.md](analysis/2025-10-28.md)
+- **Knowledge consulted:** See [analysis/2025-10-28.md](analysis/2025-10-28.md).
 - **Readiness decision:** Proceeding with execution; design outline captured on 2025-10-28.
 
 ## Research
@@ -46,7 +46,7 @@
 
 ## Execution
 - **History entries:**
-  - `execution-history/2025-10-28.md`
+  - [execution-history/2025-10-28.md](execution-history/2025-10-28.md)
 - **Implementation highlights:** Diagnostics listener + streaming sink support landed per 2025-10-28 log.
 - **Testing:** `gradle test`; `gradle spotlessApply`; `python scripts/pre_response_checks.py`
 - **Follow-up work:** Grow diagnostics into a full bus with additional event types (launch, exit, timeout).
@@ -63,5 +63,5 @@
   `ExecutionOptions` so callers opt in without new entry points.
 - **Risks:** Diagnostics delivery remains synchronous/on-drain threads; high-volume listeners should migrate to the
   planned diagnostics bus (tracked separately) to avoid back-pressure.
-- **Links:** [`context/roadmap/execution-architecture-brief.md`](../../roadmap/execution-architecture-brief.md);
-  [`context/tasks/backlog.md`](../backlog.md)
+- **Links:** [context/roadmap/execution-architecture-brief.md](../../../roadmap/execution-architecture-brief.md);
+  [backlog.md](/context/tasks/backlog.md)

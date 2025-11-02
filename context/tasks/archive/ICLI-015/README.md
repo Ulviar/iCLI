@@ -11,11 +11,11 @@
   coordination aligned with the architecture delivered under ICLI-014.
 - **Definition of Done:**
   - Provide `ProcessPool`, `WorkerLease`, and related configuration/runtime types that satisfy the Process Pool
-    Architecture Specification.
+  Architecture Specification.
   - Integrate the pool with `ProcessEngine.startSession`, `ShutdownExecutor`, and existing diagnostics hooks while
-    honouring ExecutionOptions defaults.
+  honouring ExecutionOptions defaults.
   - Deliver unit and integration tests (Kotlin + JUnit 6) covering lease acquisition, queueing, eviction, shutdown, and
-    failure scenarios.
+  failure scenarios.
   - Update documentation and backlog metadata; keep repository tooling (Spotless, SpotBugs, tests) passing.
 - **Constraints:** Follow repository coding standards, reuse ExecutionOptions defaults where mandated by the design,
   implement via Gradle-managed modules, and adhere to TDD with Kotlin-based tests.
@@ -29,11 +29,11 @@
 - **Open questions / risks:** Validate how the runtime interacts with existing schedulers and shutdown utilities,
   confirm diagnostics listener hookups, ensure deterministic testing utilities (fake clock/executor) are practical, and
   guard against resource leaks when reset hooks fail.
-- **Backlog link:** `[context/tasks/backlog.md](../../backlog.md)`
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:**
-  - `analysis/2025-10-28.md`
+  - [analysis/2025-10-28.md](analysis/2025-10-28.md)
 - **Knowledge consulted:** Logged within dated analysis entries.
 - **Readiness decision:** Execution underway per plan drafted in the 2025-10-28 analysis log.
 
@@ -45,13 +45,13 @@
 
 ## Execution
 - **History entries:**
-  - `execution-history/2025-10-28-plan.md`
-  - `execution-history/2025-10-28-plan-2.md`
-  - `execution-history/2025-10-28-plan-3.md`
-  - `execution-history/2025-10-28.md`
-  - `execution-history/2025-10-29-plan.md`
-  - `execution-history/2025-10-29.md`
-  - `execution-history/2025-11-01.md`
+  - [execution-history/2025-10-28-plan.md](execution-history/2025-10-28-plan.md)
+  - [execution-history/2025-10-28-plan-2.md](execution-history/2025-10-28-plan-2.md)
+  - [execution-history/2025-10-28-plan-3.md](execution-history/2025-10-28-plan-3.md)
+  - [execution-history/2025-10-28.md](execution-history/2025-10-28.md)
+  - [execution-history/2025-10-29-plan.md](execution-history/2025-10-29-plan.md)
+  - [execution-history/2025-10-29.md](execution-history/2025-10-29.md)
+  - [execution-history/2025-11-01.md](execution-history/2025-11-01.md)
 - **Implementation highlights:** Delivered the ProcessPool runtime with FIFO acquisition, bounded queueing, configurable
   reuse/idle/lifetime retirement, request-deadline enforcement, warmup/reset hook pipelines, and comprehensive metrics +
   diagnostics integration. Internal packages provide deterministic state machines (`PoolState`, `CapacityLedger`),
@@ -61,12 +61,14 @@
   spotbugsMain`, `gradle test`, and `gradle integrationTest`.
 - **Follow-up work:** Service-level request APIs, richer diagnostics export, and default reset hook catalogue remain
   tracked under ICLI-016.
-- **Retrospective:** Captured across dated execution logs, culminating in `execution-history/2025-11-01.md`.
+- **Retrospective:** Captured across dated execution logs, culminating in
+  [execution-history/2025-11-01.md](execution-history/2025-11-01.md).
 
 ## Completion & archive
 - **Archive status:** Archived 2025-11-01.
-- **Archive location:** `context/tasks/archive/ICLI-015/README.md`.
-- **Final verification:** Completed — see `execution-history/2025-11-01.md` for closure checklist.
+- **Archive location:** [context/tasks/archive/ICLI-015/README.md](README.md).
+- **Final verification:** Completed — see [execution-history/2025-11-01.md](execution-history/2025-11-01.md) for closure
+  checklist.
 
 ## Decisions & notes
 - **Key decisions:** Pool continues to execute reset hooks sequentially on the calling thread, enforces bounded queue

@@ -1,4 +1,4 @@
-# <TASK-ID> — <Title>
+# TASK-ID — Title
 
 <!-- Replace placeholders and remove comments after populating the dossier. -->
 
@@ -12,18 +12,18 @@
 - **Objective:** Describe the intended outcome in one or two sentences.
 - **Definition of Done:** List the acceptance criteria that mark the task complete.
 - **Constraints:** Capture any mandatory tooling, dependencies, or scope limits.
-- **Roles to notify:** Identify which roles from [`project-roles.md`](../../guidelines/icli/project-roles.md) should
+- **Roles to notify:** Identify which roles from [project-roles.md](../../guidelines/icli/project-roles.md) should
   review or be informed (e.g., Maintainer).
 
 ## Planning
 - **Scope summary:** Briefly describe what will be built or changed.
 - **Proposed deliverables:** Enumerate expected artifacts (code, docs, tests).
 - **Open questions / risks:** Capture unknowns, blockers, and follow-up actions.
-- **Backlog link:** `[context/tasks/backlog.md](../backlog.md)`
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:** Reference dated files in `analysis/`. Example:
-  - `analysis/2025-10-17.md`
+  - [analysis/2025-10-17.md](analysis/2025-10-17.md)
 - **Knowledge consulted:** Link (using relative paths) only to specific documents that substantially shifted your plan
   compared with the initial task description, and note how each influenced your approach, including any difficulty
   locating the information.

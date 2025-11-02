@@ -26,8 +26,8 @@ requested a consolidated research artifact.
 ## Decision
 - Adopt **pty4j** as the default PTY provider for Phase 4 interactive work. EPL-1.0 compatibility was reviewed with the
   maintainer on 2025-10-25 and accepted for dependency use.
-- Keep **Apache Commons Exec** and **JNA** in reserve for pipe-only workflows or bespoke PTY experiments, but do not
-  add them to the dependency graph today.
+- Keep **Apache Commons Exec** and **JNA** in reserve for pipe-only workflows or bespoke PTY experiments, but do not add
+  them to the dependency graph today.
 - Treat **Jansi** as deprecated. Prefer **JLine 3** only when higher-level prompt UX is needed, and even then keep it an
   optional layer above pty4j to avoid dragging terminal abstractions into the core runtime prematurely.
 

@@ -10,9 +10,9 @@ specific theme and files are written in English.
 - `workflow/` – collaboration, release, and operational playbooks.
 - `testing/` – detailed guidance for test strategy, fixtures, and expectations.
 - `tasks/` – backlog, active task dossiers, and templates for the assistant-managed workflow (start with
-  [`context/tasks/README.md`](tasks/README.md)).
+  [context/tasks/README.md](tasks/README.md).
 
-See [`context/guidelines/icli/project-roles.md`](guidelines/icli/project-roles.md) for the single-maintainer role model
+See [context/guidelines/icli/project-roles.md](guidelines/icli/project-roles.md) for the single-maintainer role model
 and target audience definitions used throughout the documentation.
 
 When adding new material, extend the most relevant section and link back to it from higher-level guides so future work

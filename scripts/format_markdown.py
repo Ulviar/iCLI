@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 import textwrap
 from pathlib import Path
 from typing import Iterable, List
+from urllib.parse import urlparse
 
 NBSP_REPLACEMENTS = {
     "\u00A0": " ",
@@ -22,6 +24,12 @@ FENCE_RE = re.compile(r"^(```|~~~)")
 INDENTED_RE = re.compile(r"^(\s{1,3})(\S.*)$")
 H_RULES = {"---", "***", "___"}
 TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
+CODE_LINK_RE = re.compile(r"`([^`\n]+?\.(?:md|MD)(?:[#?][^`\n]+)?)`")
+CODE_WRAPPED_LINK_RE = re.compile(r"`(\[[^`\]]+\]\([^`]+\))`")
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+DOUBLE_LINK_RE = re.compile(r"\[\[([^\]]+)\]\(([^)]+)\)\]\(([^)]+)\)")
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def gather_markdown(paths: Iterable[str]) -> List[Path]:
@@ -53,13 +61,114 @@ def normalize_spaces(text: str) -> str:
     return text
 
 
+def _convert_code_link(match: re.Match[str], base: Path) -> str:
+    raw = match.group(1)
+    parsed = urlparse(raw)
+    if parsed.scheme or parsed.netloc:
+        return f"[{raw}]({raw})"
+
+    path_part = parsed.path
+    suffix = ""
+    if parsed.query:
+        suffix += f"?{parsed.query}"
+    if parsed.fragment:
+        suffix += f"#{parsed.fragment}"
+
+    if not path_part or path_part.startswith(('/', '.', '..')):
+        return f"[{raw}]({raw})"
+
+    candidate = (REPO_ROOT / path_part).resolve()
+    try:
+        candidate.relative_to(REPO_ROOT)
+    except ValueError:
+        return f"[{raw}]({raw})"
+
+    if not candidate.exists():
+        return f"[{raw}]({raw})"
+
+    relative = os.path.relpath(candidate, base.parent).replace(os.sep, "/")
+    return f"[{raw}]({relative}{suffix})"
+
+
+def normalize_double_links(text: str) -> str:
+    return DOUBLE_LINK_RE.sub(lambda m: f"[{m.group(1)}]({m.group(3)})", text)
+
+
+def normalize_code_links(text: str, base: Path) -> str:
+    lines = text.splitlines()
+    normalized: List[str] = []
+    in_fence = False
+    for line in lines:
+        stripped = line.lstrip()
+        if FENCE_RE.match(stripped):
+            normalized.append(line)
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            normalized.append(line)
+            continue
+        converted = CODE_LINK_RE.sub(lambda match: _convert_code_link(match, base), line)
+        converted = CODE_WRAPPED_LINK_RE.sub(r"\1", converted)
+        normalized.append(converted)
+    return "\n".join(normalized)
+
+
+def _path_under_repo(path: Path) -> bool:
+    try:
+        path.relative_to(REPO_ROOT)
+        return True
+    except ValueError:
+        return False
+
+
+def normalize_standard_links(text: str, base: Path) -> str:
+    def replace(match: re.Match[str]) -> str:
+        label, target = match.group(1), match.group(2)
+        parsed = urlparse(target)
+        if parsed.scheme or parsed.netloc or target.startswith("#"):
+            return match.group(0)
+
+        path_part = parsed.path
+        suffix = ""
+        if parsed.query:
+            suffix += f"?{parsed.query}"
+        if parsed.fragment:
+            suffix += f"#{parsed.fragment}"
+
+        if not path_part:
+            return match.group(0)
+
+        candidate = (base.parent / path_part).resolve()
+        if _path_under_repo(candidate) and candidate.exists():
+            relative = os.path.relpath(candidate, base.parent).replace(os.sep, "/")
+            new_label = label
+            if Path(path_part).name == "backlog.md":
+                new_label = "backlog.md"
+            return f"[{new_label}]({relative}{suffix})"
+
+        candidate = (REPO_ROOT / path_part).resolve()
+        if _path_under_repo(candidate) and candidate.exists():
+            relative = os.path.relpath(candidate, base.parent).replace(os.sep, "/")
+            new_label = label
+            if Path(path_part).name == "backlog.md":
+                new_label = "backlog.md"
+            return f"[{new_label}]({relative}{suffix})"
+
+        return match.group(0)
+
+    return MARKDOWN_LINK_RE.sub(replace, text)
+
+
 def format_lines(text: str, width: int) -> str:
     lines = text.splitlines()
     formatted: List[str] = []
     in_fence = False
     paragraph_buffer: List[str] = []
+    initial_indent = ""
+    subsequent_indent = ""
 
     def flush_paragraph() -> None:
+        nonlocal initial_indent, subsequent_indent
         if not paragraph_buffer:
             return
         paragraph_text = " ".join(paragraph_buffer)
@@ -67,12 +176,16 @@ def format_lines(text: str, width: int) -> str:
             textwrap.fill(
                 paragraph_text,
                 width=width,
+                initial_indent=initial_indent,
+                subsequent_indent=subsequent_indent or initial_indent,
                 break_long_words=False,
                 break_on_hyphens=False,
                 replace_whitespace=False,
             )
         )
         paragraph_buffer.clear()
+        initial_indent = ""
+        subsequent_indent = ""
 
     for raw in lines:
         line = raw.rstrip()
@@ -102,6 +215,10 @@ def format_lines(text: str, width: int) -> str:
             flush_paragraph()
             formatted.append(line)
             continue
+        if paragraph_buffer and subsequent_indent and line.startswith(subsequent_indent) and stripped:
+            if not LIST_RE.match(stripped) and not ORDERED_RE.match(stripped):
+                paragraph_buffer.append(stripped)
+                continue
         if line.startswith("    "):
             flush_paragraph()
             formatted.append(line)
@@ -111,34 +228,18 @@ def format_lines(text: str, width: int) -> str:
         if indent_match:
             flush_paragraph()
             indent, content = indent_match.groups()
-            formatted.append(
-                textwrap.fill(
-                    content.strip(),
-                    width=width,
-                    initial_indent=indent,
-                    subsequent_indent=indent,
-                    break_long_words=False,
-                    break_on_hyphens=False,
-                    replace_whitespace=False,
-                )
-            )
+            initial_indent = indent
+            subsequent_indent = indent
+            paragraph_buffer.append(content.strip())
             continue
 
         list_match = LIST_RE.match(stripped)
         if list_match:
             flush_paragraph()
             indent, marker, content = list_match.groups()
-            formatted.append(
-                textwrap.fill(
-                    content,
-                    width=width,
-                    initial_indent=f"{indent}{marker} ",
-                    subsequent_indent=f"{indent}{' ' * (len(marker) + 1)}",
-                    break_long_words=False,
-                    break_on_hyphens=False,
-                    replace_whitespace=False,
-                )
-            )
+            initial_indent = f"{indent}{marker} "
+            subsequent_indent = f"{indent}{' ' * (len(marker) + 1)}"
+            paragraph_buffer.append(content)
             continue
 
         ordered_match = ORDERED_RE.match(stripped)
@@ -146,17 +247,9 @@ def format_lines(text: str, width: int) -> str:
             flush_paragraph()
             indent, marker, _, content = ordered_match.groups()
             marker_with_space = f"{marker} "
-            formatted.append(
-                textwrap.fill(
-                    content,
-                    width=width,
-                    initial_indent=f"{indent}{marker_with_space}",
-                    subsequent_indent=f"{indent}{' ' * len(marker_with_space)}",
-                    break_long_words=False,
-                    break_on_hyphens=False,
-                    replace_whitespace=False,
-                )
-            )
+            initial_indent = f"{indent}{marker_with_space}"
+            subsequent_indent = f"{indent}{' ' * len(marker_with_space)}"
+            paragraph_buffer.append(content)
             continue
 
         quote_match = BLOCK_QUOTE_RE.match(stripped)
@@ -165,18 +258,14 @@ def format_lines(text: str, width: int) -> str:
             markers, content = quote_match.groups()
             prefix = "> " * len(markers)
             base_indent = prefix if prefix else "> "
-            formatted.append(
-                textwrap.fill(
-                    content,
-                    width=width,
-                    initial_indent=base_indent,
-                    subsequent_indent=base_indent,
-                    break_long_words=False,
-                    break_on_hyphens=False,
-                    replace_whitespace=False,
-                )
-            )
+            initial_indent = base_indent
+            subsequent_indent = base_indent
+            paragraph_buffer.append(content)
             continue
+
+        if not paragraph_buffer:
+            initial_indent = ""
+            subsequent_indent = ""
 
         paragraph_buffer.append(stripped)
 
@@ -187,6 +276,9 @@ def format_lines(text: str, width: int) -> str:
 def process_file(path: Path, width: int, check: bool) -> bool:
     original = path.read_text(encoding="utf-8")
     normalized = normalize_spaces(original)
+    normalized = normalize_double_links(normalized)
+    normalized = normalize_code_links(normalized, path)
+    normalized = normalize_standard_links(normalized, path)
     formatted = format_lines(normalized, width)
     if original == formatted:
         return True

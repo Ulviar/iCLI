@@ -23,12 +23,10 @@
 ### API composition
 
 - Provide **Essential API** facades (`CommandService.run`, `CommandService.lineSessionRunner()`,
-  `CommandService.interactiveSessionRunner()`, `ProcessPoolClient.create`) with safe defaults, no explicit
-  timeout or logging configuration required, and simplified result/exception types for consumers who just need command
-  outcomes.
+  `CommandService.interactiveSessionRunner()`, `ProcessPoolClient.create`) with safe defaults, no explicit timeout or
+  logging configuration required, and simplified result/exception types for consumers who just need command outcomes.
 - Layer the existing **Advanced API** (`ProcessEngine.run`, `ExecutionOptions`, `WorkerPool`) beneath the facades for
-  callers who
-  must customise timeouts, signals, diagnostics, or PTY behaviour.
+  callers who must customise timeouts, signals, diagnostics, or PTY behaviour.
 - Essential API calls delegate to the advanced layer using opinionated defaults (timeouts, logging off, PTY heuristics)
   while still benefiting from the shared runtime and reliability guarantees.
 - Kotlin extension functions mirror both tiers so tests and clients can adopt either entry point idiomatically.
@@ -37,23 +35,23 @@
 
 - **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer (
   default 64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt
-  followed by 5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command
-  echo, exit code, truncated output snippets, and a cause when available; callers who need richer diagnostics can drop
-  to the advanced API.
+  followed by 5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command echo,
+  exit code, truncated output snippets, and a cause when available; callers who need richer diagnostics can drop to the
+  advanced API.
 - **CommandService.lineSessionRunner()** → `LineSessionRunner`. Provides reusable helpers that return
   `LineSessionClient` instances with high-level `process(String)` returning structured `ClientResult<String>` for the
   «одна строка → один ответ» сценарий. Uses configurable `ResponseDecoder` strategies (newline by default) and exposes
   the underlying `InteractiveSessionClient` for advanced needs without forcing stream handling in Essential code.
-- **CommandService.interactiveSessionRunner()** → `InteractiveSessionRunner`. Wraps the underlying
-  `InteractiveSession` with helpers `sendLine`, `closeStdin`, access to raw streams, and `onExit`. Default idle timeout
-  (5 минут) tear down unresponsive sessions, with automatic restart available through pooling. Serves as the bridge
-  between Essential convenience and Advanced flexibility.
+- **CommandService.interactiveSessionRunner()** → `InteractiveSessionRunner`. Wraps the underlying `InteractiveSession`
+  with helpers `sendLine`, `closeStdin`, access to raw streams, and `onExit`. Default idle timeout (5 минут) tear down
+  unresponsive sessions, with automatic restart available through pooling. Serves as the bridge between Essential
+  convenience and Advanced flexibility.
 - **ProcessPoolClient.create** → `ServiceProcessor`. Exposes synchronous `process(String input)`,
-  `processBytes(byte[])`, and
-  optional async variants (`processAsync`). Internally maintains an automatically sized worker pool (default:
-  `min(max(Runtime.availableProcessors() / 2, 1), configuredMax)`) with per-worker reuse cap (default 1 000 requests).
-  Errors surface as `ServiceUnavailableException` (pool exhausted or shattered) or `ServiceProcessingException`
-  (command exit failure with captured diagnostics). Retries once on recoverable launch errors before bubbling failure.
+  `processBytes(byte[])`, and optional async variants (`processAsync`). Internally maintains an automatically sized
+  worker pool (default: `min(max(Runtime.availableProcessors() / 2, 1), configuredMax)`) with per-worker reuse cap
+  (default 1 000 requests). Errors surface as `ServiceUnavailableException` (pool exhausted or shattered) or
+  `ServiceProcessingException` (command exit failure with captured diagnostics). Retries once on recoverable launch
+  errors before bubbling failure.
 
 ### Essential API signatures and configuration points
 
@@ -66,20 +64,18 @@
 - `InteractiveSessionRunner interactive = CommandService.interactiveSessionRunner()` — opens fully interactive sessions
   with the service defaults and exposes the underlying `InteractiveSession` for callers who need low-level control.
 - `ServiceProcessor processor = ProcessPoolClient.create(ServiceConfig config)` — `ServiceConfig` captures command,
-  desired
-  concurrency, and optional codec strategies. Provides builders to tweak max concurrency, per-request timeout, and
-  retry policy while keeping defaults safe. Processors expose lifecycle hooks (`start()`, `close()`) but also support
-  auto-start on first request.
-- Default values live in `ExecutionOptions` defaults provided when building the `CommandService` (e.g., from
-  application configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded
-  capture,
+  desired concurrency, and optional codec strategies. Provides builders to tweak max concurrency, per-request timeout,
+  and retry policy while keeping defaults safe. Processors expose lifecycle hooks (`start()`, `close()`) but also
+  support auto-start on first request.
+- Default values live in `ExecutionOptions` defaults provided when building the `CommandService` (e.g., from application
+  configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded capture,
   conservative timeouts, graceful shutdown) before throughput.
 
 ### Client modality strategy
 
-- Keep the core runtime (`ProcessEngine.run/startSession`) synchronous and blocking so diagnostics, timeout
-  supervision, and PTY handling stay deterministic; blocking calls run on virtual threads by default to avoid tying up
-  platform threads.
+- Keep the core runtime (`ProcessEngine.run/startSession`) synchronous and blocking so diagnostics, timeout supervision,
+  and PTY handling stay deterministic; blocking calls run on virtual threads by default to avoid tying up platform
+  threads.
 - Introduce a small `ClientScheduler` abstraction (Closable executor facade) that backs every asynchronous helper. The
   default scheduler uses `Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())`, while advanced callers can
   inject their own `Executor`/`StructuredTaskScope` to integrate with existing pools.
@@ -95,17 +91,16 @@
 - `ProcessPoolClient` surfaces `processAsync`, `processBytesAsync`, and lease-level async helpers. Each request still
   executes on a worker session, but scheduling and completion notifications run on the same `ClientScheduler`, ensuring
   blocking pool semantics and async projections stay consistent.
-- Kotlin support layers on top of the futures: `suspend fun CommandService.runSuspend(...)`,
-  `suspend fun LineSessionClient.processSuspend(...)`, and flow helpers live in the Kotlin module so tests and coroutine
-  clients do not handle `CompletableFuture` manually.
+- Kotlin support layers on top of the futures: `suspend fun CommandService.runSuspend(...)`, `suspend fun
+  LineSessionClient.processSuspend(...)`, and flow helpers live in the Kotlin module so tests and coroutine clients do
+  not handle `CompletableFuture` manually.
 
 ### Pooling usage modes
 
 - **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`)
-  that
-  exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it scales
-  across multiple warm workers and surfaces either a result or an exception, hiding leases, state resets, and recovery
-  logic. Designed for integrations like Lucene token filters that operate “one in, one out” without batching.
+  that exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it
+  scales across multiple warm workers and surfaces either a result or an exception, hiding leases, state resets, and
+  recovery logic. Designed for integrations like Lucene token filters that operate “one in, one out” without batching.
 - **Batch processor (Essential API, optional).** Builds on the same pool runtime to fan out collections or reactive
   streams of requests. Useful for high-throughput pipelines; can be layered later without changing the core runtime.
 - **Lease-driven pool (Advanced API).** Retains the existing `WorkerPool`/`WorkerLease` surface so advanced consumers
@@ -163,8 +158,8 @@
 - Types: `IOBridge`, `StreamPump`, `BoundedAccumulator`, `StreamSink`, `TranscriptTap`.
 - Responsibilities: drain stdout/stderr concurrently with virtual threads; expose raw byte and decoded text streams;
   enforce capture limits; surface incremental output to observers while retaining structured summaries.
-- Integrations: used by single-run executor to return `ProcessResult`; bound to session handle streams; emits
-  events on the diagnostics bus.
+- Integrations: used by single-run executor to return `ProcessResult`; bound to session handle streams; emits events on
+  the diagnostics bus.
 
 ### Timeout and signal module
 
@@ -179,13 +174,12 @@
 - Types: `DiagnosticsBus`, `ExecutionEvent`, `TranscriptListener`, `MetricsAdapter`.
 - Responsibilities: collect structured events (launch, output truncation, timeout, exit); allow pluggable listeners
   (logging, metrics, tracing); provide per-request transcript logging hooks with redaction support.
-- Integrations: IO bridge, timeout supervisor, and session manager all emit events; pooling adds lease lifecycle
-  events; Kotlin tests can inject probe listeners.
-- Initial implementation (2025-10-28) ships a lightweight `DiagnosticsListener` with `OutputChunk`
-  and `OutputTruncated` events emitted from the IO bridge to unblock streaming capture consumers; the
-  listener currently operates in-process via callbacks before the full bus abstraction lands.
-  Callers must keep listeners non-blocking because events are dispatched synchronously on the stream
-  draining threads; the future diagnostics bus will decouple delivery.
+- Integrations: IO bridge, timeout supervisor, and session manager all emit events; pooling adds lease lifecycle events;
+  Kotlin tests can inject probe listeners.
+- Initial implementation (2025-10-28) ships a lightweight `DiagnosticsListener` with `OutputChunk` and `OutputTruncated`
+  events emitted from the IO bridge to unblock streaming capture consumers; the listener currently operates in-process
+  via callbacks before the full bus abstraction lands. Callers must keep listeners non-blocking because events are
+  dispatched synchronously on the stream draining threads; the future diagnostics bus will decouple delivery.
 
 ### Interactive session module
 
@@ -210,7 +204,8 @@
 
 - Types: `ExecutionConfig`, `ClockProvider`, `SchedulerFacade`, `TestFixtures`.
 - Responsibilities: centralise defaults for timeouts, capture sizes, PTY enablement; support dependency injection for
-  deterministic testing; house cross-platform test fixtures referenced in `context/testing/strategy.md`.
+  deterministic testing; house cross-platform test fixtures referenced in
+  [context/testing/strategy.md](../testing/strategy.md).
 - Integrations: consumed by launch options builders and pooling; tests swap in fake clocks or schedulers.
 
 ## Data contracts
@@ -226,8 +221,7 @@
 - `ClientResult<T>`: Essential API summary containing merged text output, truncated indicators, elapsed time, and exit
   status.
 - `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle
-  enforcement, raw stream access,
-  futures for completion, and Flow/Coroutine adapters for streaming consumption.
+  enforcement, raw stream access, futures for completion, and Flow/Coroutine adapters for streaming consumption.
 - `WorkerLease`: wraps session handle with per-request transcript context, reset hooks, and guarantees around state
   isolation.
 - `ServiceProcessor`: Essential API projection that routes individual requests to pooled workers while applying builtin

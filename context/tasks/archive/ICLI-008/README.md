@@ -31,7 +31,7 @@
   - Bounded output strategy (byte vs line caps) must align with TBD ExecutionOptions defaults—clarify interim defaults.
   - Timeout and cancellation hooks may require concurrency primitives whose design should not conflict with future
   interactive sessions.
-- **Backlog link:** [context/tasks/backlog.md](../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:**
@@ -72,4 +72,4 @@
 - **Risks:** Potential mismatch between interim executor defaults and future ExecutionOptions presets; streaming/PTY
   gaps remain until follow-up tasks land.
 - **Links:**
-  - [context/roadmap/project-roadmap.md](../../roadmap/project-roadmap.md)
+  - [context/roadmap/project-roadmap.md](../../../roadmap/project-roadmap.md)

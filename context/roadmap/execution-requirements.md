@@ -40,8 +40,8 @@
 ### Core use cases
 - Drive REPLs and shells (`python`, `node`, `/bin/bash`, `pwsh`) for developer automation and scripting in headless
   environments.
-- Automate tools that prompt for credentials or multi-step user input, including expect-style scripting, without
-  relying on visible terminal rendering.
+- Automate tools that prompt for credentials or multi-step user input, including expect-style scripting, without relying
+  on visible terminal rendering.
 
 - Provide a session handle exposing `stdin`, `stdout`, and `stderr` streams plus high-level helpers (`sendLine`,
   `closeStdin`).
@@ -124,12 +124,11 @@
 - **Encoding issues:** Require explicit charset selection and preserve raw byte access to avoid data loss.
 
 ## References
-- [Java Terminal & Process Integration — Knowledge Base][kb-pty]
-- [Kotlin legacy solution audit][legacy-audit]
-- [Testing strategy][testing-strategy]
-- [Execution engine benchmarks][exec-benchmarks]
+- [Java Terminal & Process Integration — Knowledge
+  Base](/context/knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)
+- [Kotlin legacy solution audit](/context/research/experiments/kotlin-solution-audit.md)
+- [Testing strategy](/context/testing/strategy.md)
+- [Execution engine benchmarks](/context/research/icli-execution-engine-benchmarks.md)
 
-[kb-pty]: ../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md
-[legacy-audit]: ../research/experiments/kotlin-solution-audit.md
-[testing-strategy]: ../testing/strategy.md
-[exec-benchmarks]: ../research/icli-execution-engine-benchmarks.md
+../research/experiments/kotlin-solution-audit.md [testing-strategy]: ../testing/strategy.md [exec-benchmarks]:
+../research/icli-execution-engine-benchmarks.md

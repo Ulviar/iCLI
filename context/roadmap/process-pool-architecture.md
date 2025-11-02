@@ -32,21 +32,21 @@
 ### Core interfaces (advanced API)
 - `ProcessPool` (package `com.github.ulviar.icli.core.pool`):
   - `WorkerLease acquire(Duration timeout)` — block until a worker is available or timeout elapses; throws
-    `ServiceUnavailableException` on timeout or pool shutdown.
-  - `CompletionStage<WorkerLease> acquireAsync(ClientScheduler scheduler, Duration timeout)` — optional helper for
-    async integration; implemented by delegating to `ClientScheduler.submit`.
+  `ServiceUnavailableException` on timeout or pool shutdown.
+  - `CompletionStage<WorkerLease> acquireAsync(ClientScheduler scheduler, Duration timeout)` — optional helper for async
+  integration; implemented by delegating to `ClientScheduler.submit`.
   - `void close()` — initiate graceful shutdown (no new leases, wait for active leases, then retire workers).
   - `boolean drain(Duration timeout)` — cooperative drain that waits for active leases to finish and retires workers;
-    returns false when the timeout expires before completion.
+  returns false when the timeout expires before completion.
   - `PoolMetrics snapshot()` — immutable view of utilisation counters (workers active/idle, queue depth, failures).
 - `WorkerLease` (package `com.github.ulviar.icli.core.pool`):
   - `InteractiveSession session()` — expose the underlying session for custom dialogues.
   - `ExecutionOptions executionOptions()` — per-worker options used for request-level deadlines.
   - `LeaseScope scope()` — context object providing helpers and metadata (request id, worker id, diagnostics context).
-  - `void reset(ResetRequest request)` — run registered reset hooks immediately; invoked automatically on `close()`
-    but callable by advanced clients who need mid-lease reset.
+  - `void reset(ResetRequest request)` — run registered reset hooks immediately; invoked automatically on `close()` but
+  callable by advanced clients who need mid-lease reset.
   - `void close()` — mandatory release that returns the worker to the pool, executing reset hooks and evaluating reuse
-    limits; idempotent.
+  limits; idempotent.
 - Exceptions:
   - `ServiceUnavailableException` — pool exhausted, timed out, or shutting down.
   - `ServiceProcessingException` — surfaced when worker execution fails (mirrors architecture brief).
@@ -54,8 +54,8 @@
 ### Configuration types
 - `ProcessPoolConfig`:
   - `CommandDefinition workerCommand` — required; describes the session to keep warm.
-  - `ExecutionOptions workerOptions` — defaults derived from `ExecutionOptions.builder()` but with idle timeout
-    disabled (pool manages its own idleness); callers may override.
+  - `ExecutionOptions workerOptions` — defaults derived from `ExecutionOptions.builder()` but with idle timeout disabled
+  (pool manages its own idleness); callers may override.
   - `int minSize` / `int maxSize` — pool sizing bounds (default: min 0, max `min(max(availableProcessors / 2, 1), 8)`).
   - `int maxQueueDepth` — optional bounded queue for waiting leases (default: unbounded).
   - `int maxRequestsPerWorker` — reuse cap (default 1 000).
@@ -64,8 +64,8 @@
   - `Duration leaseTimeout` — default timeout for `acquire` when caller does not specify one (default 30 seconds).
   - `boolean destroyProcessTree` — defaults to `ExecutionOptions.destroyProcessTree()`.
   - `Optional<WarmupAction>` — invoked immediately after worker launch.
-  - `List<ResetHook>` — executed after each lease; built-in hooks include cwd reset, env reset, and
-    flushing stdin/stderr.
+  - `List<ResetHook>` — executed after each lease; built-in hooks include cwd reset, env reset, and flushing
+  stdin/stderr.
   - `PoolDiagnosticsListener` — optional observer for lifecycle events; defaults to no-op.
   - `Clock clock` / `ScheduledExecutor` overrides for deterministic tests (package-private constructors).
 - `LeaseScope`:
@@ -182,8 +182,8 @@
   - `workerCreated`, `workerWarmupStarted/Completed`, `workerRetired`, `workerFailed`.
   - `leaseQueued`, `leaseAcquired`, `leaseReleased`, `leaseTimeout`, `leaseResetFailed`.
   - `poolDraining`, `poolTerminated`.
-- Include monotonic counters and durations inside `PoolMetrics`: active workers, idle workers, pending waiters,
-  total leases served, failed launches, active resets.
+- Include monotonic counters and durations inside `PoolMetrics`: active workers, idle workers, pending waiters, total
+  leases served, failed launches, active resets.
 - Provide hook to attach a `DiagnosticsListener` per worker so streaming output can be tagged with worker id/request id.
 - AMA: metrics storage not built yet; expose `PoolMetrics snapshot()` for pull-based reporting and leave integration
   with external metrics (Micrometer, etc.) to future work.

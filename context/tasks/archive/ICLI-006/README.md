@@ -23,7 +23,7 @@
   entry, `.commit-message` summary.
 - **Open questions / risks:** Monitor JetBrains’ WinPTY → ConPTY roadmap and plan if/when to pilot JLine’s prompt module
   for richer CLI ergonomics (primary PTY dependency remains pty4j with EPL-1.0 approved for use).
-- **Backlog link:** [context/tasks/backlog.md](../../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:** [analysis/2025-10-24.md](analysis/2025-10-24.md), [analysis/2025-10-25.md](analysis/2025-10-25.md)
@@ -48,7 +48,7 @@
 
 ## Completion & archive
 - **Archive status:** Archived on 2025-10-25
-- **Archive location:** `context/tasks/archive/ICLI-006/README.md`
+- **Archive location:** [context/tasks/archive/ICLI-006/README.md](README.md)
 - **Final verification:** Decision reviewed internally; no automated checks required.
 
 ## Decisions & notes

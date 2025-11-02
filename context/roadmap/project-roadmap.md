@@ -1,20 +1,21 @@
 # iCLI Command Execution Library — Roadmap
 
-> **Scenario alignment.** Every roadmap milestone and API task must trace back to the authoritative
-> [execution-use-case-catalogue.md](execution-use-case-catalogue.md). Before proposing new features or modifying
-> existing ones, confirm the scenario catalogue covers the intended workflow; if not, update the catalogue first.
+> **Scenario alignment.** Every roadmap milestone and API task must trace back to the authoritative > > > > > > > > > >
+> > > > > > > > > > > > [execution-use-case-catalogue.md](execution-use-case-catalogue.md). Before proposing new
+> features > or > > > > > modifying > > > > > > > > > > > > > > > existing ones, confirm the scenario catalogue covers
+> the intended > > > workflow; if > > > not, update > the > > > catalogue > > > first.
 
 ## Phase 1 — Foundations
 - ✅ Audit existing Kotlin solution to identify reusable ideas, pain points, and missing capabilities.
 - ✅ Establish repository guidelines, coding standards, and project conventions (formatting, testing, CI expectations).
-  *Published in `context/guidelines/general/contributor-guidelines.md`.*
+  *Published in
+  [context/guidelines/general/contributor-guidelines.md](../guidelines/general/contributor-guidelines.md).*
 
 ## Phase 2 — Discovery & Architecture
 - ✅ Map functional requirements: single-shot execution, long-running interactive sessions, pooled interactive workers
   (documented in [execution-requirements.md](execution-requirements.md)).
 - ✅ Catalogue maintainer-sourced use cases (e.g., `mystem`, shells, REPLs) and non-functional constraints
-  (cross-platform,
-  resource usage) (documented in [execution-use-case-catalogue.md](execution-use-case-catalogue.md)).
+  (cross-platform, resource usage) (documented in [execution-use-case-catalogue.md](execution-use-case-catalogue.md)).
 - ✅ Research JVM ecosystem options for PTY/ConPTY (pty4j, Apache Commons Exec, JNA, Jansi) and decide on dependencies —
   adopt **pty4j** (EPL-1.0) as the baseline PTY backend, record legal follow-up, and track WinPTY→ConPTY migration needs
   alongside [icli-execution-engine-benchmarks.md](../research/icli-execution-engine-benchmarks.md).
@@ -23,8 +24,7 @@
 - ✅ Evaluate support for both blocking and non-blocking client APIs, documenting the hybrid strategy and surfacing async
   scheduler + futures in the client layer (captured in ICLI-007/ICLI-012 dossiers).
 - ✅ Define data contracts (command specification, execution options, result types) and public API surface (captured in
-  the
-  "Data contracts" section of [execution-architecture-brief.md](execution-architecture-brief.md)).
+  the "Data contracts" section of [execution-architecture-brief.md](execution-architecture-brief.md)).
 
 ## Phase 3 — Core Execution Engine
 - ✅ Implement command specification builder with explicit handling for shell vs direct execution and environment
@@ -50,7 +50,7 @@
 - Design a configurable worker pool that pre-warms interactive applications with expensive startups.
 - Define scheduling, concurrency limits, and idle eviction policies to prevent resource leaks.
 - Implement request/response lifecycle: acquire worker, send input, await completion, recycle or restart worker on
-failure.
+  failure.
 - Ensure safe shutdown semantics (graceful drain with optional force stop) and metrics for pool health.
 
 ## Phase 6 — Tooling, Observability, and Documentation

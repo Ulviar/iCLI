@@ -11,7 +11,7 @@
   sessions, and pooled workers to guide upcoming architecture work.
 - **Definition of Done:**
   - Requirements brief added to `context/roadmap/` summarising use cases, IO patterns, timeout expectations, and
-    cross-platform concerns.
+  cross-platform concerns.
   - Maintainer notes on process execution priorities captured in the dossier.
   - Research registry updated with any new investigations referenced.
 - **Constraints:** Follow existing context documentation standards; keep requirements aligned with Java 25 / Kotlin 2.2
@@ -24,7 +24,7 @@
 - **Proposed deliverables:** Requirements markdown file, updated research registry entries, enriched task dossier logs.
 - **Open questions / risks:** Need to surface legacy use cases from prior audits; ensure coverage of both PTY and
   non-PTY scenarios.
-- **Backlog link:** [context/tasks/backlog.md](../../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:** [2025-10-18](analysis/2025-10-18.md)
@@ -46,12 +46,14 @@
 ## Completion & archive
 - **Archive status:** Archived 2025-10-18.
 - **Archive location:** `context/tasks/archive/ICLI-002/`.
-- **Final verification:** Definition of Done met on 2025-10-18 via `context/roadmap/execution-requirements.md`; no
-  automated tests required for documentation changes.
+- **Final verification:** Definition of Done met on 2025-10-18 via
+  [context/roadmap/execution-requirements.md](../../../roadmap/execution-requirements.md); no automated tests required
+  for documentation changes.
 
 ## Decisions & notes
-- **Key decisions:** Requirements baseline captured in `context/roadmap/execution-requirements.md`.
+- **Key decisions:** Requirements baseline captured in
+  [context/roadmap/execution-requirements.md](../../../roadmap/execution-requirements.md).
 - **Risks:** Requirements gathering may be limited by historical documentation quality; capture assumptions explicitly.
-- **Links:** [Execution requirements brief](../../roadmap/execution-requirements.md)
-- **Maintainer priorities:** Focus on cross-platform parity, resilient interactive session controls (timeouts, PTY),
-  and predictable recycling of pooled workers, derived from roadmap goals and legacy pain points.
+- **Links:** [Execution requirements brief](../../../roadmap/execution-requirements.md)
+- **Maintainer priorities:** Focus on cross-platform parity, resilient interactive session controls (timeouts, PTY), and
+  predictable recycling of pooled workers, derived from roadmap goals and legacy pain points.

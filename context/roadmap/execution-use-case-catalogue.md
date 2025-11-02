@@ -2,8 +2,7 @@
 
 ## Purpose
 - Document maintainer-sourced process execution scenarios and their primary constraints ahead of architecture work.
-- Synthesise insights from the execution requirements brief, knowledge base, legacy audit, and roadmap as of
-  2025-10-18.
+- Synthesise insights from the execution requirements brief, knowledge base, legacy audit, and roadmap as of 2025-10-18.
 
 ## Single-run command use cases
 
@@ -15,11 +14,11 @@ inside build and CI flows.
 - Return structured results that surface exit codes, timings, and truncation flags so automation can assert success
   deterministically ([Execution requirements](execution-requirements.md)).
 - Stream stdout and stderr incrementally with bounded capture, exposing both decoded text and raw bytes with explicit
-  charsets to avoid data loss ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
-- Prefer direct binary execution and fall back to shell wrapping only when necessary to avoid quoting issues
-  ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  charsets to avoid data loss ([Execution requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+- Prefer direct binary execution and fall back to shell wrapping only when necessary to avoid quoting issues ([Execution
+  requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 
 **Sources.** [Execution requirements](execution-requirements.md); [Process integration
 KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md).
@@ -44,15 +43,14 @@ hangs or memory pressure.
 
 **Constraints.**
 - Drain stdout and stderr concurrently using bounded buffers to avoid deadlocks and uncontrolled memory growth
-  ([Execution requirements](execution-requirements.md);
-  [Project conventions](../guidelines/icli/project-conventions.md)).
-- Preserve raw byte access and avoid newline trimming so binary payloads remain intact
-  ([Execution requirements](execution-requirements.md);
-  [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
+  ([Execution requirements](execution-requirements.md); [Project
+  conventions](../guidelines/icli/project-conventions.md)).
+- Preserve raw byte access and avoid newline trimming so binary payloads remain intact ([Execution
+  requirements](execution-requirements.md); [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
 - Provide back-pressure aware streaming pumps (prefer virtual threads) instead of busy loops, eliminating the legacy
-  implementation’s readiness polling issues
-  ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md);
-  [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
+  implementation’s readiness polling issues ([Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md); [Legacy
+  audit](../research/experiments/kotlin-solution-audit.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
@@ -68,16 +66,16 @@ and rapid feedback loops in headless environments ([Execution requirements](exec
 
 **Constraints.**
 - Expose session handles with stdin/stdout/stderr streams, optional PTY backing, and convenience helpers (`sendLine`,
-  `closeStdin`, control signals) ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  `closeStdin`, control signals) ([Execution requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Allow switching between pipe-based and PTY-backed modes when prompts require a TTY; window resizing and visual layout
-  fidelity are out of scope ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  fidelity are out of scope ([Execution requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Detect idle or hung sessions through configurable timeouts and expose completion futures so callers can recycle
   misbehaving REPLs ([Execution requirements](execution-requirements.md)).
-- Keep PTY-backed flows consistent across Linux, macOS, and Windows (ConPTY/WinPTY) with clear fallbacks when only
-  pipes are available ([Execution requirements](execution-requirements.md);
-  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
+- Keep PTY-backed flows consistent across Linux, macOS, and Windows (ConPTY/WinPTY) with clear fallbacks when only pipes
+  are available ([Execution requirements](execution-requirements.md); [Execution engine
+  benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
@@ -91,12 +89,12 @@ requirements](execution-requirements.md)).
 
 **Constraints.**
 - Provide expect-style helpers or integrable hooks that can watch stdout/stderr, send responses, and surface failures
-  quickly ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  quickly ([Execution requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Support PTY-backed sessions to satisfy tools that refuse to run over plain pipes (certain `sudo` or SSH flows)
   ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
-- Surface control characters (Ctrl+C, Ctrl+D) and EOF semantics so scripts can terminate interactions cleanly
-  ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+- Surface control characters (Ctrl+C, Ctrl+D) and EOF semantics so scripts can terminate interactions cleanly ([Process
+  integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Provide optional transcript logging hooks so prompt dialogues can be debugged and audited without reproducing runs
   ([Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
@@ -117,8 +115,8 @@ startup.
 **Constraints.**
 - Provide helpers that expose streaming stdout/stderr without requiring manual thread management.
 - Allow optional immediate stdin closure or “no input” mode to avoid keeping pipelines open unnecessarily.
-- Surface completion/termination events (process exit, IO stalls) through futures or listeners so callers can restart
-  or alert on failure.
+- Surface completion/termination events (process exit, IO stalls) through futures or listeners so callers can restart or
+  alert on failure.
 - Support both pipe and PTY transports (some tools, e.g., interactive log viewers, may probe for TTY).
 
 **Sources.**
@@ -136,8 +134,8 @@ transactions, definitions).
 - Language REPLs (`python`, `node`, `scala-cli console`) executing cumulative definitions across requests.
 
 **Constraints.**
-- Provide explicit conversation handles bound to a specific worker, with helpers mirroring `InteractiveSessionClient`
-  / `LineSessionClient`.
+- Provide explicit conversation handles bound to a specific worker, with helpers mirroring `InteractiveSessionClient` /
+  `LineSessionClient`.
 - Allow callers to mark a worker unhealthy (dispose) or request manual resets between conversation phases.
 - Support optional worker affinity keys so clients can reacquire the same worker without monopolising leases.
 - Document concurrency expectations (single-threaded by default) and ensure shutdown semantics preserve state integrity
@@ -155,13 +153,13 @@ transactions, definitions).
 client requests ([Execution requirements](execution-requirements.md); [Project roadmap](project-roadmap.md)).
 
 **Constraints.**
-- Track usage counts per worker and recycle after configurable thresholds to avoid the leaks observed in the legacy
-  pool ([Execution requirements](execution-requirements.md);
-  [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
-- Provide hooks to run warm-up commands or authentication steps when a worker is borrowed
-  ([Execution requirements](execution-requirements.md)).
-- Emit health metrics and remove failed workers immediately so clients do not receive poisoned sessions
-  ([Execution requirements](execution-requirements.md)).
+- Track usage counts per worker and recycle after configurable thresholds to avoid the leaks observed in the legacy pool
+  ([Execution requirements](execution-requirements.md); [Legacy
+  audit](../research/experiments/kotlin-solution-audit.md)).
+- Provide hooks to run warm-up commands or authentication steps when a worker is borrowed ([Execution
+  requirements](execution-requirements.md)).
+- Emit health metrics and remove failed workers immediately so clients do not receive poisoned sessions ([Execution
+  requirements](execution-requirements.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
@@ -175,10 +173,10 @@ client requests ([Execution requirements](execution-requirements.md); [Project r
 **Constraints.**
 - Reset working directory, environment variables, and locale between requests to deliver deterministic behaviour
   ([Execution requirements](execution-requirements.md)).
-- Flush stdin/stdout buffers and support request-level timeouts independent from worker lifetime
-  ([Execution requirements](execution-requirements.md)).
-- Lift the legacy restriction that bound pools to a single command signature, enabling heterogenous workloads
-  ([Legacy audit](../research/experiments/kotlin-solution-audit.md)).
+- Flush stdin/stdout buffers and support request-level timeouts independent from worker lifetime ([Execution
+  requirements](execution-requirements.md)).
+- Lift the legacy restriction that bound pools to a single command signature, enabling heterogenous workloads ([Legacy
+  audit](../research/experiments/kotlin-solution-audit.md)).
 
 **Sources.**
 - [Execution requirements](execution-requirements.md)
@@ -189,10 +187,10 @@ client requests ([Execution requirements](execution-requirements.md); [Project r
 tooling such as morphology analyzers mentioned in roadmap notes ([Project roadmap](project-roadmap.md)).
 
 **Constraints.**
-- Enforce separate request deadlines and worker lifetime caps, escalating from soft termination to forced kill as
-  needed ([Execution requirements](execution-requirements.md)).
-- Capture per-request transcripts or diagnostics without leaking data across clients
+- Enforce separate request deadlines and worker lifetime caps, escalating from soft termination to forced kill as needed
   ([Execution requirements](execution-requirements.md)).
+- Capture per-request transcripts or diagnostics without leaking data across clients ([Execution
+  requirements](execution-requirements.md)).
 - Surface process completion futures and structured shutdown hooks so automation can gracefully drain or forcefully
   dispose workers ([Execution requirements](execution-requirements.md)).
 
@@ -225,26 +223,22 @@ building full JVM implementations from day one.
 - Offer a unified command specification capturing argv, environment overrides, working directory, PTY preferences, and
   shell usage to keep APIs consistent ([Execution requirements](execution-requirements.md)).
 - Require concurrent draining of stdout and stderr, using virtual threads where available, to avoid deadlocks and to
-  improve resource usage
-  ([Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md);
-  [Project conventions](../guidelines/icli/project-conventions.md)).
-- Provide explicit charset selection and preserve raw byte paths so encoding-sensitive workflows remain safe
-  ([Execution requirements](execution-requirements.md);
-  [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
+  improve resource usage ([Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md); [Project
+  conventions](../guidelines/icli/project-conventions.md)).
+- Provide explicit charset selection and preserve raw byte paths so encoding-sensitive workflows remain safe ([Execution
+  requirements](execution-requirements.md); [Legacy audit](../research/experiments/kotlin-solution-audit.md)).
 - Document signal semantics, PTY defaults, timeout ordering, and pooling policies so consumers know how the system
-  behaves across platforms
-  ([Execution requirements](execution-requirements.md);
-  [Process integration KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
+  behaves across platforms ([Execution requirements](execution-requirements.md); [Process integration
+  KB](../knowledge-base/operations/Java%20Terminal%20%26%20Process%20Integration.md)).
 - Ensure Kotlin-friendly APIs and testing hooks (bounded fixtures, PTY/non-PTY matrix) in line with the repository
   testing strategy ([Execution requirements](execution-requirements.md); [Testing strategy](../testing/strategy.md)).
 - Support both buffered and streaming output capture with configurable caps to prevent OOM conditions while retaining
-  automation-friendly summaries
-  ([Execution requirements](execution-requirements.md);
-  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
+  automation-friendly summaries ([Execution requirements](execution-requirements.md); [Execution engine
+  benchmarks](../research/icli-execution-engine-benchmarks.md)).
 - Implement cancellation flows that send gentle interrupts (Ctrl+C/SIGINT) before forceful termination and optionally
-  clean up process trees to avoid stragglers
-  ([Execution requirements](execution-requirements.md);
-  [Execution engine benchmarks](../research/icli-execution-engine-benchmarks.md)).
+  clean up process trees to avoid stragglers ([Execution requirements](execution-requirements.md); [Execution engine
+  benchmarks](../research/icli-execution-engine-benchmarks.md)).
 
 ## Out-of-scope scenarios
 - Full-screen TUIs (e.g., `top`, curses dashboards) that depend on terminal window sizing or cursor positioning.

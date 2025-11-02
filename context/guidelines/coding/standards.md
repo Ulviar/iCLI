@@ -12,11 +12,11 @@ treat violations as defects that must be corrected before submission.
   the same as `value != null`: avoid both unless an API explicitly documents that `null` is allowed.
 - Builders may provide optional arguments by accepting `@Nullable` parameters and substituting documented defaults; all
   other parameters must be required and non-null.
-- Whenever a method, field, or parameter intentionally permits `null`, annotate it explicitly with `@Nullable` (and
-  only then). Returning `null` without the annotation, or checking values that are implicitly non-null under the
-  package default, is treated as a contract violation.
-- Rationale: redundant runtime guards weaken the declared contract, mask erroneous call sites, and create churn when
-  API signatures evolve. Treat `@NotNullByDefault` as the single source of truth and rely on tests or static analysis to
+- Whenever a method, field, or parameter intentionally permits `null`, annotate it explicitly with `@Nullable` (and only
+  then). Returning `null` without the annotation, or checking values that are implicitly non-null under the package
+  default, is treated as a contract violation.
+- Rationale: redundant runtime guards weaken the declared contract, mask erroneous call sites, and create churn when API
+  signatures evolve. Treat `@NotNullByDefault` as the single source of truth and rely on tests or static analysis to
   expose violations instead of defensive checks.
 
 ## Immutability
@@ -28,8 +28,8 @@ treat violations as defects that must be corrected before submission.
 
 - Treat the canonical constructor of a record as the single enforcement point for immutability. Builders should pass
   their working collections directly to the record and let the constructor perform the defensive copy once.
-- Prefer the JDK `copyOf`/factory helpers (`List.copyOf`, `Set.copyOf`, `Map.copyOf`, `List.of`, etc.) over manual
-  `new ArrayList<>(...)` or `clone()` calls. They already snapshot inputs, reject `null` elements, and optimise empty
+- Prefer the JDK `copyOf`/factory helpers (`List.copyOf`, `Set.copyOf`, `Map.copyOf`, `List.of`, etc.) over manual `new
+  ArrayList<>(...)` or `clone()` calls. They already snapshot inputs, reject `null` elements, and optimise empty
   collections, so extra branches such as `isEmpty() ? List.of() : List.copyOf(...)` only add noise.
 - Vararg builders can rely on `List.of(values...)` to clone the provided array. Avoid `argv.clone()`—the additional copy
   is redundant and obscures intent.
@@ -55,7 +55,7 @@ treat violations as defects that must be corrected before submission.
 
 - Follow test-driven development: write or adjust a failing test before implementing behaviour.
 - All new code must be covered by automated tests and verified with `./gradlew test` locally.
-- Capture design rationales or extended answers in `EXPLANATION.md` when requested.
+- Capture design rationales or extended answers in [EXPLANATION.md](../../../EXPLANATION.md) when requested.
 - Prefer importing assertion helpers (e.g., `import kotlin.test.fail`) over qualifying them with package names to keep
   test code concise and readable.
 
@@ -63,11 +63,11 @@ treat violations as defects that must be corrected before submission.
 
 - Document every class and interface with Javadoc that states its responsibility and observable behaviour, even when it
   is package-private and only referenced internally. Avoid mentioning repository documents or implementation trivia.
-- Provide method-level Javadoc for all public and package-private methods (helpers included). Describe inputs,
-  outputs, error cases, and invariants so tests can be derived directly from the text.
+- Provide method-level Javadoc for all public and package-private methods (helpers included). Describe inputs, outputs,
+  error cases, and invariants so tests can be derived directly from the text.
 - Aim the documentation at external/library users first, while still providing enough clarity for reviewers and future
-  maintainers. If implementation context is necessary, prefer clearer code or targeted inline comments over bloating
-  the Javadoc.
+  maintainers. If implementation context is necessary, prefer clearer code or targeted inline comments over bloating the
+  Javadoc.
 - Treat any type that could be consumed by library users (public or exported via public factory methods) as part of a
   "high-class documentation surface". Follow the standards of leading open-source projects: describe high-level
   behaviour, default values, configuration side effects, thread-safety and lifecycle expectations, and include `@param`,
@@ -84,4 +84,5 @@ treat violations as defects that must be corrected before submission.
 - Null-handling follows the repository-wide annotation policy: honour `@NotNullByDefault`, and add explicit checks only
   when dealing with data sourced outside the annotated packages.
 
-Keep `context/guidelines/icli/assistant-notes.md` updated with project-specific tips derived from these standards.
+Keep [context/guidelines/icli/assistant-notes.md](../icli/assistant-notes.md) updated with project-specific tips derived
+from these standards.

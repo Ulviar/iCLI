@@ -25,4 +25,4 @@ plain ASCII spacing.
    Use `--check` to validate formatting in CI without writing changes.
 2. Spot-check the diff to confirm that code fences and tables were not altered unexpectedly.
 3. If a document needs deliberate long lines outside of tables, capture the exception in a comment near the content for
-future reference.
+   future reference.
