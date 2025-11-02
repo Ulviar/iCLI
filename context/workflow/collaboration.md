@@ -10,6 +10,8 @@
   compliance pass: compare touched files against
   [context/guidelines/coding/standards.md](../guidelines/coding/standards.md), fix deviations, and note the verification
   in the task log or PR description.
+- Consult [workflow/quality-gates.md](quality-gates.md) to ensure mandatory automation (`spotlessCheck`, `spotbugsMain`,
+  `test`, Markdown formatting, `pre_response_checks.py`) has been executed and documented in the dossier.
 - Maintain per-task dossiers under `context/tasks/` using the assistant-managed workflow described in
   [context/tasks/README.md](../tasks/README.md); ensure analysis, research, and execution logs are current before
   opening a pull request.

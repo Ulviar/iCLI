@@ -10,6 +10,17 @@ library.
   instructions are required.
 - Keep shared test fixtures alongside the tests that own them unless they are reused across packages.
 
+## Design principles
+
+- Apply SOLID and GRASP heuristics aggressively. Keep collaborators small, cohesive, and replaceable so assistants can
+  reason about them in isolation while maintaining extensibility for future open-source contributions.
+- Convert immutable data holders into Java records where practical; enforce invariants in canonical constructors and
+  expose defensive copies for mutable inputs.
+- Separate orchestration from IO- or process-heavy work. Favour package-private helpers that encapsulate logic which can
+  be unit-tested without launching processes.
+- Document module boundaries and public API contracts before implementation. If expectations are unclear, update the
+  roadmap or knowledge base prior to coding so tests can follow TDD.
+
 ## Process handling
 
 - Drain `stdout` and `stderr` concurrently for every launched process. Avoid shell wrappers unless they provide
