@@ -8,7 +8,8 @@
 
 ## Usage
 
-- The maintainer will ask: “Read [assistant-validation-steps.md](assistant-validation-steps.md) and execute sequence
+- The maintainer will ask: “Read
+  [assistant-validation-steps.md](/context/guidelines/manual-checks/assistant-validation-steps.md) and execute sequence
   `name`”.
 - Read the named sequence in full before starting.
 - Execute the entire sequence from start to finish; do not interleave tasks from other sequences unless explicitly
@@ -68,7 +69,8 @@
        expectations. Record gaps for improvement.
     3. **Inspect parameter and return tags.** Verify that `@param`, `@return`, and `@throws` tags exist where
        appropriate, reflect actual constraints (e.g., non-null contracts, accepted ranges), and reference specific
-       exception types with explanation of when they occur.
+       exception types with explanation of when they occur. Never introduce `@throws NullPointerException`; our
+       nullability policy already treats such failures as contract violations rather than documented behaviour.
     4. **Check examples and guidance.** Identify APIs that benefit from usage examples, error-handling advice, or
        cross-references (`@see`). If missing, draft concise examples or guidance that illustrate typical interactions
        and edge cases.
@@ -114,7 +116,12 @@
        duplication, excessive conditional branching, unused dependencies, magic numbers, or outdated TODO comments.
        Document each occurrence with file/line references.
     2. **Prioritise fixes.** For each finding, decide on the appropriate refactor (e.g., extract method, introduce
-       constants, remove duplication, replace conditionals with polymorphism, simplify boolean logic).
+       constants, remove duplication, replace conditionals with polymorphism, simplify boolean logic). Treat multiple
+       public classes or interfaces declared in a single source file as an automatic smell unless they form a sealed
+       hierarchy whose implementations are compact and exhaustively declared in that file; even in that limited case,
+       plan to split the types so the structure stays discoverable. When working with lambdas in modern Java (>=22),
+       you may use the single-underscore placeholder (`_ ->`) for unused parameters—prefer that form during cleanups
+       so the intent is explicit.
     3. **Refactor implementation.** Apply the selected refactors incrementally, ensuring behaviour is preserved and
        readability improves. Keep commits/diffs focused and explanatory.
     4. **Verify invariants.** Run unit tests (and other relevant checks) to confirm no regressions. If new tests are
@@ -125,6 +132,33 @@
   remaining or deferred cleanups, accompanied by the cleaned-up code.
 - **Follow-up:** Revisit the sequence if the maintainer requests further simplification or if additional smells are
   discovered later.
+
+## Sequence: Modern API Review
+
+- **Intent:** Ensure implementations leverage the most appropriate language and library features available on the
+  project’s baseline (Java 25, Kotlin 2.2) so code stays concise, efficient, and idiomatic.
+- **Preconditions:** Identify the classes or functions under review and note the language/library version constraints in
+  effect. Gather release notes or migration guides for relevant JDK/Kotlin updates when uncertain.
+- **Step-by-step actions:**
+    1. **Catalogue target constructs.** List APIs, patterns, or idioms in the scope that look verbose, outdated, or
+       reimplemented despite platform support (e.g., manual looping where `Stream`/`List` helpers exist, hand-rolled
+       concurrency primitives, obsolete date/time handling).
+    2. **Research modern equivalents.** For each item, confirm whether newer JDK/Kotlin APIs or library utilities offer
+       a clearer or more performant alternative (records, switch expressions, scoped values, structured concurrency,
+       collection factories, `Files` helpers, etc.). Record references to the official documentation or release notes
+       that justify the upgrade.
+    3. **Assess suitability.** Evaluate behavioural impact, readability, and performance implications. Ensure changes
+       respect project constraints (e.g., no preview features, consistent nullability contracts). Flag any cases where
+       adopting the modern API would break binary compatibility or substantially alter semantics.
+    4. **Implement upgrades.** Refactor code to use the modern constructs, keeping diffs focused and updating related
+       documentation or tests. Capture before/after snippets when the transformation is non-trivial.
+    5. **Validate behaviour.** Run the relevant Gradle tasks (formatting, tests, static analysis) to verify the modern
+       API usage behaves as expected and integrates cleanly.
+- **Expected outputs:** A report summarising reviewed locations, chosen modernisations with references, resulting code
+  changes, and verification results. Include rationale for any items left untouched (e.g., constraints preventing
+  adoption).
+- **Follow-up:** If reviewers uncover additional opportunities or regressions, revisit the sequence with the expanded
+  scope.
 
 ## Sequence: Architecture & Invariant Review
 
@@ -155,5 +189,5 @@
 
 - Populate concrete sequences in collaboration with the maintainer (e.g., “Nullability audit”, “Dependency freshness
   review”).
-- Update [context/context-overview.md](../../context-overview.md) and [AGENTS.md](../../../AGENTS.md) to reference this
-  file once sequences are in place.
+- Update [context/context-overview.md](/context/context-overview.md) and [AGENTS.md](/AGENTS.md) to reference this file
+  once sequences are in place.

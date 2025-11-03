@@ -100,7 +100,7 @@ public final class ServiceConversation implements AutoCloseable {
         listener.conversationClosing(scope);
         try {
             if (retire) {
-                lease.reset(ResetRequest.manual(scope.requestId()));
+                lease.reset(ResetRequest.retire(scope.requestId()));
                 listener.conversationReset(scope);
                 interactiveClient.close();
             }

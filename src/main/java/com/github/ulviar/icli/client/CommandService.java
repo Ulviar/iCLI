@@ -3,11 +3,10 @@ package com.github.ulviar.icli.client;
 import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
 import com.github.ulviar.icli.client.internal.runner.LineSessionFactory;
 import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;
+import com.github.ulviar.icli.client.pooled.PooledCommandService;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import com.github.ulviar.icli.engine.ProcessEngine;
-import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
-import java.util.function.Consumer;
 
 /**
  * High-level facade for running a pre-configured command line in one-shot or interactive modes.
@@ -32,14 +31,11 @@ import java.util.function.Consumer;
  * @see LineSessionClient
  */
 public final class CommandService {
-    private final ProcessEngine engine;
-    private final CommandDefinition command;
-    private final ExecutionOptions options;
-    private final ClientScheduler scheduler;
-    private final ResponseDecoder defaultDecoder;
+
     private final CommandRunner runner;
     private final InteractiveSessionRunner interactiveRunner;
     private final LineSessionRunner lineRunner;
+    private final PooledCommandService pooledCommandService;
 
     /**
      * Creates a service using default execution options and the virtual-thread scheduler.
@@ -75,24 +71,30 @@ public final class CommandService {
         this(engine, baseCommand, options, scheduler, new LineDelimitedResponseDecoder());
     }
 
-    CommandService(
+    /**
+     * Creates a service with explicit defaults, intended for collaborators that need to override the decoder used for
+     * line-oriented helpers.
+     *
+     * @param engine process engine responsible for launching commands
+     * @param baseCommand immutable command definition to execute for every request
+     * @param options default execution-time configuration applied to every run or session
+     * @param scheduler scheduler used for {@code runAsync} and session helper futures
+     * @param defaultDecoder decoder applied to line-oriented helpers unless callers override it on the command call
+     */
+    private CommandService(
             ProcessEngine engine,
             CommandDefinition baseCommand,
             ExecutionOptions options,
             ClientScheduler scheduler,
             ResponseDecoder defaultDecoder) {
-        this.engine = engine;
-        this.command = baseCommand;
-        this.options = options;
-        this.scheduler = scheduler;
-        this.defaultDecoder = defaultDecoder;
-        InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(this.engine);
-        RunnerDefaults runnerDefaults = new RunnerDefaults(this.command, this.options, this.defaultDecoder);
+        InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(engine);
+        RunnerDefaults runnerDefaults = new RunnerDefaults(baseCommand, options, defaultDecoder);
         CommandCallFactory callFactory = new CommandCallFactory(runnerDefaults);
-        this.runner = new CommandRunner(this.engine, callFactory, this.scheduler);
+        this.runner = new CommandRunner(engine, callFactory, scheduler);
         this.interactiveRunner = new InteractiveSessionRunner(sessionStarter, callFactory);
-        LineSessionFactory lineSessionFactory = new LineSessionFactory(this.scheduler);
+        LineSessionFactory lineSessionFactory = new LineSessionFactory(scheduler);
         this.lineRunner = new LineSessionRunner(sessionStarter, lineSessionFactory, callFactory);
+        this.pooledCommandService = new PooledCommandService(engine, baseCommand, options, scheduler, defaultDecoder);
     }
 
     /**
@@ -123,36 +125,14 @@ public final class CommandService {
     }
 
     /**
-     * Creates a pooled client using the service defaults and the {@link ProcessPoolConfig} builder defaults.
+     * Returns the branch for configuring pooled execution helpers.
      *
-     * @return pooled client
-     */
-    public ProcessPoolClient pooled() {
-        return pooled(builder -> {}, ServiceProcessorListener.noOp());
-    }
-
-    /**
-     * Creates a pooled client with caller-provided configuration customisation.
+     * <p>The returned facade does not create pools eagerly; each helper allocates its own {@code ProcessPoolClient} so
+     * lifecycles remain scoped to the runner or conversation returned by that helper.</p>
      *
-     * @param configurer hook for adjusting the pool configuration prior to construction
-     * @return pooled client
+     * @return pooled command service rooted in this facade’s defaults
      */
-    public ProcessPoolClient pooled(Consumer<ProcessPoolConfig.Builder> configurer) {
-        return pooled(configurer, ServiceProcessorListener.noOp());
-    }
-
-    /**
-     * Creates a pooled client with caller-provided configuration and diagnostics listener.
-     *
-     * @param configurer hook for adjusting the pool configuration prior to construction
-     * @param listener service-level diagnostics listener
-     * @return pooled client
-     */
-    public ProcessPoolClient pooled(Consumer<ProcessPoolConfig.Builder> configurer, ServiceProcessorListener listener) {
-        ProcessPoolConfig.Builder builder = ProcessPoolConfig.builder(command);
-        builder.workerOptions(options);
-        configurer.accept(builder);
-        ProcessPoolConfig config = builder.build();
-        return ProcessPoolClient.create(engine, config, scheduler, defaultDecoder, listener);
+    public PooledCommandService pooled() {
+        return pooledCommandService;
     }
 }

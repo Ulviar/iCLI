@@ -1,7 +1,6 @@
 package com.github.ulviar.icli.engine.pool.internal.concurrent.util;
 
 import java.time.Duration;
-import java.util.Objects;
 
 /**
  * Shared deadline helper wrapping absolute {@link System#nanoTime()} instants with the repository-wide convention that
@@ -107,7 +106,6 @@ public final class Deadline {
      * @throws IllegalArgumentException when {@code timeout} is negative
      */
     public static long toAbsoluteTimeout(Duration timeout, long now) {
-        Objects.requireNonNull(timeout, "timeout");
         if (timeout.isNegative()) {
             throw new IllegalArgumentException("timeout must be >= 0");
         }

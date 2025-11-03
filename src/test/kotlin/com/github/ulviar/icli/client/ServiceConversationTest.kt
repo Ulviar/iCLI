@@ -22,7 +22,7 @@ class ServiceConversationTest {
 
         conversation.reset()
 
-        assertEquals(1, lease.manualResetCount.get())
+        assertEquals(listOf(ResetRequest.Reason.MANUAL), lease.resetReasons)
         assertEquals(1, listener.conversationResetCount)
         conversation.close()
     }
@@ -61,7 +61,7 @@ class ServiceConversationTest {
         assertEquals(1, lease.closeCount.get())
         assertFalse(lease.sessionClosed())
         assertEquals(1, listener.conversationClosedCount)
-        assertEquals(0, lease.manualResetCount.get())
+        assertTrue(lease.resetReasons.isEmpty())
     }
 
     @Test
@@ -86,7 +86,7 @@ class ServiceConversationTest {
 
         conversation.retire()
 
-        assertEquals(1, lease.manualResetCount.get())
+        assertEquals(listOf(ResetRequest.Reason.CLIENT_RETIRE), lease.resetReasons)
         assertTrue(lease.sessionClosed())
         assertEquals(1, lease.closeCount.get())
         assertEquals(1, listener.conversationResetCount)
@@ -121,6 +121,10 @@ class ServiceConversationTest {
         conversation.retire()
 
         assertEquals(listOf("opened", "reset", "closing", "reset", "closed"), events)
+        assertEquals(
+            listOf(ResetRequest.Reason.MANUAL, ResetRequest.Reason.CLIENT_RETIRE),
+            lease.resetReasons,
+        )
     }
 
     @Test
@@ -133,7 +137,7 @@ class ServiceConversationTest {
         conversation.retire()
         conversation.close()
 
-        assertEquals(1, lease.manualResetCount.get())
+        assertEquals(listOf(ResetRequest.Reason.CLIENT_RETIRE), lease.resetReasons)
         assertEquals(1, lease.closeCount.get())
     }
 
@@ -142,7 +146,7 @@ class ServiceConversationTest {
         private val session = FakeInteractiveSession { payload -> payload }
 
         val closeCount = AtomicInteger()
-        val manualResetCount = AtomicInteger()
+        val resetReasons = mutableListOf<ResetRequest.Reason>()
 
         fun exposedScope(): LeaseScope = scope
 
@@ -153,9 +157,7 @@ class ServiceConversationTest {
         override fun scope(): LeaseScope = scope
 
         override fun reset(request: ResetRequest) {
-            if (request.reason() == ResetRequest.Reason.MANUAL) {
-                manualResetCount.incrementAndGet()
-            }
+            resetReasons += request.reason()
         }
 
         override fun close() {

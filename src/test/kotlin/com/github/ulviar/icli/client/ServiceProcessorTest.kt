@@ -84,6 +84,38 @@ class ServiceProcessorTest {
     }
 
     @Test
+    fun `process closes lease when requestStarted throws`() {
+        val lease = FakeWorkerLease { payload -> payload }
+        val scheduler = InlineScheduler()
+        val failures = mutableListOf<Throwable>()
+        val listener =
+            object : ServiceProcessorListener {
+                override fun requestStarted(
+                    scope: LeaseScope,
+                    input: String,
+                ): Unit = throw IllegalStateException("listener boom")
+
+                override fun requestFailed(
+                    scope: LeaseScope,
+                    error: Throwable,
+                ) {
+                    failures += error
+                }
+            }
+        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+
+        val thrown =
+            kotlin.test.assertFailsWith<IllegalStateException> {
+                processor.process("payload")
+            }
+
+        assertEquals("listener boom", thrown.message)
+        assertEquals(1, lease.manualResetCount.get())
+        assertEquals(1, lease.closeCount.get())
+        assertEquals(listOf<Throwable>(thrown), failures)
+    }
+
+    @Test
     fun `process propagates listener failure after reset`() {
         val lease = FakeWorkerLease { throw IllegalStateException("unreachable") }
         val scheduler = InlineScheduler()

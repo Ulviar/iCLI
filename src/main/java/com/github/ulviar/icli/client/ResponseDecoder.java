@@ -9,4 +9,13 @@ import java.nio.charset.Charset;
 public interface ResponseDecoder {
 
     String read(InputStream stdout, Charset charset) throws IOException;
+
+    /**
+     * Returns a decoder that reads until {@code '\n'} and trims a trailing carriage return when present.
+     *
+     * @return line-delimited response decoder
+     */
+    static ResponseDecoder lineDelimited() {
+        return new LineDelimitedResponseDecoder();
+    }
 }

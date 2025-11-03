@@ -30,6 +30,8 @@ intact.
   2025-11-02).
 - [`ICLI-018`](ICLI-018/README.md) — Refreshed execution scenario catalogue aligning roadmap/backlog references
   (archived 2025-11-02).
+- [`ICLI-028`](ICLI-028/README.md) — Pooled Essential facade (`PooledCommandService` plus runners) with shared helpers,
+  documentation updates, and regression coverage (archived 2025-11-03).
 
 ## Archival checklist
 

@@ -78,7 +78,12 @@ public final class ResetHookRunner {
     public RetireDecision run(PoolWorker worker, LeaseScope scope, ResetRequest request) {
         boolean retire = worker.retireRequested();
         WorkerRetirementReason retireReason = worker.retirementCause();
-        boolean allowHooks = !retire || request.reason() == ResetRequest.Reason.TIMEOUT;
+        boolean forcedRetire = request.reason() == ResetRequest.Reason.CLIENT_RETIRE;
+        if (forcedRetire && retireReason == WorkerRetirementReason.NOT_RETIRED) {
+            retireReason = WorkerRetirementReason.RETIRE_REQUESTED;
+        }
+        retire = retire || forcedRetire;
+        boolean allowHooks = !retire || request.reason() == ResetRequest.Reason.TIMEOUT || forcedRetire;
         if (!allowHooks) {
             return RetireDecision.retire(retireReason);
         }
@@ -96,6 +101,9 @@ public final class ResetHookRunner {
             }
         }
         if (retire) {
+            if (retireReason == WorkerRetirementReason.NOT_RETIRED) {
+                retireReason = WorkerRetirementReason.RETIRE_REQUESTED;
+            }
             return RetireDecision.retire(retireReason);
         }
         return RetireDecision.keep();

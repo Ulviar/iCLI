@@ -9,4 +9,5 @@ module com.github.ulviar.icli {
     exports com.github.ulviar.icli.engine.pool.api;
     exports com.github.ulviar.icli.engine.pool.api.hooks;
     exports com.github.ulviar.icli.client;
+    exports com.github.ulviar.icli.client.pooled;
 }

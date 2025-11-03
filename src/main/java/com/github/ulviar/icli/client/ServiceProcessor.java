@@ -46,10 +46,10 @@ public final class ServiceProcessor {
     public CommandResult<String> process(String input) {
         WorkerLease lease = leaseSupplier.get();
         LeaseScope scope = lease.scope();
-        listener.requestStarted(scope, input);
-        InteractiveSessionClient sessionClient = InteractiveSessionClient.wrap(lease.session());
-        LineSessionClient client = LineSessionClient.create(sessionClient, decoder, scheduler);
         try (lease) {
+            listener.requestStarted(scope, input);
+            InteractiveSessionClient sessionClient = InteractiveSessionClient.wrap(lease.session());
+            LineSessionClient client = LineSessionClient.create(sessionClient, decoder, scheduler);
             CommandResult<String> result = client.process(input);
             if (result.success()) {
                 listener.requestCompleted(scope, result);

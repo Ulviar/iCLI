@@ -1,5 +1,7 @@
 package com.github.ulviar.icli.client
 
+import com.github.ulviar.icli.client.ResponseDecoder
+import com.github.ulviar.icli.client.pooled.PooledClientSpec
 import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
@@ -8,6 +10,7 @@ import com.github.ulviar.icli.engine.ProcessResult
 import com.github.ulviar.icli.engine.pool.api.LeaseScope
 import com.github.ulviar.icli.engine.pool.api.PoolDiagnosticsListener
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig
+import com.github.ulviar.icli.engine.pool.api.hooks.RequestTimeoutScheduler
 import com.github.ulviar.icli.engine.pool.api.hooks.ResetHook
 import com.github.ulviar.icli.engine.pool.api.hooks.ResetOutcome
 import com.github.ulviar.icli.engine.pool.api.hooks.ResetRequest
@@ -20,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class ProcessPoolClientTest {
@@ -119,6 +123,33 @@ class ProcessPoolClientTest {
     }
 
     @Test
+    fun `service processor with decoder overrides default`() {
+        engine.response = { "raw" }
+        val decoderInvocations = AtomicInteger()
+        val decoder =
+            ResponseDecoder { _, _ ->
+                decoderInvocations.incrementAndGet()
+                "decoded"
+            }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val result = client.serviceProcessor(decoder).process("payload")
+
+                assertTrue(result.success)
+                assertEquals("decoded", result.value)
+            }
+
+        assertEquals(1, decoderInvocations.get())
+    }
+
+    @Test
     fun `processor returns failure when responder aborts`() {
         engine.response = { _ -> error("boom") }
 
@@ -174,11 +205,14 @@ class ProcessPoolClientTest {
 
         val service = CommandService(engine, baseCommand, baseOptions, scheduler)
         service
-            .pooled { builder ->
-                builder.minSize(1)
-                builder.requestTimeout(Duration.ofSeconds(2))
-            }.use { pooled ->
-                val result = pooled.serviceProcessor().process("from-service")
+            .pooled()
+            .client { spec ->
+                spec.pool { pool ->
+                    pool.minSize(1)
+                    pool.requestTimeout(Duration.ofSeconds(2))
+                }
+            }.use { client ->
+                val result = client.serviceProcessor().process("from-service")
                 assertTrue(result.success)
             }
 
@@ -227,6 +261,28 @@ class ProcessPoolClientTest {
     }
 
     @Test
+    fun `withListener returns original instance when listener matches`() {
+        val listener = RecordingListener()
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                listener,
+            ).use { client ->
+                val same = client.withListener(listener)
+
+                assertSame(client, same)
+                val result = same.serviceProcessor().process("echo")
+                assertTrue(result.success)
+                assertEquals("echo", result.value)
+            }
+    }
+
+    @Test
     fun `retiring conversation disposes worker`() {
         val listener = RecordingListener()
         engine.response = { payload -> payload }
@@ -271,6 +327,42 @@ class ProcessPoolClientTest {
         }
     }
 
+    @Test
+    fun `close throws when pool cannot drain in time`() {
+        engine.response = { payload -> payload }
+        val timeoutScheduler = HangingTimeoutScheduler()
+        val config =
+            ProcessPoolConfig
+                .builder(baseCommand)
+                .workerOptions(baseOptions)
+                .minSize(0)
+                .maxSize(1)
+                .requestTimeout(Duration.ofMillis(50))
+                .requestTimeoutSchedulerFactory { timeoutScheduler }
+                .diagnosticsListener(diagnostics)
+                .addResetHook(resetHook)
+                .build()
+        val client =
+            ProcessPoolClient.create(
+                engine,
+                config,
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            )
+
+        val lease = client.pool().acquire(Duration.ofSeconds(1))
+
+        val thrown =
+            assertFailsWith<IllegalStateException> {
+                client.close()
+            }
+        assertTrue(thrown.message!!.contains("unable to drain"))
+
+        lease.close()
+        client.pool().drain(Duration.ofSeconds(1))
+    }
+
     private class RecordingDiagnostics : PoolDiagnosticsListener {
         val leaseAcquired = AtomicInteger()
         val leaseReleased = AtomicInteger()
@@ -304,9 +396,31 @@ class ProcessPoolClientTest {
                     return ResetOutcome.RETIRE
                 }
 
-                ResetRequest.Reason.TIMEOUT -> return ResetOutcome.RETIRE
+                ResetRequest.Reason.TIMEOUT,
+                ResetRequest.Reason.CLIENT_RETIRE,
+                -> return ResetOutcome.RETIRE
             }
         }
+    }
+
+    private class HangingTimeoutScheduler : RequestTimeoutScheduler {
+        override fun schedule(
+            workerId: Int,
+            requestId: UUID,
+            timeout: Duration,
+            onTimeout: Runnable,
+        ) {
+            // Intentionally never executes the callback so active leases remain outstanding.
+        }
+
+        override fun cancel(workerId: Int) {}
+
+        override fun complete(
+            workerId: Int,
+            requestId: UUID,
+        ): Boolean = false
+
+        override fun close() {}
     }
 
     private class FakeProcessEngine : ProcessEngine {

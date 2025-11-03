@@ -22,6 +22,8 @@ import java.time.Duration;
  */
 public final class ProcessPoolClient implements AutoCloseable {
 
+    private static final Duration DEFAULT_DRAIN_TIMEOUT = Duration.ofSeconds(30);
+
     private final ProcessPool pool;
     private final ClientScheduler scheduler;
     private final ResponseDecoder responseDecoder;
@@ -66,7 +68,7 @@ public final class ProcessPoolClient implements AutoCloseable {
 
     private static Duration normalisedDrainTimeout(Duration timeout) {
         if (timeout.isZero() || timeout.isNegative()) {
-            return Duration.ZERO;
+            return DEFAULT_DRAIN_TIMEOUT;
         }
         return timeout;
     }
@@ -79,6 +81,16 @@ public final class ProcessPoolClient implements AutoCloseable {
      */
     public ServiceProcessor serviceProcessor() {
         return new ServiceProcessor(pool::acquire, scheduler, responseDecoder, listener);
+    }
+
+    /**
+     * Returns a stateless request processor that decodes responses using the provided {@link ResponseDecoder}.
+     *
+     * @param decoder decoder applied to responses
+     * @return service processor bound to the decoder
+     */
+    public ServiceProcessor serviceProcessor(ResponseDecoder decoder) {
+        return new ServiceProcessor(pool::acquire, scheduler, decoder, listener);
     }
 
     /**
@@ -103,14 +115,32 @@ public final class ProcessPoolClient implements AutoCloseable {
     }
 
     /**
-     * Closes the underlying pool and drains active work. The drain timeout defaults to the request timeout configured
-     * on {@link ProcessPoolConfig} (with non-positive values treated as {@link Duration#ZERO}).
+     * Returns a view that shares the underlying pool but uses the supplied listener. Passing the current listener
+     * returns this instance.
      *
-     * <p>The method is idempotent; subsequent invocations have no additional effect.</p>
+     * @param listener listener to associate with pooled requests and conversations
+     * @return client view bound to the listener
+     */
+    public ProcessPoolClient withListener(ServiceProcessorListener listener) {
+        if (this.listener == listener) {
+            return this;
+        }
+        return new ProcessPoolClient(pool, scheduler, responseDecoder, listener, drainTimeout);
+    }
+
+    /**
+     * Closes the underlying pool and drains active work. The drain timeout defaults to the request timeout configured
+     * on {@link ProcessPoolConfig} (falling back to a 30&nbsp;second ceiling when the request timeout is not positive).
+     *
+     * <p>The method is idempotent; subsequent invocations have no additional effect. If the pool cannot drain within
+     * the configured timeout an {@link IllegalStateException} is thrown so callers can surface the failure.</p>
      */
     @Override
     public void close() {
         pool.close();
-        pool.drain(drainTimeout);
+        if (!pool.drain(drainTimeout)) {
+            throw new IllegalStateException(
+                    "Process pool was unable to drain within " + drainTimeout + " (active leases still running)");
+        }
     }
 }

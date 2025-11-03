@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 /** {@link CommandLauncher} implementation that provisions PTY-backed processes via pty4j. */
@@ -29,8 +28,8 @@ public final class PtyCommandLauncher implements CommandLauncher {
 
     PtyCommandLauncher(
             PtyProcessFactory processFactory, Function<PtyProcess, TerminalController> terminalControllerFactory) {
-        this.processFactory = Objects.requireNonNull(processFactory, "processFactory");
-        this.terminalControllerFactory = Objects.requireNonNull(terminalControllerFactory, "terminalControllerFactory");
+        this.processFactory = processFactory;
+        this.terminalControllerFactory = terminalControllerFactory;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.github.ulviar.icli.engine.pool.internal.runtime;
 
 import com.github.ulviar.icli.engine.pool.api.WorkerRetirementReason;
-import java.util.Objects;
 
 /**
  * Result returned by collaborators that decide whether a worker must be retired after completing a request. The sealed
@@ -28,7 +27,7 @@ public sealed interface RetireDecision permits RetireDecision.Keep, RetireDecisi
      * @param reason reason that motivated retirement
      */
     static RetireDecision retire(WorkerRetirementReason reason) {
-        return new Retire(Objects.requireNonNull(reason, "reason"));
+        return new Retire(reason);
     }
 
     /**

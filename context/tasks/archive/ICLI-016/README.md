@@ -75,7 +75,7 @@
 
 ## Completion & archive
 - **Archive status:** Archived (2025-11-03).
-- **Archive location:** [context/tasks/archive/ICLI-016/README.md](/context/tasks/archive/ICLI-016/README.md)
+- **Archive location:** [context/tasks/archive/ICLI-016/README.md](README.md)
 - **Final verification:** Definition of Done satisfied; see execution history for command logs.
 
 ## Decisions & notes

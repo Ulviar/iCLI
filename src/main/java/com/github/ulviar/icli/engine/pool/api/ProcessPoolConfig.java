@@ -9,7 +9,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,8 +75,6 @@ public final class ProcessPoolConfig {
      * @param command command executed for every pooled worker
      *
      * @return a new builder instance
-     *
-     * @throws NullPointerException when {@code command} is {@code null}
      */
     public static Builder builder(CommandDefinition command) {
         return new Builder(command);
@@ -263,7 +260,7 @@ public final class ProcessPoolConfig {
         private boolean invariantChecksEnabled = true;
 
         private Builder(CommandDefinition command) {
-            this.workerCommand = Objects.requireNonNull(command, "workerCommand");
+            this.workerCommand = command;
         }
 
         private static int defaultMaxSize() {
@@ -280,11 +277,9 @@ public final class ProcessPoolConfig {
          * @param options execution options for worker launches
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code options} is {@code null}
          */
         public Builder workerOptions(ExecutionOptions options) {
-            this.workerOptions = Objects.requireNonNull(options, "workerOptions");
+            this.workerOptions = options;
             this.destroyProcessTree = options.destroyProcessTree();
             return this;
         }
@@ -365,11 +360,9 @@ public final class ProcessPoolConfig {
          * @param value lifetime threshold
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code value} is {@code null}
          */
         public Builder maxWorkerLifetime(Duration value) {
-            this.maxWorkerLifetime = Objects.requireNonNull(value, "maxWorkerLifetime");
+            this.maxWorkerLifetime = value;
             return this;
         }
 
@@ -379,11 +372,9 @@ public final class ProcessPoolConfig {
          * @param value idle threshold
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code value} is {@code null}
          */
         public Builder maxIdleTime(Duration value) {
-            this.maxIdleTime = Objects.requireNonNull(value, "maxIdleTime");
+            this.maxIdleTime = value;
             return this;
         }
 
@@ -392,7 +383,7 @@ public final class ProcessPoolConfig {
          * non-negative; use {@link Duration#ZERO} to request a non-blocking acquisition.
          */
         public Builder leaseTimeout(Duration value) {
-            Duration timeout = Objects.requireNonNull(value, "leaseTimeout");
+            Duration timeout = value;
             if (timeout.isNegative()) {
                 throw new IllegalArgumentException("leaseTimeout must be >= 0");
             }
@@ -405,7 +396,7 @@ public final class ProcessPoolConfig {
          * use {@link Duration#ZERO} to disable automatic request deadlines.
          */
         public Builder requestTimeout(Duration value) {
-            Duration timeout = Objects.requireNonNull(value, "requestTimeout");
+            Duration timeout = value;
             if (timeout.isNegative()) {
                 throw new IllegalArgumentException("requestTimeout must be >= 0");
             }
@@ -449,11 +440,9 @@ public final class ProcessPoolConfig {
          * @param hook hook to add; must not be {@code null}
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code hook} is {@code null}
          */
         public Builder addResetHook(ResetHook hook) {
-            this.resetHooks.add(Objects.requireNonNull(hook, "hook"));
+            this.resetHooks.add(hook);
             return this;
         }
 
@@ -463,11 +452,9 @@ public final class ProcessPoolConfig {
          * @param listener listener implementation
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code listener} is {@code null}
          */
         public Builder diagnosticsListener(PoolDiagnosticsListener listener) {
-            this.diagnosticsListener = Objects.requireNonNull(listener, "listener");
+            this.diagnosticsListener = listener;
             return this;
         }
 
@@ -477,11 +464,9 @@ public final class ProcessPoolConfig {
          * @param value clock instance
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code value} is {@code null}
          */
         public Builder clock(Clock value) {
-            this.clock = Objects.requireNonNull(value, "clock");
+            this.clock = value;
             return this;
         }
 
@@ -493,11 +478,9 @@ public final class ProcessPoolConfig {
          * @param factory scheduler factory
          *
          * @return this builder
-         *
-         * @throws NullPointerException when {@code factory} is {@code null}
          */
         public Builder requestTimeoutSchedulerFactory(RequestTimeoutSchedulerFactory factory) {
-            this.requestTimeoutSchedulerFactory = Objects.requireNonNull(factory, "factory");
+            this.requestTimeoutSchedulerFactory = factory;
             return this;
         }
 

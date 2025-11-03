@@ -4,7 +4,6 @@ import com.github.ulviar.icli.engine.pool.internal.concurrent.util.Awaiter;
 import com.github.ulviar.icli.engine.pool.internal.concurrent.util.Deadline;
 import com.github.ulviar.icli.engine.pool.internal.worker.PoolWorker;
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jetbrains.annotations.Nullable;
@@ -132,12 +131,7 @@ public final class WaiterQueue {
         /**
          * Outcome signalling that a worker was assigned.
          */
-        record Assigned(PoolWorker worker) implements AwaitOutcome {
-
-            public Assigned {
-                Objects.requireNonNull(worker, "worker");
-            }
-        }
+        record Assigned(PoolWorker worker) implements AwaitOutcome {}
 
         /**
          * Outcome signalling that the deadline elapsed before assignment.
@@ -186,7 +180,7 @@ public final class WaiterQueue {
                 return AwaitOutcome.timedOut();
             }
             if (isAssigned()) {
-                PoolWorker worker = Objects.requireNonNull(assignedWorker, "assignedWorker");
+                PoolWorker worker = assignedWorker;
                 return AwaitOutcome.assigned(worker);
             }
             waiters.remove(this);

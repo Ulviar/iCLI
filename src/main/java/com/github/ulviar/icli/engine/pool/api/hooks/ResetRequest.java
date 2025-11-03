@@ -32,6 +32,16 @@ public interface ResetRequest {
     }
 
     /**
+     * Returns a request indicating the client explicitly retired the worker.
+     *
+     * @param requestId identifier of the active request (borrowed from the lease scope)
+     * @return reset request with reason {@link Reason#CLIENT_RETIRE}
+     */
+    static ResetRequest retire(UUID requestId) {
+        return new Default(Reason.CLIENT_RETIRE, requestId);
+    }
+
+    /**
      * Returns a request describing a lease that timed out.
      *
      * @param requestId identifier of the timed-out request
@@ -70,7 +80,12 @@ public interface ResetRequest {
         /**
          * Reset triggered after the lease exceeded its timeout.
          */
-        TIMEOUT
+        TIMEOUT,
+
+        /**
+         * Reset triggered because client code explicitly requested worker retirement.
+         */
+        CLIENT_RETIRE
     }
 
     record Default(Reason reason, UUID requestId) implements ResetRequest {}

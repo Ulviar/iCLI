@@ -34,7 +34,6 @@ public final class Awaiter {
      *     deadline elapsed while the predicate still evaluated to {@code true}
      * @throws InterruptedException if the waiting thread is interrupted; callers are responsible for restoring the
      *     interrupt flag
-     * @throws NullPointerException when any argument is {@code null}
      * @throws IllegalStateException when the calling thread does not hold {@code lock}
      */
     public static Result await(ReentrantLock lock, Condition condition, Deadline deadline, BooleanSupplier predicate)

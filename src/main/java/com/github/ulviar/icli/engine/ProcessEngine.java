@@ -26,8 +26,8 @@ public interface ProcessEngine {
      *
      * <ul>
      *   <li>{@code spec.command()} must not be empty (enforced by {@link CommandDefinition}).</li>
-     *   <li>If {@code spec.terminalPreference() == REQUIRED}, the implementation must be able to provision a PTY/ConPTY;
-     *       otherwise it must throw {@link UnsupportedOperationException}.</li>
+     *   <li>If {@code spec.terminalPreference() == REQUIRED}, the implementation must be able to provision a
+     *   PTY/ConPTY; otherwise it must throw {@link UnsupportedOperationException}.</li>
      * </ul>
      *
      * <p><strong>Postconditions:</strong>
@@ -62,7 +62,8 @@ public interface ProcessEngine {
      *   <li>Interruptions or pump failures that occur after launch are wrapped in
      *       {@link com.github.ulviar.icli.engine.runtime.ProcessEngineExecutionException}.</li>
      *   <li>If the supervising thread is interrupted while enforcing the shutdown plan, implementations throw
-     *       {@link com.github.ulviar.icli.engine.runtime.ProcessShutdownException} after escalating to a forceful kill.</li>
+     *       {@link com.github.ulviar.icli.engine.runtime.ProcessShutdownException} after escalating to a forceful
+     *       kill.</li>
      * </ul>
      *
      * <p>In all cases, implementations must restore the thread interrupt flag and attempt to terminate the process tree

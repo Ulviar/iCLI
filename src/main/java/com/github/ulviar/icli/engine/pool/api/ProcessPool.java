@@ -118,8 +118,6 @@ public final class ProcessPool implements AutoCloseable {
      * @param config behavioural and sizing policy for the pool
      *
      * @return a fully initialised pool
-     *
-     * @throws NullPointerException when {@code engine} or {@code config} is {@code null}
      */
     public static ProcessPool create(ProcessEngine engine, ProcessPoolConfig config) {
         return new ProcessPool(engine, config);
@@ -150,12 +148,10 @@ public final class ProcessPool implements AutoCloseable {
      * @return a {@link WorkerLease} wrapping the borrowed worker
      *
      * @throws IllegalArgumentException    when {@code timeout} is negative
-     * @throws NullPointerException        when {@code timeout} is {@code null}
      * @throws ServiceUnavailableException when the wait times out, the pool is closing or terminated, or the pool
      *                                     cannot launch the worker reserved for this caller
      */
     public WorkerLease acquire(Duration timeout) {
-        Objects.requireNonNull(timeout, "timeout");
         if (timeout.isNegative()) {
             throw new IllegalArgumentException("timeout must not be negative");
         }
@@ -218,8 +214,6 @@ public final class ProcessPool implements AutoCloseable {
      *
      * @return a {@link CompletionStage} that completes with the lease or exceptionally with {@link
      * ServiceUnavailableException}
-     *
-     * @throws NullPointerException when {@code scheduler} is {@code null}
      */
     public CompletionStage<WorkerLease> acquireAsync(ClientScheduler scheduler) {
         return acquireAsync(scheduler, config.leaseTimeout());
@@ -233,8 +227,6 @@ public final class ProcessPool implements AutoCloseable {
      *
      * @return a {@link CompletionStage} that completes with the lease or exceptionally with {@link
      * ServiceUnavailableException}
-     *
-     * @throws NullPointerException when {@code scheduler} or {@code timeout} is {@code null}
      */
     public CompletionStage<WorkerLease> acquireAsync(ClientScheduler scheduler, Duration timeout) {
         return scheduler.submit(() -> acquire(timeout));

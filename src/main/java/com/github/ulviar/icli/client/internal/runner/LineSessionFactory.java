@@ -29,8 +29,8 @@ public final class LineSessionFactory {
     /**
      * Launches a session using the provided {@link SessionLauncher} and produces a {@link LineSessionClient}.
      *
-     * <p>The resulting client inherits the {@link ResponseDecoder} attached to the {@link CommandCall} and delegates all
-     * asynchronous work to the configured scheduler. A typical usage flow is shown below:</p>
+     * <p>The resulting client inherits the {@link ResponseDecoder} attached to the {@link CommandCall} and delegates
+     * all asynchronous work to the configured scheduler. A typical usage flow is shown below:</p>
      *
      * <pre>{@code
      * LineSessionClient client = factory.open(launcher, call);
@@ -52,5 +52,16 @@ public final class LineSessionFactory {
     public LineSessionClient open(SessionLauncher launcher, CommandCall call) {
         InteractiveSessionClient session = launcher.launch(call);
         return LineSessionClient.create(session, call.decoder(), scheduler);
+    }
+
+    /**
+     * Creates a {@link LineSessionClient} using the provided session and decoder while reusing the factory scheduler.
+     *
+     * @param session interactive session to wrap
+     * @param decoder decoder applied to responses
+     * @return line session client bound to the session
+     */
+    public LineSessionClient create(InteractiveSessionClient session, ResponseDecoder decoder) {
+        return LineSessionClient.create(session, decoder, scheduler);
     }
 }

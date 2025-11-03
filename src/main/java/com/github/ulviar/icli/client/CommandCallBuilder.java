@@ -55,8 +55,6 @@ public final class CommandCallBuilder {
      * @param defaultDecoder decoder used when {@link #decoder(ResponseDecoder)} is not invoked.
      *
      * @return fresh builder ready for further customisation
-     *
-     * @throws NullPointerException if any argument is {@code null}
      */
     public static CommandCallBuilder from(
             CommandDefinition baseCommand, ExecutionOptions defaults, ResponseDecoder defaultDecoder) {
