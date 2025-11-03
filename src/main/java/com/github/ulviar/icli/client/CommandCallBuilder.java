@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,9 +40,9 @@ public final class CommandCallBuilder {
 
     private CommandCallBuilder(
             CommandDefinition baseCommand, ExecutionOptions defaults, ResponseDecoder defaultDecoder) {
-        this.baseCommand = Objects.requireNonNull(baseCommand, "baseCommand");
-        this.defaults = Objects.requireNonNull(defaults, "defaults");
-        this.defaultDecoder = Objects.requireNonNull(defaultDecoder, "defaultDecoder");
+        this.baseCommand = baseCommand;
+        this.defaults = defaults;
+        this.defaultDecoder = defaultDecoder;
     }
 
     /**
@@ -72,7 +71,7 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder arg(String value) {
-        extraArgs.add(Objects.requireNonNull(value, "value"));
+        extraArgs.add(value);
         return this;
     }
 
@@ -147,7 +146,7 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder env(String key, String value) {
-        extraEnv.put(Objects.requireNonNull(key, "key"), Objects.requireNonNull(value, "value"));
+        extraEnv.put(key, value);
         return this;
     }
 
@@ -159,7 +158,7 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder workingDirectory(Path path) {
-        this.workingDirectory = Objects.requireNonNull(path, "path");
+        this.workingDirectory = path;
         return this;
     }
 
@@ -171,7 +170,7 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder decoder(ResponseDecoder decoder) {
-        this.decoderOverride = Objects.requireNonNull(decoder, "decoder");
+        this.decoderOverride = decoder;
         return this;
     }
 
@@ -186,7 +185,6 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder customizeOptions(Consumer<ExecutionOptions.Builder> customizer) {
-        Objects.requireNonNull(customizer, "customizer");
         ExecutionOptions.Builder builder = defaults.derive();
         customizer.accept(builder);
         this.optionsCustomizer = builder;
@@ -201,7 +199,7 @@ public final class CommandCallBuilder {
      * @return this builder
      */
     public CommandCallBuilder terminalPreference(TerminalPreference preference) {
-        this.terminalPreferenceOverride = Objects.requireNonNull(preference, "preference");
+        this.terminalPreferenceOverride = preference;
         return this;
     }
 

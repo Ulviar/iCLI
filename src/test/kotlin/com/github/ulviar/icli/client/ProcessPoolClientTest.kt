@@ -1,0 +1,334 @@
+package com.github.ulviar.icli.client
+
+import com.github.ulviar.icli.engine.CommandDefinition
+import com.github.ulviar.icli.engine.ExecutionOptions
+import com.github.ulviar.icli.engine.InteractiveSession
+import com.github.ulviar.icli.engine.ProcessEngine
+import com.github.ulviar.icli.engine.ProcessResult
+import com.github.ulviar.icli.engine.pool.api.LeaseScope
+import com.github.ulviar.icli.engine.pool.api.PoolDiagnosticsListener
+import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig
+import com.github.ulviar.icli.engine.pool.api.hooks.ResetHook
+import com.github.ulviar.icli.engine.pool.api.hooks.ResetOutcome
+import com.github.ulviar.icli.engine.pool.api.hooks.ResetRequest
+import java.time.Duration
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
+import kotlin.test.assertTrue
+
+class ProcessPoolClientTest {
+    private val engine = FakeProcessEngine()
+    private val scheduler = InlineScheduler()
+    private val diagnostics = RecordingDiagnostics()
+    private val resetHook = RecordingResetHook()
+
+    private val baseCommand =
+        CommandDefinition
+            .builder()
+            .command("fake", "command")
+            .build()
+
+    private val baseOptions =
+        ExecutionOptions
+            .builder()
+            .idleTimeout(Duration.ZERO)
+            .build()
+
+    private fun newConfig(): ProcessPoolConfig =
+        ProcessPoolConfig
+            .builder(baseCommand)
+            .workerOptions(baseOptions)
+            .minSize(0)
+            .maxSize(1)
+            .requestTimeout(Duration.ofSeconds(5))
+            .diagnosticsListener(diagnostics)
+            .addResetHook(resetHook)
+            .build()
+
+    @AfterTest
+    fun tearDown() {
+        scheduler.close()
+    }
+
+    @Test
+    fun `service processor processes line requests`() {
+        engine.response = { payload -> "echo:$payload" }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val result = client.serviceProcessor().process("ping")
+
+                assertTrue(result.success)
+                assertEquals("echo:ping", result.value)
+                assertEquals(listOf("ping"), engine.requestLog)
+                assertEquals(1, resetHook.completed.size)
+                assertEquals(1, diagnostics.leaseAcquired.get())
+                assertEquals(1, diagnostics.leaseReleased.get())
+            }
+    }
+
+    @Test
+    fun `async processing delegates work to scheduler`() {
+        engine.response = { payload -> payload.uppercase() }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val result = client.serviceProcessor().processAsync("async").join()
+
+                assertTrue(result.success)
+                assertEquals("ASYNC", result.value)
+                assertEquals(1, scheduler.submissions)
+            }
+    }
+
+    @Test
+    fun `service processor creations are independent`() {
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val first = client.serviceProcessor()
+                val second = client.serviceProcessor()
+
+                assertNotSame(first, second)
+            }
+    }
+
+    @Test
+    fun `processor returns failure when responder aborts`() {
+        engine.response = { _ -> error("boom") }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val result = client.serviceProcessor().process("broken")
+
+                assertFalse(result.success)
+                assertEquals("broken", (result.error as LineSessionException).input())
+                assertEquals(1, resetHook.manual.size)
+            }
+    }
+
+    @Test
+    fun `conversation keeps lease until closed`() {
+        engine.response = { payload -> "[$payload]" }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                client.openConversation().use { conversation ->
+                    val first = conversation.line().process("one")
+                    val second = conversation.line().process("two")
+
+                    assertEquals("[one]", first.value)
+                    assertEquals("[two]", second.value)
+                    assertEquals(1, engine.sessionsCreated.get())
+                    assertEquals(listOf("one", "two"), engine.requestLog)
+                }
+
+                val result = client.serviceProcessor().process("three")
+                assertEquals("[three]", result.value)
+                assertEquals(listOf("one", "two", "three"), engine.requestLog)
+                assertEquals(1, engine.sessionsCreated.get())
+                assertEquals(2, resetHook.completed.size) // conversation close + stateless request
+            }
+    }
+
+    @Test
+    fun `command service forwards defaults into pooled client`() {
+        engine.response = { payload -> payload }
+
+        val service = CommandService(engine, baseCommand, baseOptions, scheduler)
+        service
+            .pooled { builder ->
+                builder.minSize(1)
+                builder.requestTimeout(Duration.ofSeconds(2))
+            }.use { pooled ->
+                val result = pooled.serviceProcessor().process("from-service")
+                assertTrue(result.success)
+            }
+
+        assertTrue(engine.sessionsCreated.get() >= 1)
+        assertEquals(listOf("from-service"), engine.requestLog)
+    }
+
+    @Test
+    fun `listener receives request and conversation events`() {
+        val listener = RecordingListener()
+        engine.response = { payload ->
+            if (payload == "fail") {
+                error("boom")
+            }
+            payload.lowercase()
+        }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                listener,
+            ).use { client ->
+                val success = client.serviceProcessor().process("OK")
+                assertTrue(success.success)
+
+                val failure = client.serviceProcessor().process("fail")
+                assertFalse(failure.success)
+
+                client.openConversation().use { conversation ->
+                    conversation.reset()
+                    val convo = conversation.line().process("CHAT")
+                    assertTrue(convo.success)
+                }
+            }
+
+        assertEquals(listOf("OK", "fail"), listener.startedInputs)
+        assertEquals(1, listener.completed.size)
+        assertEquals(1, listener.failures.size)
+        assertEquals(1, listener.conversationOpenedCount)
+        assertEquals(1, listener.conversationClosingCount)
+        assertEquals(1, listener.conversationResetCount)
+        assertEquals(1, listener.conversationClosedCount)
+    }
+
+    @Test
+    fun `retiring conversation disposes worker`() {
+        val listener = RecordingListener()
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                listener,
+            ).use { client ->
+                client.openConversation().retire()
+                val result = client.serviceProcessor().process("after")
+
+                assertTrue(result.success, "expected pooled request to succeed after retiring worker: ${result.error}")
+            }
+
+        val created = engine.sessionsCreated.get()
+        assertTrue(created >= 2, "expected at least two sessions after retirement, observed $created")
+        assertEquals(listOf("after"), engine.requestLog.takeLast(1))
+        assertEquals(1, listener.conversationOpenedCount)
+        assertEquals(1, listener.conversationClosedCount)
+    }
+
+    @Test
+    fun `close shuts down pool and prevents further leases`() {
+        engine.response = { payload -> payload }
+
+        val client =
+            ProcessPoolClient.create(
+                engine,
+                newConfig(),
+                scheduler,
+                LineDelimitedResponseDecoder(),
+                ServiceProcessorListener.noOp(),
+            )
+        client.close()
+
+        assertFailsWith<com.github.ulviar.icli.engine.pool.api.ServiceUnavailableException> {
+            client.pool().acquire()
+        }
+    }
+
+    private class RecordingDiagnostics : PoolDiagnosticsListener {
+        val leaseAcquired = AtomicInteger()
+        val leaseReleased = AtomicInteger()
+
+        override fun leaseAcquired(workerId: Int) {
+            leaseAcquired.incrementAndGet()
+        }
+
+        override fun leaseReleased(workerId: Int) {
+            leaseReleased.incrementAndGet()
+        }
+    }
+
+    private class RecordingResetHook : ResetHook {
+        val completed = mutableListOf<UUID>()
+        val manual = mutableListOf<UUID>()
+
+        override fun reset(
+            session: InteractiveSession,
+            scope: LeaseScope,
+            request: ResetRequest,
+        ): ResetOutcome {
+            when (request.reason()) {
+                ResetRequest.Reason.LEASE_COMPLETED -> {
+                    completed.add(request.requestId())
+                    return ResetOutcome.CONTINUE
+                }
+
+                ResetRequest.Reason.MANUAL -> {
+                    manual.add(request.requestId())
+                    return ResetOutcome.RETIRE
+                }
+
+                ResetRequest.Reason.TIMEOUT -> return ResetOutcome.RETIRE
+            }
+        }
+    }
+
+    private class FakeProcessEngine : ProcessEngine {
+        val sessionsCreated = AtomicInteger()
+        val requestLog = mutableListOf<String>()
+
+        var response: (String) -> String = { throw IllegalStateException("response not configured") }
+
+        override fun run(
+            spec: CommandDefinition,
+            options: ExecutionOptions,
+        ): ProcessResult = throw UnsupportedOperationException("run() not expected")
+
+        override fun startSession(
+            spec: CommandDefinition,
+            options: ExecutionOptions,
+        ): InteractiveSession {
+            sessionsCreated.incrementAndGet()
+            return FakeInteractiveSession { payload ->
+                requestLog.add(payload)
+                response(payload)
+            }
+        }
+    }
+}

@@ -29,7 +29,7 @@ Classes in these packages should remain `public` only when cross-package access 
 
 ## Documentation alignment
 
-- The root [README.md](../../../README.md) lists the same packages in the “Supported Packages” section for consumers.
+- The root [README.md](/README.md) lists the same packages in the “Supported Packages” section for consumers.
 - When adding new exported packages, update both this document and the module descriptor (`module-info.java`).
 - Whenever an internal helper becomes part of the public surface, move it to an exported package and extend the README
   and architecture brief accordingly.

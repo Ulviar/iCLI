@@ -24,7 +24,7 @@
   maintainers.
 - **Proposed deliverables:** Updated `module-info.java`; relocation or façade for `StandardProcessEngine` plus
   diagnostics types so only vetted APIs remain in exported packages; README “Supported packages” section for external
-  consumers; maintainer notes under [context/guidelines/icli/public-api.md](../../guidelines/icli/public-api.md);
+  consumers; maintainer notes under [context/guidelines/icli/public-api.md](/context/guidelines/icli/public-api.md);
   dossier logs and refreshed `.commit-message`.
 - **Open questions / risks:** Confirm no downstream consumers rely on internal package names in archived docs; monitor
   for binary compatibility issues caused by moving `StandardProcessEngine` once artifacts are published.
@@ -62,4 +62,4 @@
 - **Key decisions:** Adopted `com.github.ulviar.icli.engine.*` namespace for Advanced API consumers, keeping internals
   under `.engine.runtime.internal`.
 - **Risks:** Watch for stale package references in archived documents.
-- **Links:** [context/guidelines/icli/public-api.md](../../guidelines/icli/public-api.md)
+- **Links:** [context/guidelines/icli/public-api.md](/context/guidelines/icli/public-api.md)

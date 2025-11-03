@@ -1,6 +1,5 @@
 package com.github.ulviar.icli.client;
 
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -41,13 +40,12 @@ public final class ClientSchedulers {
         private final boolean shutdownOnClose;
 
         ExecutorBackedClientScheduler(ExecutorService executor, boolean shutdownOnClose) {
-            this.executor = Objects.requireNonNull(executor, "executor");
+            this.executor = executor;
             this.shutdownOnClose = shutdownOnClose;
         }
 
         @Override
         public <T> CompletableFuture<T> submit(Callable<T> task) {
-            Objects.requireNonNull(task, "task");
             ScheduledFuture<T> future = new ScheduledFuture<>();
             Future<?> delegate = executor.submit(() -> {
                 try {

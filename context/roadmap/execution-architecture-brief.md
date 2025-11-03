@@ -90,20 +90,26 @@
   into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, enabling listen-only clients to consume data
   reactively without manual thread management and matching the listen-only monitoring scenario in
   [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
-- `ProcessPoolClient` surfaces `processAsync`, `processBytesAsync`, and lease-level async helpers. Each request still
-  executes on a worker session, but scheduling and completion notifications run on the same `ClientScheduler`, ensuring
-  blocking pool semantics and async projections stay consistent.
+- `ProcessPoolClient` exposes `ServiceProcessor` for stateless line-oriented workloads and `ServiceConversation` for
+  stateful interactions backed by a dedicated `WorkerLease`. Requests execute on pooled interactive sessions while
+  diagnostics are bridged through `ServiceProcessorListener`; asynchronous helpers reuse the same `ClientScheduler`
+  employed by `CommandService`.
 - Kotlin support layers on top of the futures: `suspend fun CommandService.runSuspend(...)`, `suspend fun
   LineSessionClient.processSuspend(...)`, and flow helpers live in the Kotlin module so tests and coroutine clients do
   not handle `CompletableFuture` manually.
 
 ### Pooling usage modes
 
-- **Simple service pool (Essential API).** Presents a lightweight component (e.g., `ProcessPoolClient.create("mystem")`)
-  that exposes single-request helpers such as `process(String input)` or `processBytes(byte[] input)`. Internally it
-  scales across multiple warm workers and surfaces either a result or an exception, hiding leases, state resets, and
-  recovery logic. This path satisfies the catalogue’s warm REPL and command multiplexing scenarios while keeping the API
-  approachable.
+- **Simple service pool (Essential API).** Presents a lightweight component (e.g.,
+  `CommandService.pooled().serviceProcessor()`) that exposes single-request helpers such as `process(String input)` and
+  `processAsync(String input)`. Internally it scales across multiple warm workers, wires resets through
+  `WorkerLease.reset(...)`, and surfaces results via `CommandResult` while emitting listener callbacks. This path
+  satisfies the catalogue’s warm REPL and command multiplexing scenarios while keeping the API approachable.
+- **Conversation handle (Essential API).** `ProcessPoolClient.openConversation()` borrows a worker until explicitly
+  closed, providing both `ServiceConversation.line()` and `ServiceConversation.interactive()` helpers plus manual
+  `reset()` hooks. `ServiceConversation.retire()` allows callers to dispose of unhealthy workers by shutting down the
+  session before returning it to the pool, keeping stateful dialogues predictable while diagnostics listeners observe
+  scope transitions.
 - **Batch processor (Essential API, optional).** Builds on the same pool runtime to fan out collections or reactive
   streams of requests. Useful for high-throughput pipelines; can be layered later without changing the core runtime.
 - **Lease-driven pool (Advanced API).** Retains the existing `WorkerPool`/`WorkerLease` surface so advanced consumers

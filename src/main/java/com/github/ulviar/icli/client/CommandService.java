@@ -3,7 +3,8 @@ package com.github.ulviar.icli.client;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import com.github.ulviar.icli.engine.ProcessEngine;
-import java.util.Objects;
+import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
+import java.util.function.Consumer;
 
 /**
  * High-level facade for running a pre-configured command line in one-shot or interactive modes.
@@ -28,6 +29,11 @@ import java.util.Objects;
  * @see LineSessionClient
  */
 public final class CommandService {
+    private final ProcessEngine engine;
+    private final CommandDefinition command;
+    private final ExecutionOptions options;
+    private final ClientScheduler scheduler;
+    private final ResponseDecoder defaultDecoder;
     private final CommandRunner runner;
     private final InteractiveSessionRunner interactiveRunner;
     private final LineSessionRunner lineRunner;
@@ -72,18 +78,17 @@ public final class CommandService {
             ExecutionOptions options,
             ClientScheduler scheduler,
             ResponseDecoder defaultDecoder) {
-        ProcessEngine ensuredEngine = Objects.requireNonNull(engine, "engine");
-        CommandDefinition ensuredCommand = Objects.requireNonNull(baseCommand, "baseCommand");
-        ExecutionOptions ensuredOptions = Objects.requireNonNull(options, "options");
-        ClientScheduler ensuredScheduler = Objects.requireNonNull(scheduler, "scheduler");
-        ResponseDecoder ensuredDecoder = Objects.requireNonNull(defaultDecoder, "defaultDecoder");
-        InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(ensuredEngine);
-        this.runner =
-                new CommandRunner(ensuredEngine, ensuredCommand, ensuredOptions, ensuredScheduler, ensuredDecoder);
+        this.engine = engine;
+        this.command = baseCommand;
+        this.options = options;
+        this.scheduler = scheduler;
+        this.defaultDecoder = defaultDecoder;
+        InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(this.engine);
+        this.runner = new CommandRunner(this.engine, this.command, this.options, this.scheduler, this.defaultDecoder);
         this.interactiveRunner =
-                new InteractiveSessionRunner(sessionStarter, ensuredCommand, ensuredOptions, ensuredDecoder);
+                new InteractiveSessionRunner(sessionStarter, this.command, this.options, this.defaultDecoder);
         this.lineRunner =
-                new LineSessionRunner(sessionStarter, ensuredScheduler, ensuredCommand, ensuredOptions, ensuredDecoder);
+                new LineSessionRunner(sessionStarter, this.scheduler, this.command, this.options, this.defaultDecoder);
     }
 
     /**
@@ -111,5 +116,39 @@ public final class CommandService {
      */
     public LineSessionRunner lineSessionRunner() {
         return lineRunner;
+    }
+
+    /**
+     * Creates a pooled client using the service defaults and the {@link ProcessPoolConfig} builder defaults.
+     *
+     * @return pooled client
+     */
+    public ProcessPoolClient pooled() {
+        return pooled(builder -> {}, ServiceProcessorListener.noOp());
+    }
+
+    /**
+     * Creates a pooled client with caller-provided configuration customisation.
+     *
+     * @param configurer hook for adjusting the pool configuration prior to construction
+     * @return pooled client
+     */
+    public ProcessPoolClient pooled(Consumer<ProcessPoolConfig.Builder> configurer) {
+        return pooled(configurer, ServiceProcessorListener.noOp());
+    }
+
+    /**
+     * Creates a pooled client with caller-provided configuration and diagnostics listener.
+     *
+     * @param configurer hook for adjusting the pool configuration prior to construction
+     * @param listener service-level diagnostics listener
+     * @return pooled client
+     */
+    public ProcessPoolClient pooled(Consumer<ProcessPoolConfig.Builder> configurer, ServiceProcessorListener listener) {
+        ProcessPoolConfig.Builder builder = ProcessPoolConfig.builder(command);
+        builder.workerOptions(options);
+        configurer.accept(builder);
+        ProcessPoolConfig config = builder.build();
+        return ProcessPoolClient.create(engine, config, scheduler, defaultDecoder, listener);
     }
 }

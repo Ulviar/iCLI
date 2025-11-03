@@ -121,8 +121,7 @@ class LineExpectTest {
     private fun newClient(
         session: ScriptedInteractiveSession,
         scheduler: ClientScheduler,
-    ): LineSessionClient =
-        LineSessionClient.create(InteractiveSessionClient.wrap(session), LineDelimitedResponseDecoder(), scheduler)
+    ): LineSessionClient = LineSessionClient.create(InteractiveSessionClient.wrap(session), LineDelimitedResponseDecoder(), scheduler)
 
     private fun trackScheduler(scheduler: ClientScheduler): ClientScheduler {
         toClose += scheduler
