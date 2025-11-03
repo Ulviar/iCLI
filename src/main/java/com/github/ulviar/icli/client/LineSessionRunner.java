@@ -1,5 +1,9 @@
 package com.github.ulviar.icli.client;
 
+import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
+import com.github.ulviar.icli.client.internal.runner.LineSessionFactory;
+import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;
+import com.github.ulviar.icli.client.internal.runner.SessionLauncher;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import java.util.function.Consumer;
@@ -12,23 +16,27 @@ import java.util.function.Consumer;
  */
 public final class LineSessionRunner {
 
-    private final InteractiveSessionStarter starter;
-    private final ClientScheduler scheduler;
-    private final CommandDefinition baseCommand;
-    private final ExecutionOptions options;
-    private final ResponseDecoder defaultDecoder;
+    private final SessionLauncher sessionLauncher;
+    private final LineSessionFactory lineSessionFactory;
+    private final CommandCallFactory callFactory;
 
     LineSessionRunner(
-            InteractiveSessionStarter starter,
+            SessionLauncher sessionLauncher,
             ClientScheduler scheduler,
             CommandDefinition baseCommand,
             ExecutionOptions options,
             ResponseDecoder defaultDecoder) {
-        this.starter = starter;
-        this.scheduler = scheduler;
-        this.baseCommand = baseCommand;
-        this.options = options;
-        this.defaultDecoder = defaultDecoder;
+        this(
+                sessionLauncher,
+                new LineSessionFactory(scheduler),
+                new CommandCallFactory(new RunnerDefaults(baseCommand, options, defaultDecoder)));
+    }
+
+    LineSessionRunner(
+            SessionLauncher sessionLauncher, LineSessionFactory lineSessionFactory, CommandCallFactory callFactory) {
+        this.sessionLauncher = sessionLauncher;
+        this.lineSessionFactory = lineSessionFactory;
+        this.callFactory = callFactory;
     }
 
     /**
@@ -37,7 +45,7 @@ public final class LineSessionRunner {
      * @return {@link LineSessionClient} configured with the default decoder and scheduler
      */
     public LineSessionClient open() {
-        return createLineSession(createBaseCall());
+        return lineSessionFactory.open(sessionLauncher, callFactory.createBaseCall());
     }
 
     /**
@@ -47,7 +55,7 @@ public final class LineSessionRunner {
      * @return {@link LineSessionClient} configured with the resolved decoder and scheduler
      */
     public LineSessionClient open(Consumer<CommandCallBuilder> customizer) {
-        return createLineSession(buildCustomCall(customizer));
+        return lineSessionFactory.open(sessionLauncher, callFactory.createCustomCall(customizer));
     }
 
     /**
@@ -57,21 +65,6 @@ public final class LineSessionRunner {
      * @return {@link LineSessionClient} configured with the resolved decoder and scheduler
      */
     public LineSessionClient open(CommandCall call) {
-        return createLineSession(call);
-    }
-
-    private LineSessionClient createLineSession(CommandCall call) {
-        InteractiveSessionClient session = starter.start(call);
-        return LineSessionClient.create(session, call.decoder(), scheduler);
-    }
-
-    private CommandCall createBaseCall() {
-        return new CommandCall(baseCommand, options, defaultDecoder);
-    }
-
-    private CommandCall buildCustomCall(Consumer<CommandCallBuilder> customizer) {
-        CommandCallBuilder builder = CommandCallBuilder.from(baseCommand, options, defaultDecoder);
-        customizer.accept(builder);
-        return builder.build();
+        return lineSessionFactory.open(sessionLauncher, call);
     }
 }

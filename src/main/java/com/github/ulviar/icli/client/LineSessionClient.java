@@ -29,7 +29,15 @@ public final class LineSessionClient implements AutoCloseable {
         this.scheduler = scheduler;
     }
 
-    static LineSessionClient create(
+    /**
+     * Creates a new line-oriented client that decorates the supplied interactive session.
+     *
+     * @param session interactive session backing the line protocol
+     * @param decoder decoder used to transform session output into line responses
+     * @param scheduler scheduler powering asynchronous helpers such as {@link #processAsync(String)}
+     * @return line session client ready for immediate use
+     */
+    public static LineSessionClient create(
             InteractiveSessionClient session, ResponseDecoder decoder, ClientScheduler scheduler) {
         return new LineSessionClient(session, decoder, scheduler);
     }

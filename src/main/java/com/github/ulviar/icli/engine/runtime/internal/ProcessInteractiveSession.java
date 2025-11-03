@@ -7,6 +7,7 @@ import com.github.ulviar.icli.engine.ShutdownPlan;
 import com.github.ulviar.icli.engine.ShutdownSignal;
 import com.github.ulviar.icli.engine.runtime.internal.shutdown.ShutdownExecutor;
 import com.github.ulviar.icli.engine.runtime.internal.terminal.TerminalController;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -79,6 +80,9 @@ public final class ProcessInteractiveSession implements InteractiveSession {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "InteractiveSessionClient wraps and manages this shared stream")
     public OutputStream stdin() {
         return stdin;
     }
@@ -94,6 +98,9 @@ public final class ProcessInteractiveSession implements InteractiveSession {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "Callers observe lifecycle of the underlying process directly")
     public CompletableFuture<Integer> onExit() {
         return exitFuture;
     }

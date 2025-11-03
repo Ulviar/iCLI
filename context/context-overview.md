@@ -8,6 +8,8 @@ spend a few minutes here—skipping steps has already caused missed instructions
 1. **AGENTS.md (root)** — confirms global constraints (tooling, formatting, documentation language, Gradle usage).
 2. **context/tasks/README.md** — reiterates the task lifecycle, logging rules, and archive policy; ensures dossiers are
    structured correctly from planning through retrospective.
+3. **context/guidelines/manual-checks/assistant-validation-steps.md** — catalog of manual validation sequences the
+   maintainer may request; read the relevant sequence and execute step-by-step.
 
 ## 2. Code & Documentation Standards
 1. **context/guidelines/coding/standards.md** — mandatory coding rules (nullability, records, TDD, docs).

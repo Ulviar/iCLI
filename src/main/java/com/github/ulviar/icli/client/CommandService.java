@@ -1,5 +1,8 @@
 package com.github.ulviar.icli.client;
 
+import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
+import com.github.ulviar.icli.client.internal.runner.LineSessionFactory;
+import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import com.github.ulviar.icli.engine.ProcessEngine;
@@ -84,11 +87,12 @@ public final class CommandService {
         this.scheduler = scheduler;
         this.defaultDecoder = defaultDecoder;
         InteractiveSessionStarter sessionStarter = new InteractiveSessionStarter(this.engine);
-        this.runner = new CommandRunner(this.engine, this.command, this.options, this.scheduler, this.defaultDecoder);
-        this.interactiveRunner =
-                new InteractiveSessionRunner(sessionStarter, this.command, this.options, this.defaultDecoder);
-        this.lineRunner =
-                new LineSessionRunner(sessionStarter, this.scheduler, this.command, this.options, this.defaultDecoder);
+        RunnerDefaults runnerDefaults = new RunnerDefaults(this.command, this.options, this.defaultDecoder);
+        CommandCallFactory callFactory = new CommandCallFactory(runnerDefaults);
+        this.runner = new CommandRunner(this.engine, callFactory, this.scheduler);
+        this.interactiveRunner = new InteractiveSessionRunner(sessionStarter, callFactory);
+        LineSessionFactory lineSessionFactory = new LineSessionFactory(this.scheduler);
+        this.lineRunner = new LineSessionRunner(sessionStarter, lineSessionFactory, callFactory);
     }
 
     /**

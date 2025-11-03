@@ -84,4 +84,5 @@
   delegated to ICLI-026–ICLI-030.
 - **Risks:** Integration and performance validation outstanding; tracked via ICLI-031–ICLI-033.
 - **Links:** [Process pool architecture](/context/roadmap/process-pool-architecture.md) [Execution use case
-  catalogue](/context/roadmap/execution-use-case-catalogue.md)
+  catalogue](/context/roadmap/execution-use-case-catalogue.md) [Pooled command service design
+  (ICLI-026)](../../ICLI-026/design/2025-11-03-pooled-command-service.md)

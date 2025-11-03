@@ -1,5 +1,8 @@
 package com.github.ulviar.icli.client;
 
+import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
+import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;
+import com.github.ulviar.icli.client.internal.runner.SessionLauncher;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import java.util.function.Consumer;
@@ -14,20 +17,20 @@ import java.util.function.Consumer;
  */
 public final class InteractiveSessionRunner {
 
-    private final InteractiveSessionStarter starter;
-    private final CommandDefinition baseCommand;
-    private final ExecutionOptions options;
-    private final ResponseDecoder defaultDecoder;
+    private final SessionLauncher sessionLauncher;
+    private final CommandCallFactory callFactory;
 
     InteractiveSessionRunner(
-            InteractiveSessionStarter starter,
+            SessionLauncher sessionLauncher,
             CommandDefinition baseCommand,
             ExecutionOptions options,
             ResponseDecoder defaultDecoder) {
-        this.starter = starter;
-        this.baseCommand = baseCommand;
-        this.options = options;
-        this.defaultDecoder = defaultDecoder;
+        this(sessionLauncher, new CommandCallFactory(new RunnerDefaults(baseCommand, options, defaultDecoder)));
+    }
+
+    InteractiveSessionRunner(SessionLauncher sessionLauncher, CommandCallFactory callFactory) {
+        this.sessionLauncher = sessionLauncher;
+        this.callFactory = callFactory;
     }
 
     /**
@@ -36,7 +39,7 @@ public final class InteractiveSessionRunner {
      * @return interactive session client wrapping the launched process
      */
     public InteractiveSessionClient open() {
-        return starter.start(createBaseCall());
+        return sessionLauncher.launch(callFactory.createBaseCall());
     }
 
     /**
@@ -46,7 +49,7 @@ public final class InteractiveSessionRunner {
      * @return interactive session client wrapping the launched process
      */
     public InteractiveSessionClient open(Consumer<CommandCallBuilder> customizer) {
-        return starter.start(buildCustomCall(customizer));
+        return sessionLauncher.launch(callFactory.createCustomCall(customizer));
     }
 
     /**
@@ -56,16 +59,6 @@ public final class InteractiveSessionRunner {
      * @return interactive session client wrapping the launched process
      */
     public InteractiveSessionClient open(CommandCall call) {
-        return starter.start(call);
-    }
-
-    private CommandCall createBaseCall() {
-        return new CommandCall(baseCommand, options, defaultDecoder);
-    }
-
-    private CommandCall buildCustomCall(Consumer<CommandCallBuilder> customizer) {
-        CommandCallBuilder builder = CommandCallBuilder.from(baseCommand, options, defaultDecoder);
-        customizer.accept(builder);
-        return builder.build();
+        return sessionLauncher.launch(call);
     }
 }

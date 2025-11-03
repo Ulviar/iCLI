@@ -2,7 +2,8 @@
 
 ## Scope
 
-These guidelines apply to the entire repository unless a more specific `AGENTS.md` is created within a subdirectory.
+These guidelines apply to the entire repository unless a more specific [AGENTS.md](AGENTS.md) is created within a
+subdirectory.
 
 ## Tooling and Environment
 
@@ -17,14 +18,14 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
 
 - Java sources must follow **Palantir Java Format** and be enforced via **Spotless**.
 - Kotlin sources must follow the official **Kotlin coding conventions** and be enforced via **Spotless**.
-- Review `context/guidelines/icli/assistant-notes.md` for assistant-specific implementation preferences (e.g., when to
-  use Java records).
-- Read `context/guidelines/coding/standards.md` before making code changes; its rules are mandatory for all
-  contributions.
+- Review [context/guidelines/icli/assistant-notes.md](context/guidelines/icli/assistant-notes.md) for assistant-specific
+  implementation preferences (e.g., when to use Java records).
+- Read [context/guidelines/coding/standards.md](context/guidelines/coding/standards.md) before making code changes; its
+  rules are mandatory for all contributions.
 - Use JetBrains nullability annotations: annotate packages with `@NotNullByDefault`, mark exceptional cases with
   `@Nullable`, and avoid other annotations until explicitly approved.
-- Answer detailed design questions in `EXPLANATION.md` (Russian) when requested; capture reasoning, alternatives, and
-  test strategy there instead of the console when longer narratives are helpful.
+- Answer detailed design questions in [EXPLANATION.md](EXPLANATION.md) (Russian) when requested; capture reasoning,
+  alternatives, and test strategy there instead of the console when longer narratives are helpful.
 
 ## Quality Gates
 
@@ -49,8 +50,12 @@ These guidelines apply to the entire repository unless a more specific `AGENTS.m
    file is ignored by Git).
 7. Before completing any task, explicitly review the refreshed `.commit-message` to confirm no stale bullet points or
    legacy summaries remain.
-8. Prior to ending a session, follow `context/checklists/session-completion.md` (formatting/tests + `.commit-message`
-   refresh) and log the checklist completion inside the active task dossier.
+8. Prior to ending a session, follow
+   [context/checklists/session-completion.md](context/checklists/session-completion.md) (formatting/tests +
+   `.commit-message` refresh) and log the checklist completion inside the active task dossier.
+9. When the maintainer requests manual validation, consult
+   [context/guidelines/manual-checks/assistant-validation-steps.md](context/guidelines/manual-checks/assistant-validation-steps.md)
+   and execute the named sequence one step at a time, reporting after each step before continuing.
 
 ## Development Practices
 
@@ -67,20 +72,22 @@ All project documentation, comments, and commit messages must be written in **En
 
 ## Knowledge Base
 
-- Before starting any task, read `context/context-overview.md` end-to-end; it lists the mandatory documents to revisit
-  each session and links to their latest locations.
+- Before starting any task, read [context/context-overview.md](context/context-overview.md) end-to-end; it lists the
+  mandatory documents to revisit each session and links to their latest locations.
 - After completing the overview checklist, review the latest materials under `context/knowledge-base` to stay aligned
   with project context and decisions.
-- Read `context/roadmap/project-roadmap.md` to stay connected to the overall delivery plan and current phase priorities.
+- Read [context/roadmap/project-roadmap.md](context/roadmap/project-roadmap.md) to stay connected to the overall
+  delivery plan and current phase priorities.
 - Maintain awareness of research outputs stored under `context/research`:
-    - Consult `context/research/registry.md` before beginning work to understand which analyses are available and where
+    - Consult [context/research/registry.md](context/research/registry.md) before beginning work to understand which analyses are available and where
       to find details.
     - Use the registry to identify targeted documents that apply to the task instead of re-reading the entire directory,
       but revisit individual reports when their context is relevant.
 - Follow the Markdown formatting rules in
-  `context/guidelines/general/markdown-formatting.md` and review the file before editing Markdown documents.
+  [context/guidelines/general/markdown-formatting.md](context/guidelines/general/markdown-formatting.md) and review the
+  file before editing Markdown documents.
 
 ## Repository Map
 
-- Primary coordination instructions are kept in this file located at the repository root (`AGENTS.md`).
-- When creating new modules or directories, add additional `AGENTS.md` files if extra guidance is required.
+- Primary coordination instructions are kept in this file located at the repository root ([AGENTS.md](AGENTS.md)).
+- When creating new modules or directories, add additional [AGENTS.md](AGENTS.md) files if extra guidance is required.

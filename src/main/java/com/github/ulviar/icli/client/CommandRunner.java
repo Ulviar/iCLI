@@ -1,5 +1,7 @@
 package com.github.ulviar.icli.client;
 
+import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
+import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;
 import com.github.ulviar.icli.engine.CommandDefinition;
 import com.github.ulviar.icli.engine.ExecutionOptions;
 import com.github.ulviar.icli.engine.ProcessEngine;
@@ -22,10 +24,8 @@ import java.util.function.Consumer;
 public final class CommandRunner {
 
     private final ProcessEngine engine;
-    private final CommandDefinition baseCommand;
-    private final ExecutionOptions options;
+    private final CommandCallFactory callFactory;
     private final ClientScheduler scheduler;
-    private final ResponseDecoder defaultDecoder;
 
     /**
      * Creates a runner with default execution options and the virtual-thread scheduler.
@@ -67,11 +67,13 @@ public final class CommandRunner {
             ExecutionOptions options,
             ClientScheduler scheduler,
             ResponseDecoder defaultDecoder) {
+        this(engine, new CommandCallFactory(new RunnerDefaults(baseCommand, options, defaultDecoder)), scheduler);
+    }
+
+    CommandRunner(ProcessEngine engine, CommandCallFactory callFactory, ClientScheduler scheduler) {
         this.engine = engine;
-        this.baseCommand = baseCommand;
-        this.options = options;
+        this.callFactory = callFactory;
         this.scheduler = scheduler;
-        this.defaultDecoder = defaultDecoder;
     }
 
     /**
@@ -81,7 +83,7 @@ public final class CommandRunner {
      * containing process diagnostics or the thrown exception
      */
     public CommandResult<String> run() {
-        return run(createBaseCall());
+        return run(callFactory.createBaseCall());
     }
 
     /**
@@ -92,7 +94,7 @@ public final class CommandRunner {
      * @return the completed command result
      */
     public CommandResult<String> run(Consumer<CommandCallBuilder> customizer) {
-        return run(buildCustomCall(customizer));
+        return run(callFactory.createCustomCall(customizer));
     }
 
     /**
@@ -100,8 +102,8 @@ public final class CommandRunner {
      *
      * @param call fully constructed command and execution options
      *
-     * @return the completed command result. Non-zero exits produce {@link ProcessExecutionException}; unexpected runtime
-     * failures are wrapped in {@link CommandRunnerException}.
+     * @return the completed command result. Non-zero exits produce {@link ProcessExecutionException}; unexpected
+     * runtime failures are wrapped in {@link CommandRunnerException}.
      */
     public CommandResult<String> run(CommandCall call) {
         try {
@@ -123,7 +125,7 @@ public final class CommandRunner {
      * to {@link ExecutionOptions#shutdownPlan()}
      */
     public CompletableFuture<CommandResult<String>> runAsync() {
-        return runAsync(createBaseCall());
+        return runAsync(callFactory.createBaseCall());
     }
 
     /**
@@ -135,7 +137,7 @@ public final class CommandRunner {
      * to {@link ExecutionOptions#shutdownPlan()}
      */
     public CompletableFuture<CommandResult<String>> runAsync(Consumer<CommandCallBuilder> customizer) {
-        return runAsync(buildCustomCall(customizer));
+        return runAsync(callFactory.createCustomCall(customizer));
     }
 
     /**
@@ -148,15 +150,5 @@ public final class CommandRunner {
      */
     public CompletableFuture<CommandResult<String>> runAsync(CommandCall call) {
         return scheduler.submit(() -> run(call));
-    }
-
-    private CommandCall createBaseCall() {
-        return new CommandCall(baseCommand, options, defaultDecoder);
-    }
-
-    private CommandCall buildCustomCall(Consumer<CommandCallBuilder> customizer) {
-        CommandCallBuilder builder = CommandCallBuilder.from(baseCommand, options, defaultDecoder);
-        customizer.accept(builder);
-        return builder.build();
     }
 }
