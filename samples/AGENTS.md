@@ -9,7 +9,8 @@
 - Continue using Java 25 for production samples and Kotlin + JUnit 6 for tests.
 - Annotate packages with `@NotNullByDefault` and favour immutable helpers just like the core module.
 - Organise code under `com.github.ulviar.icli.samples.<scenario>.<approach>` where `<approach>` is one of `icli`,
-  `commonsExec`, `ztExec`, `nuProcess`, or `jline` depending on the implementation.
+  `commonsExec`, `ztExec`, `nuProcess`, or `jline` depending on the implementation. The `icli` subpackage hosts both
+  Essential and Advanced API samples.
 
 ## Workflow expectations
 - Every scenario must provide both Java and Kotlin entry points plus two tests: one against a fake process fixture and
@@ -18,6 +19,8 @@
   own tool prerequisites inside the module README.
 - Do not add competitor dependencies to the core module; keep them scoped to `samples` so the main artifact remains
   lean.
+- Reuse the shared harness under `com.github.ulviar.icli.samples.scenarios.single` (`CommandInvocation`,
+  `SingleRunExecutor`, adapters, and Kotlin helpers) instead of duplicating process-launch logic per scenario.
 
 ## Documentation
 - Update [samples/README.md](README.md) whenever you add a scenario or change the contribution workflow.

@@ -13,6 +13,19 @@ ergonomics before publishing documentation.
   (3.0.0), and JLine (3.30.6) so contributors can focus on sample code instead of wiring libraries later.
 - **Publication.** The samples module is documentation-only: do not configure publishing or ship artifacts from it.
 
+## Single-run harness
+
+Use the shared types under `com.github.ulviar.icli.samples.scenarios.single` to add comparable samples quickly:
+
+- `CommandInvocation` — immutable command line definition (argv, working directory, environment, timeout, merge flag).
+- `SingleRunExecutor` — adapter interface; use `SingleRunExecutors.defaultExecutors()` (Kotlin) to obtain both iCLI
+  adapters (Essential + Advanced) alongside the Commons Exec, zt-exec, NuProcess, and JLine implementations.
+- `ScenarioExecutionResult` — captures exit code, stdout/stderr text, duration, timeout flag, and any exception.
+- Fake commands live in `FakeSingleRunProcess`; construct invocations via `FakeSingleRunInvocations.success(...)`.
+- Real-tool helpers (starting with `java -version`) are exposed by `RealToolInvocations`.
+- Tests live under `samples/src/test/kotlin` and assert that every adapter succeeds on the fake process and `java
+  -version`.
+
 ## Running the samples build
 
 Use Gradle via the MCP helpers from the repository root:
