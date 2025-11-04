@@ -33,22 +33,28 @@
 - Essential API calls delegate to the advanced layer using opinionated defaults (timeouts, logging off, PTY heuristics)
   while still benefiting from the shared runtime and reliability guarantees.
 - Kotlin extension functions mirror both tiers so tests and clients can adopt either entry point idiomatically.
+- Scenario guidance ties each runner to the catalogue’s single-run automation, line session, interactive, and pooled
+  conversation categories, while upcoming listen-only/MCP/stateful presets (ICLI-023/024/025, TBD-001) extend the same
+  facades instead of inventing parallel APIs.
 
 ### Essential API behaviour
 
-- **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer (
-  default 64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt
+- **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer
+  (default 64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt
   followed by 5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command echo,
   exit code, truncated output snippets, and a cause when available; callers who need richer diagnostics can drop to the
-  advanced API.
+  advanced API. Scenario coverage: catalogue entries for CLI tooling automation and environment diagnostics.
 - **CommandService.lineSessionRunner()** → `LineSessionRunner`. Provides reusable helpers that return
   `LineSessionClient` instances with high-level `process(String)` returning structured `ClientResult<String>` for the
   «одна строка → один ответ» сценарий. Uses configurable `ResponseDecoder` strategies (newline by default) and exposes
   the underlying `InteractiveSessionClient` for advanced needs without forcing stream handling in Essential code.
+  `LineSessionClient.expect()` layers the `LineExpect` DSL on top for scripted prompt/response scenarios, covering the
+  catalogue’s REPL automation + expect-flow entries.
 - **CommandService.interactiveSessionRunner()** → `InteractiveSessionRunner`. Wraps the underlying `InteractiveSession`
   with helpers `sendLine`, `closeStdin`, access to raw streams, and `onExit`. Default idle timeout (5 минут) tear down
   unresponsive sessions, with automatic restart available through pooling. Serves as the bridge between Essential
-  convenience and Advanced flexibility.
+  convenience and Advanced flexibility for the interactive-shell/listen-only scenarios (until the dedicated listen-only
+  runner lands in ICLI-023).
 - **CommandService.pooled()** → `PooledCommandService`. Mirrors the standard runners but scopes work to pooled workers.
   Each helper owns a `ProcessPoolClient` under the hood, supporting synchronous and asynchronous workflows plus pooled
   conversations. The facade configures pool sizing defaults (max workers default to
@@ -56,6 +62,12 @@
   obtain the underlying {@code ProcessPoolClient} via `client(...)` to interact with `ServiceProcessor` /
   `ServiceConversation` directly. Errors surface as `ServiceUnavailableException` (pool exhausted or shutting down) or
   `ServiceProcessingException` (command failure with diagnostics), and launch retries occur once before propagating.
+  Scenario coverage: pooled CLI automation, line sessions, and the stateful conversation workflows that depend on
+  `ServiceConversation`. Affinity + preset helpers arrive via ICLI-025/TBD-001 but reuse the same facade.
+
+The README’s scenario cheat sheet will track these mappings plus upcoming helpers (listen-only runner — ICLI-023,
+CLI-backed MCP templates — ICLI-024). This brief serves as the architectural source of truth for how both the standard
+and pooled facades satisfy the catalogue.
 
 ### Essential API signatures and configuration points
 

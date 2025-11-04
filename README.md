@@ -56,6 +56,25 @@ signals are required.
 
 ### Script expect-style interactions
 
+`LineSessionRunner` exposes the `LineExpect` DSL for prompt/response automation. The helper wraps the active
+`LineSessionClient`, reuses your decoder, and lets you describe conversations with `send` / `expect` calls while
+honouring runner defaults (timeouts, scheduler):
+
+```java
+LineSessionRunner replRunner = service.lineSessionRunner();
+
+try (LineSessionClient session = replRunner.open(builder -> builder.args("-i"));
+        LineExpect expect = session.expect().withDefaultTimeout(Duration.ofSeconds(2))) {
+    expect.expectMatches(Pattern.compile("Python .*"));
+    expect.sendAndExpect("print(6 * 7)", "42");
+    expect.closeStdin();
+}
+```
+
+Failures raise `LineExpectationException` (or `LineExpectationTimeoutException` when the deadline elapses) so test
+suites can assert on transcripts without parsing stdout manually. Use this path for catalogue scenarios that require
+scripted dialogs (credential prompts, expect scripts, REPL-driven automation).
+
 ### Reuse warmed workers
 
 `CommandService.pooled()` returns a `PooledCommandService` that mirrors the standard runners but drives a `ProcessPool`
@@ -63,8 +82,9 @@ behind the scenes. Each helper owns its pool and implements `AutoCloseable`, so 
 lifecycles:
 
 ```java
-try (PooledCommandRunner runner = service.pooled()
-        .commandRunner(spec -> spec.maxSize(4))) {
+PooledCommandService pooled = service.pooled();
+
+try (PooledCommandRunner runner = pooled.commandRunner(spec -> spec.maxSize(4))) {
     CommandResult<String> result = runner.process("version");
     if (!result.success()) {
         throw result.error();
@@ -76,7 +96,9 @@ Need raw access to a pooled session or to integrate with custom diagnostics? Ask
 work with `ProcessPoolClient`, `ServiceProcessor`, or `ServiceConversation` directly:
 
 ```java
-try (ProcessPoolClient client = service.pooled().client(PooledClientSpec::defaultSpec)) {
+PooledCommandService pooled = service.pooled();
+
+try (ProcessPoolClient client = pooled.client(PooledClientSpec::defaultSpec)) {
     ServiceConversation conversation = client.openConversation();
     conversation.line().process("print('ready')");
     conversation.retire(); // replace the worker before returning to the pool
@@ -125,6 +147,24 @@ ClientResult<String> complex = tunedService.run(builder ->
 
 The `ProcessEngine` implementation is responsible for honouring PTY requests, wiring IO bridges, enforcing timeouts, and
 producing a `ProcessResult`.
+
+## Scenario cheat sheet
+
+Each Essential API runner targets scenarios from the
+[execution-use-case-catalogue](context/roadmap/execution-use-case-catalogue.md). Use this table to select the right
+helper and understand how pooled facades slot in today versus upcoming scenario-specific runners:
+
+| Catalogue scenario                                      | Standard helper(s)                                                                              | Pooled helper(s)                                                                                  | Notes / next steps                                                                                                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CLI tooling automation & environment diagnostics        | `CommandService.runner()` / `service.run(...)`                                                   | `PooledCommandRunner` via `service.pooled().commandRunner(...)`                                   | Covers single-run automation with bounded capture + timeouts. Use pooling when command warmups dominate throughput.                                                   |
+| Line-oriented REPL automation & scripted expect flows   | `LineSessionRunner` + `LineSessionClient.expect()` / `LineExpect`                                | `PooledLineSessionRunner`                                                                         | Powers prompt/response workflows (credential prompts, expect scripts). Each pooled runner owns its pool; scope instances with try-with-resources.                     |
+| Full interactive sessions with raw stream control       | `InteractiveSessionRunner` + `InteractiveSessionClient`                                         | `PooledInteractiveSessionRunner`                                                                  | Use for PTY-backed shells, streaming IO, and long-lived sessions that still benefit from Essential ergonomics.                                                         |
+| Stateful pooled conversations                           | Direct sessions via `CommandService` when a single worker suffices                               | `ServiceConversation` / `PooledLineConversation` via `service.pooled().client(...)`               | Advanced workflows that retain session state across requests should drop to `ProcessPoolClient`. Affinity + reset helpers arrive with ICLI-025.                      |
+| Listen-only monitoring (tail, log follow)               | Today: `interactiveSessionRunner()` + manual stream consumption                                  | Today: `PooledInteractiveSessionRunner` or `ProcessPoolClient`                                    | Dedicated listen-only runners land under ICLI-023. Until then, stream directly from `InteractiveSessionClient.stdout()`/`stderr()`.                                    |
+| CLI-backed MCP tools/resources                          | `CommandRunner` / `LineSessionRunner` (per tool semantics)                                       | `PooledCommandRunner` or advanced `ProcessPoolClient` for hot adapters                            | Scenario templates + ready-made MCP adapters will be published via ICLI-024.                                                                                           |
+
+Scenario presets (TBD-001) will later bundle opinionated `ExecutionOptions`/`ProcessPoolConfig` defaults so a single
+method call can provision each runner for its target scenario.
 
 ---
 
