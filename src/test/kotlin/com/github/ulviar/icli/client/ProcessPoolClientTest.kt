@@ -1,7 +1,5 @@
 package com.github.ulviar.icli.client
 
-import com.github.ulviar.icli.client.ResponseDecoder
-import com.github.ulviar.icli.client.pooled.PooledClientSpec
 import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
@@ -207,10 +205,9 @@ class ProcessPoolClientTest {
         service
             .pooled()
             .client { spec ->
-                spec.pool { pool ->
-                    pool.minSize(1)
-                    pool.requestTimeout(Duration.ofSeconds(2))
-                }
+                spec
+                    .minSize(1)
+                    .requestTimeout(Duration.ofSeconds(2))
             }.use { client ->
                 val result = client.serviceProcessor().process("from-service")
                 assertTrue(result.success)

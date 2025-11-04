@@ -1,6 +1,7 @@
 package com.github.ulviar.icli.client.pooled;
 
 import com.github.ulviar.icli.client.ClientScheduler;
+import com.github.ulviar.icli.client.CommandService;
 import com.github.ulviar.icli.client.ProcessPoolClient;
 import com.github.ulviar.icli.client.ResponseDecoder;
 import com.github.ulviar.icli.client.ServiceProcessorListener;
@@ -14,7 +15,7 @@ import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
 import java.util.function.Consumer;
 
 /**
- * Branch of {@link com.github.ulviar.icli.client.CommandService} that exposes helpers backed by worker pools.
+ * Branch of {@link CommandService} that exposes helpers backed by worker pools.
  *
  * <p>The service itself is lightweight: it does not eagerly allocate pools. Each helper call returns a runner or client
  * that owns its {@link ProcessPoolClient} and must therefore be closed by the caller.</p>
@@ -58,7 +59,7 @@ public final class PooledCommandService {
      *
      * <pre>{@code
      * try (PooledCommandRunner runner =
-     *         service.commandRunner(spec -> spec.pool(cfg -> cfg.maxSize(4)))) {
+     *         service.commandRunner(spec -> spec.maxSize(4))) {
      *     CommandResult<String> result = runner.process("version");
      *     // inspect result ...
      * }
@@ -68,7 +69,7 @@ public final class PooledCommandService {
      * @return command runner that owns its pool
      */
     public PooledCommandRunner commandRunner(Consumer<PooledClientSpec.Builder> spec) {
-        PooledClientSpec built = PooledClientSpec.fromConfigurer(spec);
+        PooledClientSpec built = PooledClientSpec.fromConfigurer(command, options, spec);
         ProcessPoolClient client = createClient(built);
         return new PooledCommandRunner(client, defaultDecoder);
     }
@@ -80,7 +81,7 @@ public final class PooledCommandService {
      * @return line session runner that owns its pool
      */
     public PooledLineSessionRunner lineSessionRunner(Consumer<PooledClientSpec.Builder> spec) {
-        PooledClientSpec built = PooledClientSpec.fromConfigurer(spec);
+        PooledClientSpec built = PooledClientSpec.fromConfigurer(command, options, spec);
         ProcessPoolClient client = createClient(built);
         return new PooledLineSessionRunner(
                 client, createCallFactory(), new LineSessionFactory(scheduler), defaultDecoder);
@@ -93,7 +94,7 @@ public final class PooledCommandService {
      * @return interactive session runner that owns its pool
      */
     public PooledInteractiveSessionRunner interactiveSessionRunner(Consumer<PooledClientSpec.Builder> spec) {
-        PooledClientSpec built = PooledClientSpec.fromConfigurer(spec);
+        PooledClientSpec built = PooledClientSpec.fromConfigurer(command, options, spec);
         ProcessPoolClient client = createClient(built);
         LineSessionFactory lineSessionFactory = new LineSessionFactory(scheduler);
         return new PooledInteractiveSessionRunner(client, createCallFactory(), lineSessionFactory, defaultDecoder);
@@ -106,16 +107,12 @@ public final class PooledCommandService {
      * @return advanced client that owns its pool
      */
     public ProcessPoolClient client(Consumer<PooledClientSpec.Builder> spec) {
-        PooledClientSpec built = PooledClientSpec.fromConfigurer(spec);
+        PooledClientSpec built = PooledClientSpec.fromConfigurer(command, options, spec);
         return createClient(built);
     }
 
     private ProcessPoolClient createClient(PooledClientSpec spec) {
-        ProcessPoolConfig.Builder builder = ProcessPoolConfig.builder(command);
-        builder.workerOptions(options);
-        builder.destroyProcessTree(options.destroyProcessTree());
-        spec.poolConfigurer().accept(builder);
-        ProcessPoolConfig config = builder.build();
+        ProcessPoolConfig config = spec.poolConfig();
         ServiceProcessorListener listener = spec.listener();
         return ProcessPoolClient.create(engine, config, scheduler, defaultDecoder, listener);
     }

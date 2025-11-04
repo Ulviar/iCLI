@@ -177,13 +177,11 @@ class PooledCommandServiceTest {
 
         val service = newService()
         service
-            .commandRunner(
-                { spec ->
-                    spec
-                        .pool { builder -> builder.maxSize(2) }
-                        .listener(listener)
-                },
-            ).use { runner ->
+            .commandRunner { spec ->
+                spec
+                    .maxSize(2)
+                    .listener(listener)
+            }.use { runner ->
                 val result = runner.process("data")
 
                 assertTrue(result.success)
@@ -200,13 +198,11 @@ class PooledCommandServiceTest {
         val listener = RecordingListener()
 
         service
-            .client(
-                { spec ->
-                    spec
-                        .pool { builder -> builder.maxSize(1) }
-                        .listener(listener)
-                },
-            ).use { client ->
+            .client { spec ->
+                spec
+                    .maxSize(1)
+                    .listener(listener)
+            }.use { client ->
                 val result = client.serviceProcessor().process("abc")
 
                 assertTrue(result.success)
@@ -232,13 +228,11 @@ class PooledCommandServiceTest {
         }
 
         pooled
-            .client(
-                { spec ->
-                    spec
-                        .pool { builder -> builder.maxSize(1) }
-                        .listener(listener)
-                },
-            ).use { client ->
+            .client { spec ->
+                spec
+                    .maxSize(1)
+                    .listener(listener)
+            }.use { client ->
                 val result = client.serviceProcessor().process("xyz")
                 assertTrue(result.success)
                 assertEquals("zyx", result.value)

@@ -1,8 +1,17 @@
 package com.github.ulviar.icli.client.pooled;
 
 import com.github.ulviar.icli.client.ServiceProcessorListener;
+import com.github.ulviar.icli.engine.CommandDefinition;
+import com.github.ulviar.icli.engine.ExecutionOptions;
+import com.github.ulviar.icli.engine.pool.api.PoolDiagnosticsListener;
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
+import com.github.ulviar.icli.engine.pool.api.hooks.RequestTimeoutSchedulerFactory;
+import com.github.ulviar.icli.engine.pool.api.hooks.ResetHook;
+import com.github.ulviar.icli.engine.pool.api.hooks.WarmupAction;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Specification describing how a pooled helper should configure its {@link ProcessPoolConfig} and listener. The spec is
@@ -12,11 +21,11 @@ import java.util.function.Consumer;
 public final class PooledClientSpec {
     private static final Consumer<Builder> DEFAULT = _ -> {};
 
-    private final Consumer<ProcessPoolConfig.Builder> poolConfigurer;
+    private final ProcessPoolConfig poolConfig;
     private final ServiceProcessorListener listener;
 
-    private PooledClientSpec(Consumer<ProcessPoolConfig.Builder> poolConfigurer, ServiceProcessorListener listener) {
-        this.poolConfigurer = poolConfigurer;
+    private PooledClientSpec(ProcessPoolConfig poolConfig, ServiceProcessorListener listener) {
+        this.poolConfig = poolConfig;
         this.listener = listener;
     }
 
@@ -26,19 +35,20 @@ public final class PooledClientSpec {
      * @param configurer hook that customises the builder before materialising the spec
      * @return spec capturing the configurator's adjustments
      */
-    static PooledClientSpec fromConfigurer(Consumer<PooledClientSpec.Builder> configurer) {
-        Builder builder = builder();
+    static PooledClientSpec fromConfigurer(
+            CommandDefinition command, ExecutionOptions options, Consumer<PooledClientSpec.Builder> configurer) {
+        Builder builder = builder(command, options);
         configurer.accept(builder);
         return builder.build();
     }
 
     /**
-     * Returns the pooled configuration hook accumulated by this spec.
+     * Returns the pooled configuration captured by this spec.
      *
-     * @return configurator applied to {@link ProcessPoolConfig.Builder} instances
+     * @return immutable {@link ProcessPoolConfig}
      */
-    Consumer<ProcessPoolConfig.Builder> poolConfigurer() {
-        return poolConfigurer;
+    ProcessPoolConfig poolConfig() {
+        return poolConfig;
     }
 
     /**
@@ -66,25 +76,29 @@ public final class PooledClientSpec {
      * @return configurator that enforces the provided maximum size
      */
     public static Consumer<Builder> withMaxSize(int maxSize) {
-        return builder -> builder.pool(config -> config.maxSize(maxSize));
+        return builder -> builder.maxSize(maxSize);
     }
 
     /**
      * Creates a new spec builder. Callers typically pass the resulting builder to a helper method via lambda:
      *
-     * <pre>{@code service.commandRunner(spec -> spec.pool(cfg -> cfg.maxSize(4))); }</pre>
+     * <pre>{@code service.commandRunner(spec -> spec.maxSize(4)); }</pre>
      *
      * @return fresh builder
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(CommandDefinition command, ExecutionOptions options) {
+        ProcessPoolConfig.Builder poolBuilder = ProcessPoolConfig.builder(command);
+        poolBuilder.workerOptions(options);
+        return new Builder(poolBuilder);
     }
 
     public static final class Builder {
-        private Consumer<ProcessPoolConfig.Builder> poolConfigurer = _ -> {};
+        private final ProcessPoolConfig.Builder poolBuilder;
         private ServiceProcessorListener listener = ServiceProcessorListener.noOp();
 
-        private Builder() {}
+        private Builder(ProcessPoolConfig.Builder poolBuilder) {
+            this.poolBuilder = poolBuilder;
+        }
 
         /**
          * Applies pooling customisation. Multiple invocations are composed in order.
@@ -93,7 +107,7 @@ public final class PooledClientSpec {
          * @return this builder
          */
         public Builder pool(Consumer<ProcessPoolConfig.Builder> configurer) {
-            poolConfigurer = poolConfigurer.andThen(configurer);
+            configurer.accept(poolBuilder);
             return this;
         }
 
@@ -108,8 +122,89 @@ public final class PooledClientSpec {
             return this;
         }
 
+        public Builder workerOptions(ExecutionOptions options) {
+            poolBuilder.workerOptions(options);
+            return this;
+        }
+
+        public Builder minSize(int value) {
+            poolBuilder.minSize(value);
+            return this;
+        }
+
+        public Builder maxSize(int value) {
+            poolBuilder.maxSize(value);
+            return this;
+        }
+
+        public Builder maxQueueDepth(int value) {
+            poolBuilder.maxQueueDepth(value);
+            return this;
+        }
+
+        public Builder maxRequestsPerWorker(int value) {
+            poolBuilder.maxRequestsPerWorker(value);
+            return this;
+        }
+
+        public Builder maxWorkerLifetime(Duration value) {
+            poolBuilder.maxWorkerLifetime(value);
+            return this;
+        }
+
+        public Builder maxIdleTime(Duration value) {
+            poolBuilder.maxIdleTime(value);
+            return this;
+        }
+
+        public Builder leaseTimeout(Duration value) {
+            poolBuilder.leaseTimeout(value);
+            return this;
+        }
+
+        public Builder requestTimeout(Duration value) {
+            poolBuilder.requestTimeout(value);
+            return this;
+        }
+
+        public Builder destroyProcessTree(boolean value) {
+            poolBuilder.destroyProcessTree(value);
+            return this;
+        }
+
+        public Builder warmupAction(@Nullable WarmupAction action) {
+            poolBuilder.warmupAction(action);
+            return this;
+        }
+
+        public Builder addResetHook(ResetHook hook) {
+            poolBuilder.addResetHook(hook);
+            return this;
+        }
+
+        public Builder diagnosticsListener(PoolDiagnosticsListener listener) {
+            poolBuilder.diagnosticsListener(listener);
+            return this;
+        }
+
+        public Builder clock(Clock value) {
+            poolBuilder.clock(value);
+            return this;
+        }
+
+        public Builder requestTimeoutSchedulerFactory(RequestTimeoutSchedulerFactory factory) {
+            poolBuilder.requestTimeoutSchedulerFactory(factory);
+            return this;
+        }
+
+        public Builder invariantChecksEnabled(boolean value) {
+            poolBuilder.invariantChecksEnabled(value);
+            return this;
+        }
+
         private PooledClientSpec build() {
-            return new PooledClientSpec(poolConfigurer, listener);
+            ProcessPoolConfig config = poolBuilder.build();
+            return new PooledClientSpec(config, listener);
         }
     }
 }
