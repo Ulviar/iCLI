@@ -6,6 +6,13 @@ implemented, so we can evaluate how the design reads from a consumer perspective
 
 Project-wide AI assistant instructions live in [AGENTS.md](/AGENTS.md).
 
+## Samples module
+
+Hands-on usage examples now live in the `samples` Gradle module. Each scenario will showcase iCLI side-by-side with
+Apache Commons Exec, zt-exec, NuProcess, and JLine implementations so we can verify ergonomics before publishing guides.
+Scenario #1 standardises on `java -version` as the real CLI baseline. See [samples/README.md](samples/README.md) for
+contributor guidance and build instructions (`./gradlew :samples:build`).
+
 ---
 
 ## Quick Start

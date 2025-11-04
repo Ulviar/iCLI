@@ -3,3 +3,5 @@ plugins {
 }
 
 rootProject.name = "iCLI"
+
+include("samples")
