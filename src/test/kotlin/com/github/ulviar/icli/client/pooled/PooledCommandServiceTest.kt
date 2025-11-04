@@ -1,10 +1,8 @@
 package com.github.ulviar.icli.client.pooled
 
 import com.github.ulviar.icli.client.CommandResult
-import com.github.ulviar.icli.client.InlineScheduler
 import com.github.ulviar.icli.client.LineSessionException
 import com.github.ulviar.icli.client.ResponseDecoder
-import com.github.ulviar.icli.client.ServiceProcessorListener
 import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession

@@ -1,5 +1,6 @@
-package com.github.ulviar.icli.client
+package com.github.ulviar.icli.client.pooled
 
+import com.github.ulviar.icli.client.ResponseDecoder
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
 import com.github.ulviar.icli.engine.pool.api.LeaseScope
@@ -19,7 +20,7 @@ class ServiceProcessorTest {
         val lease = FakeWorkerLease { payload -> "reply:$payload" }
         val scheduler = InlineScheduler()
         val listener = RecordingListener()
-        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+        val processor = ServiceProcessor({ lease }, scheduler, ResponseDecoder.lineDelimited(), listener)
 
         val result = processor.process("ping")
 
@@ -38,7 +39,7 @@ class ServiceProcessorTest {
         val lease = FakeWorkerLease { throw failure }
         val scheduler = InlineScheduler()
         val listener = RecordingListener()
-        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+        val processor = ServiceProcessor({ lease }, scheduler, ResponseDecoder.lineDelimited(), listener)
 
         val result = processor.process("fail")
 
@@ -53,7 +54,7 @@ class ServiceProcessorTest {
         val lease = FakeWorkerLease { payload -> payload.uppercase() }
         val scheduler = InlineScheduler()
         val listener = RecordingListener()
-        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+        val processor = ServiceProcessor({ lease }, scheduler, ResponseDecoder.lineDelimited(), listener)
 
         val result = processor.processAsync("async").join()
 
@@ -102,7 +103,7 @@ class ServiceProcessorTest {
                     failures += error
                 }
             }
-        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+        val processor = ServiceProcessor({ lease }, scheduler, ResponseDecoder.lineDelimited(), listener)
 
         val thrown =
             kotlin.test.assertFailsWith<IllegalStateException> {
@@ -131,7 +132,7 @@ class ServiceProcessorTest {
                     error: Throwable,
                 ): Unit = throw UnsupportedOperationException("listener bomb")
             }
-        val processor = ServiceProcessor({ lease }, scheduler, LineDelimitedResponseDecoder(), listener)
+        val processor = ServiceProcessor({ lease }, scheduler, ResponseDecoder.lineDelimited(), listener)
 
         val thrown =
             kotlin.test.assertFailsWith<UnsupportedOperationException> {

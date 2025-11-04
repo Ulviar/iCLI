@@ -32,6 +32,8 @@ intact.
   (archived 2025-11-02).
 - [`ICLI-028`](ICLI-028/README.md) — Pooled Essential facade (`PooledCommandService` plus runners) with shared helpers,
   documentation updates, and regression coverage (archived 2025-11-03).
+- [`ICLI-030`](ICLI-030/README.md) — Final pooled API cleanup relocating advanced helpers under `client.pooled` and
+  refreshing documentation/tests (archived 2025-11-04).
 
 ## Archival checklist
 

@@ -1,5 +1,10 @@
-package com.github.ulviar.icli.client;
+package com.github.ulviar.icli.client.pooled;
 
+import com.github.ulviar.icli.client.ClientScheduler;
+import com.github.ulviar.icli.client.CommandResult;
+import com.github.ulviar.icli.client.InteractiveSessionClient;
+import com.github.ulviar.icli.client.LineSessionClient;
+import com.github.ulviar.icli.client.ResponseDecoder;
 import com.github.ulviar.icli.engine.pool.api.LeaseScope;
 import com.github.ulviar.icli.engine.pool.api.WorkerLease;
 import com.github.ulviar.icli.engine.pool.api.hooks.ResetRequest;

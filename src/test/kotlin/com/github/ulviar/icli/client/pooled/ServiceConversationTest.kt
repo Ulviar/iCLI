@@ -1,5 +1,6 @@
-package com.github.ulviar.icli.client
+package com.github.ulviar.icli.client.pooled
 
+import com.github.ulviar.icli.client.ResponseDecoder
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.pool.api.LeaseScope
 import com.github.ulviar.icli.engine.pool.api.WorkerLease
@@ -18,7 +19,7 @@ class ServiceConversationTest {
     fun `reset delegates to lease and notifies listener`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.reset()
 
@@ -31,7 +32,7 @@ class ServiceConversationTest {
     fun `line and interactive clients share the same session`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         val line = conversation.line()
         assertSame(conversation.interactive(), line.interactive())
@@ -43,7 +44,7 @@ class ServiceConversationTest {
     fun `scope exposes underlying lease metadata`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         assertSame(lease.exposedScope(), conversation.scope())
 
@@ -54,7 +55,7 @@ class ServiceConversationTest {
     fun `close returns lease without closing session`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.close()
 
@@ -68,7 +69,7 @@ class ServiceConversationTest {
     fun `close is idempotent`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.close()
         conversation.close()
@@ -82,7 +83,7 @@ class ServiceConversationTest {
     fun `retire resets lease and closes session`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.retire()
 
@@ -115,7 +116,7 @@ class ServiceConversationTest {
                     events += "closed"
                 }
             }
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.reset()
         conversation.retire()
@@ -131,7 +132,7 @@ class ServiceConversationTest {
     fun `retire ignores repeated invocations`() {
         val lease = FakeWorkerLease()
         val listener = RecordingListener()
-        val conversation = ServiceConversation(lease, LineDelimitedResponseDecoder(), InlineScheduler(), listener)
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
         conversation.retire()
         conversation.retire()

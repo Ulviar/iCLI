@@ -1,5 +1,7 @@
-package com.github.ulviar.icli.client;
+package com.github.ulviar.icli.client.pooled;
 
+import com.github.ulviar.icli.client.ClientScheduler;
+import com.github.ulviar.icli.client.ResponseDecoder;
 import com.github.ulviar.icli.engine.ProcessEngine;
 import com.github.ulviar.icli.engine.pool.api.ProcessPool;
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
@@ -9,6 +11,10 @@ import java.time.Duration;
  * Essential API facade over {@link ProcessPool}. The client owns the underlying pool lifecycle and exposes helpers for
  * single-request processing as well as conversation-scoped leases while honouring reset hooks, diagnostics, and the
  * configured shutdown policies.
+ *
+ * <p>The type resides in {@code com.github.ulviar.icli.client.pooled} to reflect its close ties to
+ * {@link PooledCommandService}; most consumers should start with the pooled facade helpers and fall back to
+ * {@code ProcessPoolClient} only when they need to manage pools explicitly.</p>
  *
  * <p>Every helper mirrors the behaviour of the lower-level pool:</p>
  * <ul>

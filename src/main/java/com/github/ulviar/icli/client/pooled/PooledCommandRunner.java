@@ -1,9 +1,7 @@
 package com.github.ulviar.icli.client.pooled;
 
 import com.github.ulviar.icli.client.CommandResult;
-import com.github.ulviar.icli.client.ProcessPoolClient;
 import com.github.ulviar.icli.client.ResponseDecoder;
-import com.github.ulviar.icli.client.ServiceProcessor;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 

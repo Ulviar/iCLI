@@ -1,5 +1,8 @@
-package com.github.ulviar.icli.client
+package com.github.ulviar.icli.client.pooled
 
+import com.github.ulviar.icli.client.CommandService
+import com.github.ulviar.icli.client.LineSessionException
+import com.github.ulviar.icli.client.ResponseDecoder
 import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
@@ -67,7 +70,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 val result = client.serviceProcessor().process("ping")
@@ -90,7 +93,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 val result = client.serviceProcessor().processAsync("async").join()
@@ -110,7 +113,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 val first = client.serviceProcessor()
@@ -135,7 +138,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 val result = client.serviceProcessor(decoder).process("payload")
@@ -156,7 +159,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 val result = client.serviceProcessor().process("broken")
@@ -176,7 +179,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             ).use { client ->
                 client.openConversation().use { conversation ->
@@ -232,7 +235,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 listener,
             ).use { client ->
                 val success = client.serviceProcessor().process("OK")
@@ -267,7 +270,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 listener,
             ).use { client ->
                 val same = client.withListener(listener)
@@ -289,7 +292,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 listener,
             ).use { client ->
                 client.openConversation().retire()
@@ -314,7 +317,7 @@ class ProcessPoolClientTest {
                 engine,
                 newConfig(),
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             )
         client.close()
@@ -344,7 +347,7 @@ class ProcessPoolClientTest {
                 engine,
                 config,
                 scheduler,
-                LineDelimitedResponseDecoder(),
+                ResponseDecoder.lineDelimited(),
                 ServiceProcessorListener.noOp(),
             )
 

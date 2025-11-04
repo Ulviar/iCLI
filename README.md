@@ -56,6 +56,36 @@ signals are required.
 
 ### Script expect-style interactions
 
+### Reuse warmed workers
+
+`CommandService.pooled()` returns a `PooledCommandService` that mirrors the standard runners but drives a `ProcessPool`
+behind the scenes. Each helper owns its pool and implements `AutoCloseable`, so use try-with-resources to scope worker
+lifecycles:
+
+```java
+try (PooledCommandRunner runner = service.pooled()
+        .commandRunner(spec -> spec.maxSize(4))) {
+    CommandResult<String> result = runner.process("version");
+    if (!result.success()) {
+        throw result.error();
+    }
+}
+```
+
+Need raw access to a pooled session or to integrate with custom diagnostics? Ask the facade for the advanced client and
+work with `ProcessPoolClient`, `ServiceProcessor`, or `ServiceConversation` directly:
+
+```java
+try (ProcessPoolClient client = service.pooled().client(PooledClientSpec::defaultSpec)) {
+    ServiceConversation conversation = client.openConversation();
+    conversation.line().process("print('ready')");
+    conversation.retire(); // replace the worker before returning to the pool
+}
+```
+
+This keeps the Essential API front and centre while still exposing the low-level pool controls required for specialised
+scenarios.
+
 ### Advanced: customise execution
 
 The low-level `core` package exposes building blocks.
@@ -100,15 +130,18 @@ producing a `ProcessResult`.
 
 ## Supported Packages
 
-- **Essential API (public):** `com.github.ulviar.icli.client`
+- **Essential API (public):** `com.github.ulviar.icli.client`, `com.github.ulviar.icli.client.pooled`
 - **Advanced API (public):** `com.github.ulviar.icli.engine`, `com.github.ulviar.icli.engine.runtime`,
   `com.github.ulviar.icli.engine.pool.api`, `com.github.ulviar.icli.engine.pool.api.hooks`
 - **Diagnostics API (public):** `com.github.ulviar.icli.engine.diagnostics`
 - **Internal (not exported):** `com.github.ulviar.icli.engine.runtime.internal.*`,
   `com.github.ulviar.icli.engine.pool.internal.*`
 
-These package boundaries align with the Essential/Advanced split described in the architecture brief. Consumers should
-only rely on the exported packages above; everything under `internal` namespaces is subject to change without notice.
+These package boundaries align with the Essential/Advanced split described in the architecture brief. The
+`com.github.ulviar.icli.client.pooled` package hosts both the Essential `PooledCommandService` facade and the advanced
+`ProcessPoolClient`/`Service*` collaborators; the facade should be your starting point, dropping to the advanced helpers
+only when you need to orchestrate pools yourself. Consumers should rely on the exported packages above; everything under
+`internal` namespaces is subject to change without notice.
 
 ---
 
@@ -127,6 +160,17 @@ only rely on the exported packages above; everything under `internal` namespaces
 - `InteractiveSessionClient`, `LineSessionClient` — convenience wrappers around raw interactive handles.
 - `ResponseDecoder` & `LineDelimitedResponseDecoder` — strategies for turning interactive stdout into structured
   responses.
+
+### Pooled Client Package (`com.github.ulviar.icli.client.pooled`)
+
+- `PooledCommandService` — mirrors `CommandService` but scopes helpers to worker pools; expose `commandRunner()`,
+  `lineSessionRunner()`, `interactiveSessionRunner()`, and `client()` for advanced control.
+- `PooledCommandRunner`, `PooledLineSessionRunner`, `PooledInteractiveSessionRunner` — helper types that borrow a pool
+  per instance and expose the same ergonomics as their non-pooled counterparts.
+- `PooledClientSpec` — fluent configurator for pool sizing, diagnostics listeners, and idle policies used by the pooled
+  facade helpers.
+- `ProcessPoolClient`, `ServiceProcessor`, `ServiceConversation`, `ServiceProcessorListener` — advanced collaborators
+  for callers who need to orchestrate `ProcessPool` directly while retaining Essential API ergonomics.
 
 ### Core Package (`com.github.ulviar.icli.engine`)
 
@@ -177,7 +221,8 @@ The module ships Kotlin test doubles (`RecordingExecutionEngine`, `ScriptedInter
 3. Use `CommandService.runner()` for single-shot invocations, and rely on `lineSessionRunner()` /
    `interactiveSessionRunner()` for long-lived interactions; tweak timeouts or capture policies per call via the
    provided customisers.
-4. For pooling, layer a planned `WorkerPool`/`CommandService` extension to amortise warmups when needed.
+4. For pooling, call `CommandService.pooled()` to obtain `PooledCommandService` helpers (or
+   `service.pooled().client(...)` for direct `ProcessPoolClient` access) and amortise warmups when needed.
 
 ---
 

@@ -2,9 +2,7 @@ package com.github.ulviar.icli.client.pooled;
 
 import com.github.ulviar.icli.client.ClientScheduler;
 import com.github.ulviar.icli.client.CommandService;
-import com.github.ulviar.icli.client.ProcessPoolClient;
 import com.github.ulviar.icli.client.ResponseDecoder;
-import com.github.ulviar.icli.client.ServiceProcessorListener;
 import com.github.ulviar.icli.client.internal.runner.CommandCallFactory;
 import com.github.ulviar.icli.client.internal.runner.LineSessionFactory;
 import com.github.ulviar.icli.client.internal.runner.RunnerDefaults;

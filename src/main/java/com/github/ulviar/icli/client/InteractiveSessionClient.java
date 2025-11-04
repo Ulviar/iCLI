@@ -15,8 +15,8 @@ import java.util.concurrent.CompletableFuture;
  *
  * <p>Instances expose the same raw streams and lifecycle controls as the underlying handle while adding ergonomic
  * helpers such as {@link #sendLine(String)} and charset-aware writing. The default factory installs UTF-8, mirroring
- * the library-wide text encoding, but callers inside the {@code client} package may supply a custom {@link Charset}
- * when working with legacy processes.
+ * the library-wide text encoding, but advanced callers may supply a custom {@link Charset} when working with legacy
+ * processes or need to wrap sessions manually.
  *
  * <p>Clients typically obtain an instance via {@link InteractiveSessionRunner#open()} or its overloads. The wrapper is
  * a thin facade: it does not introduce additional buffering, guarantees the same thread-safety characteristics as the
@@ -37,7 +37,7 @@ public final class InteractiveSessionClient implements AutoCloseable {
      * @param handle interactive session returned by the runtime
      * @return new client forwarding operations to the provided handle
      */
-    static InteractiveSessionClient wrap(InteractiveSession handle) {
+    public static InteractiveSessionClient wrap(InteractiveSession handle) {
         return new InteractiveSessionClient(handle, StandardCharsets.UTF_8);
     }
 
@@ -48,7 +48,7 @@ public final class InteractiveSessionClient implements AutoCloseable {
      * @param charset charset used by {@link #sendLine(String)}
      * @return new client forwarding operations to the provided handle
      */
-    static InteractiveSessionClient wrap(InteractiveSession handle, Charset charset) {
+    public static InteractiveSessionClient wrap(InteractiveSession handle, Charset charset) {
         return new InteractiveSessionClient(handle, charset);
     }
 

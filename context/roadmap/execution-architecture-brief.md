@@ -23,8 +23,11 @@
 ### API composition
 
 - Provide **Essential API** facades (`CommandService.run`, `CommandService.lineSessionRunner()`,
-  `CommandService.interactiveSessionRunner()`, `ProcessPoolClient.create`) with safe defaults, no explicit timeout or
+  `CommandService.interactiveSessionRunner()`, `CommandService.pooled()`) with safe defaults, no explicit timeout or
   logging configuration required, and simplified result/exception types for consumers who just need command outcomes.
+- `CommandService.pooled()` returns `PooledCommandService` (exported from `com.github.ulviar.icli.client.pooled`), which
+  exposes pooled runners plus a `client(...)` hook for advanced access to `ProcessPoolClient` and its
+  `ServiceProcessor`/`ServiceConversation` collaborators.
 - Layer the existing **Advanced API** (`ProcessEngine.run`, `ExecutionOptions`, `WorkerPool`) beneath the facades for
   callers who must customise timeouts, signals, diagnostics, or PTY behaviour.
 - Essential API calls delegate to the advanced layer using opinionated defaults (timeouts, logging off, PTY heuristics)
@@ -46,12 +49,13 @@
   with helpers `sendLine`, `closeStdin`, access to raw streams, and `onExit`. Default idle timeout (5 минут) tear down
   unresponsive sessions, with automatic restart available through pooling. Serves as the bridge between Essential
   convenience and Advanced flexibility.
-- **ProcessPoolClient.create** → `ServiceProcessor`. Exposes synchronous `process(String input)`,
-  `processBytes(byte[])`, and optional async variants (`processAsync`). Internally maintains an automatically sized
-  worker pool (default: `min(max(Runtime.availableProcessors() / 2, 1), configuredMax)`) with per-worker reuse cap
-  (default 1 000 requests). Errors surface as `ServiceUnavailableException` (pool exhausted or shattered) or
-  `ServiceProcessingException` (command exit failure with captured diagnostics). Retries once on recoverable launch
-  errors before bubbling failure.
+- **CommandService.pooled()** → `PooledCommandService`. Mirrors the standard runners but scopes work to pooled workers.
+  Each helper owns a `ProcessPoolClient` under the hood, supporting synchronous and asynchronous workflows plus pooled
+  conversations. The facade configures pool sizing defaults (max workers default to
+  `min(max(Runtime.availableProcessors() / 2, 1), configuredMax)`) and listener plumbing, while advanced callers can
+  obtain the underlying {@code ProcessPoolClient} via `client(...)` to interact with `ServiceProcessor` /
+  `ServiceConversation` directly. Errors surface as `ServiceUnavailableException` (pool exhausted or shutting down) or
+  `ServiceProcessingException` (command failure with diagnostics), and launch retries occur once before propagating.
 
 ### Essential API signatures and configuration points
 
@@ -63,11 +67,14 @@
   sessions on demand, returning `ClientResult<String>` values and allowing swaps of the `ResponseDecoder` strategy.
 - `InteractiveSessionRunner interactive = CommandService.interactiveSessionRunner()` — opens fully interactive sessions
   with the service defaults and exposes the underlying `InteractiveSession` for callers who need low-level control.
-- `ServiceProcessor processor = ProcessPoolClient.create(ServiceConfig config)` — `ServiceConfig` captures command,
-  desired concurrency, and optional codec strategies. Provides builders to tweak max concurrency, per-request timeout,
-  and retry policy while keeping defaults safe. Processors expose lifecycle hooks (`start()`, `close()`) but also
-  support auto-start on first request, forming the backbone for CLI-backed MCP adapters documented in
-  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
+- `PooledCommandService pooled = CommandService.pooled(); PooledCommandRunner runner = pooled.commandRunner(spec ->
+  spec.maxSize(4));` — Preferred Essential entry point for pooled request/response workloads. The runner borrows a
+  worker per invocation, shares the service defaults, and returns `CommandResult<String>` values synchronously or via
+  `processAsync` backed by the configured scheduler.
+- `ProcessPoolClient client = pooled.client(spec -> spec.listener(listener)); ServiceConversation conversation =
+  client.openConversation();` — Advanced entry point that hands back the owned pool (living under
+  `com.github.ulviar.icli.client.pooled`) so callers can orchestrate leases, listeners, and resets manually while
+  retaining the documented `ServiceProcessor` / `ServiceConversation` contracts.
 - Default values live in `ExecutionOptions` defaults provided when building the `CommandService` (e.g., from application
   configuration) with sane fallbacks when nothing is supplied. All defaults prioritise reliability (bounded capture,
   conservative timeouts, graceful shutdown) before throughput.
@@ -90,7 +97,8 @@
   into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, enabling listen-only clients to consume data
   reactively without manual thread management and matching the listen-only monitoring scenario in
   [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
-- `ProcessPoolClient` exposes `ServiceProcessor` for stateless line-oriented workloads and `ServiceConversation` for
+- `ProcessPoolClient` (now part of `com.github.ulviar.icli.client.pooled` and returned via
+  `PooledCommandService.client(...)`) exposes `ServiceProcessor` for stateless workloads and `ServiceConversation` for
   stateful interactions backed by a dedicated `WorkerLease`. Requests execute on pooled interactive sessions while
   diagnostics are bridged through `ServiceProcessorListener`; asynchronous helpers reuse the same `ClientScheduler`
   employed by `CommandService`.
@@ -100,16 +108,16 @@
 
 ### Pooling usage modes
 
-- **Simple service pool (Essential API).** Presents a lightweight component (e.g.,
-  `CommandService.pooled().serviceProcessor()`) that exposes single-request helpers such as `process(String input)` and
-  `processAsync(String input)`. Internally it scales across multiple warm workers, wires resets through
-  `WorkerLease.reset(...)`, and surfaces results via `CommandResult` while emitting listener callbacks. This path
-  satisfies the catalogue’s warm REPL and command multiplexing scenarios while keeping the API approachable.
-- **Conversation handle (Essential API).** `ProcessPoolClient.openConversation()` borrows a worker until explicitly
-  closed, providing both `ServiceConversation.line()` and `ServiceConversation.interactive()` helpers plus manual
-  `reset()` hooks. `ServiceConversation.retire()` allows callers to dispose of unhealthy workers by shutting down the
-  session before returning it to the pool, keeping stateful dialogues predictable while diagnostics listeners observe
-  scope transitions.
+- **Simple service pool (Essential API).** Presents a lightweight component (e.g., `service.pooled().commandRunner(spec
+  -> spec.maxSize(4))`) that exposes single-request helpers such as `process(String input)` and `processAsync(String
+  input)`. Internally it scales across multiple warm workers, wires resets through `WorkerLease.reset(...)`, and
+  surfaces results via `CommandResult` while emitting listener callbacks. This path satisfies the catalogue’s warm REPL
+  and command multiplexing scenarios while keeping the API approachable.
+- **Conversation handle (Essential API).** `service.pooled().lineSessionRunner(spec -> ...)` and
+  `service.pooled().interactiveSessionRunner(spec -> ...)` borrow workers for longer-lived dialogues. Underneath they
+  wrap `ServiceConversation` (accessible via `ProcessPoolClient.openConversation()`) so callers may still drive raw
+  interactive sessions, call `reset()`, or `retire()` unhealthy workers while diagnostics listeners observe scope
+  transitions.
 - **Batch processor (Essential API, optional).** Builds on the same pool runtime to fan out collections or reactive
   streams of requests. Useful for high-throughput pipelines; can be layered later without changing the core runtime.
 - **Lease-driven pool (Advanced API).** Retains the existing `WorkerPool`/`WorkerLease` surface so advanced consumers
@@ -119,7 +127,8 @@
 ```text
 ┌───────────────────────────────────────────────────────────────────────────┐
 │ API Layer (CommandDefinition, ExecutionOptions, CommandService +         │
-│            CommandCallBuilder/CommandCall, ProcessPoolClient)            │
+│            PooledCommandService, CommandCallBuilder/CommandCall,         │
+│            ProcessPoolClient)                                            │
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Runtime Core                                                              │
 │  • ProcessLauncher (pipes + PTY)                                          │

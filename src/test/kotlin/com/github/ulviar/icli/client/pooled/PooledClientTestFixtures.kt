@@ -1,5 +1,7 @@
-package com.github.ulviar.icli.client
+package com.github.ulviar.icli.client.pooled
 
+import com.github.ulviar.icli.client.ClientScheduler
+import com.github.ulviar.icli.client.CommandResult
 import com.github.ulviar.icli.engine.InteractiveSession
 import com.github.ulviar.icli.engine.ShutdownSignal
 import com.github.ulviar.icli.engine.pool.api.LeaseScope

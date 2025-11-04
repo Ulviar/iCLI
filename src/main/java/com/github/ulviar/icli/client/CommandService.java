@@ -21,6 +21,11 @@ import com.github.ulviar.icli.engine.ProcessEngine;
  * <p>Instances are thread-safe and designed for reuse. The service does not hold any per-invocation state; each helper
  * constructs a fresh {@link CommandCall} that can be inspected or reused by advanced consumers when necessary.
  *
+ * <p>Worker pooling is exposed via {@link #pooled()}. Essential API callers can rely on the returned
+ * {@link PooledCommandService} for command runners and conversations, while advanced scenarios may obtain a direct
+ * {@link com.github.ulviar.icli.client.pooled.ProcessPoolClient} through
+ * {@link PooledCommandService#client(java.util.function.Consumer)} when they need to manage pools manually.</p>
+ *
  * @see CommandDefinition
  * @see ExecutionOptions
  * @see CommandRunner
@@ -127,8 +132,10 @@ public final class CommandService {
     /**
      * Returns the branch for configuring pooled execution helpers.
      *
-     * <p>The returned facade does not create pools eagerly; each helper allocates its own {@code ProcessPoolClient} so
-     * lifecycles remain scoped to the runner or conversation returned by that helper.</p>
+     * <p>The returned facade does not create pools eagerly; each helper allocates its own
+     * {@link com.github.ulviar.icli.client.pooled.ProcessPoolClient} so lifecycles remain scoped to the runner or
+     * conversation returned by that helper. Call {@link PooledCommandService#client(java.util.function.Consumer)} when
+     * you need the advanced {@code ProcessPoolClient} API directly.</p>
      *
      * @return pooled command service rooted in this facade’s defaults
      */

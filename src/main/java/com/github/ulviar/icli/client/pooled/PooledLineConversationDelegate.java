@@ -2,7 +2,6 @@ package com.github.ulviar.icli.client.pooled;
 
 import com.github.ulviar.icli.client.CommandResult;
 import com.github.ulviar.icli.client.LineSessionClient;
-import com.github.ulviar.icli.client.ServiceConversation;
 import com.github.ulviar.icli.engine.pool.api.LeaseScope;
 import java.util.concurrent.CompletableFuture;
 
