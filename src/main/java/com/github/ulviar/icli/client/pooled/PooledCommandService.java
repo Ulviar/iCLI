@@ -99,6 +99,18 @@ public final class PooledCommandService {
     }
 
     /**
+     * Creates a pooled listen-only runner according to the supplied spec configurator.
+     *
+     * @param spec configurator that adjusts pool configuration and diagnostics listener
+     * @return listen-only runner that owns its pool
+     */
+    public PooledListenOnlySessionRunner listenOnlyRunner(Consumer<PooledClientSpec.Builder> spec) {
+        PooledClientSpec built = PooledClientSpec.fromConfigurer(command, options, spec);
+        ProcessPoolClient client = createClient(built);
+        return new PooledListenOnlySessionRunner(client);
+    }
+
+    /**
      * Creates a pooled client for advanced scenarios.
      *
      * @param spec configurator that adjusts pool configuration and diagnostics listener

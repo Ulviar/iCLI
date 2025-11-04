@@ -13,9 +13,9 @@ import com.github.ulviar.icli.engine.ProcessEngine;
  *
  * <p>A {@code CommandService} captures the immutable {@link CommandDefinition} of a console application together with
  * the preferred {@link ExecutionOptions}, a {@link ProcessEngine} implementation, and a {@link ClientScheduler} for
- * asynchronous work. Consumers obtain {@link CommandRunner}, {@link LineSessionRunner}, and
- * {@link InteractiveSessionRunner} instances that honour the same defaults. All helpers respect the defaults declared
- * in the supplied {@link ExecutionOptions}; callers can further customise per-invocation behaviour using
+ * asynchronous work. Consumers obtain {@link CommandRunner}, {@link LineSessionRunner}, {@link ListenOnlySessionRunner},
+ * and {@link InteractiveSessionRunner} instances that honour the same defaults. All helpers respect the defaults
+ * declared in the supplied {@link ExecutionOptions}; callers can further customise per-invocation behaviour using
  * {@link CommandCallBuilder}.
  *
  * <p>Instances are thread-safe and designed for reuse. The service does not hold any per-invocation state; each helper
@@ -39,6 +39,7 @@ public final class CommandService {
 
     private final CommandRunner runner;
     private final InteractiveSessionRunner interactiveRunner;
+    private final ListenOnlySessionRunner listenOnlyRunner;
     private final LineSessionRunner lineRunner;
     private final PooledCommandService pooledCommandService;
 
@@ -99,6 +100,7 @@ public final class CommandService {
         this.interactiveRunner = new InteractiveSessionRunner(sessionStarter, callFactory);
         LineSessionFactory lineSessionFactory = new LineSessionFactory(scheduler);
         this.lineRunner = new LineSessionRunner(sessionStarter, lineSessionFactory, callFactory);
+        this.listenOnlyRunner = new ListenOnlySessionRunner(sessionStarter, callFactory);
         this.pooledCommandService = new PooledCommandService(engine, baseCommand, options, scheduler, defaultDecoder);
     }
 
@@ -127,6 +129,15 @@ public final class CommandService {
      */
     public LineSessionRunner lineSessionRunner() {
         return lineRunner;
+    }
+
+    /**
+     * Returns a runner that opens listen-only sessions rooted in the service defaults.
+     *
+     * @return listen-only session runner
+     */
+    public ListenOnlySessionRunner listenOnlyRunner() {
+        return listenOnlyRunner;
     }
 
     /**

@@ -39,13 +39,13 @@
 
 ### Essential API behaviour
 
-- **CommandService.run** → `ClientResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer
+- **CommandService.run** → `CommandResult<String>`. Defaults to merged stdout/stderr text capture with a bounded buffer
   (default 64 KiB, configurable via builder or properties) and a conservative timeout (default 60s soft interrupt
   followed by 5s grace before force kill). On failure it throws `ProcessExecutionException` carrying the command echo,
   exit code, truncated output snippets, and a cause when available; callers who need richer diagnostics can drop to the
   advanced API. Scenario coverage: catalogue entries for CLI tooling automation and environment diagnostics.
 - **CommandService.lineSessionRunner()** → `LineSessionRunner`. Provides reusable helpers that return
-  `LineSessionClient` instances with high-level `process(String)` returning structured `ClientResult<String>` for the
+  `LineSessionClient` instances with high-level `process(String)` returning structured `CommandResult<String>` for the
   «одна строка → один ответ» сценарий. Uses configurable `ResponseDecoder` strategies (newline by default) and exposes
   the underlying `InteractiveSessionClient` for advanced needs without forcing stream handling in Essential code.
   `LineSessionClient.expect()` layers the `LineExpect` DSL on top for scripted prompt/response scenarios, covering the
@@ -71,12 +71,12 @@ and pooled facades satisfy the catalogue.
 
 ### Essential API signatures and configuration points
 
-- `ClientResult<String> result = service.run(call -> call.args("--foo").option("--bar", "baz"));` — override capture
+- `CommandResult<String> result = service.run(call -> call.args("--foo").option("--bar", "baz"));` — override capture
   limit, timeout, merge policy, and working directory via the fluent builder passed to the lambda.
 - `service.run(builder -> builder.subcommand("run").option("--rm"));` — fluent helper for per-call argument lists,
   environment overrides, working directory, and session/run option tweaks exposed via `CommandCallBuilder`.
 - `LineSessionRunner runner = CommandService.lineSessionRunner()` — uses the service's session defaults and spawns new
-  sessions on demand, returning `ClientResult<String>` values and allowing swaps of the `ResponseDecoder` strategy.
+  sessions on demand, returning `CommandResult<String>` values and allowing swaps of the `ResponseDecoder` strategy.
 - `InteractiveSessionRunner interactive = CommandService.interactiveSessionRunner()` — opens fully interactive sessions
   with the service defaults and exposes the underlying `InteractiveSession` for callers who need low-level control.
 - `PooledCommandService pooled = CommandService.pooled(); PooledCommandRunner runner = pooled.commandRunner(spec ->
@@ -106,9 +106,10 @@ and pooled facades satisfy the catalogue.
   scheduler, returning the same `CommandResult` type. Callers can await the future, attach callbacks, or convert it to
   coroutines using provided Kotlin extensions.
 - `InteractiveSessionClient` continues exposing `onExit` but now also ships lightweight adapters that turn stdout/stderr
-  into `Flow.Publisher<ByteBuffer>` and Kotlin `Flow<ByteString>` streams, enabling listen-only clients to consume data
-  reactively without manual thread management and matching the listen-only monitoring scenario in
-  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md).
+  into `Flow.Publisher<ByteBuffer>` streams, enabling listen-only clients to consume data reactively without manual
+  thread management and matching the listen-only monitoring scenario in
+  [execution-use-case-catalogue.md](/context/roadmap/execution-use-case-catalogue.md). Kotlin Flow helpers live in a
+  separate module so the core library remains Java-only.
 - `ProcessPoolClient` (now part of `com.github.ulviar.icli.client.pooled` and returned via
   `PooledCommandService.client(...)`) exposes `ServiceProcessor` for stateless workloads and `ServiceConversation` for
   stateful interactions backed by a dedicated `WorkerLease`. Requests execute on pooled interactive sessions while
@@ -248,7 +249,7 @@ and pooled facades satisfy the catalogue.
 - `ClientScheduler`: closable adapter around an `Executor`/`StructuredTaskScope` that submits blocking work on virtual
   threads, returns `CompletableFuture<T>`, and ensures `cancel(true)` interrupts the task so the runtime can execute its
   shutdown plan.
-- `ClientResult<T>`: Essential API summary containing merged text output, truncated indicators, elapsed time, and exit
+- `CommandResult<T>`: Essential API summary containing merged text output, truncated indicators, elapsed time, and exit
   status.
 - `InteractiveSessionClient`: Essential API wrapper over `InteractiveSession` providing convenience methods, idle
   enforcement, raw stream access, futures for completion, and Flow/Coroutine adapters for streaming consumption.

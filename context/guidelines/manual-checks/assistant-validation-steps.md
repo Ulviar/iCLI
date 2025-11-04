@@ -185,6 +185,23 @@
 - **Follow-up:** Iterate based on maintainer feedback or new requirements, potentially rerunning the sequence when
   architecture changes significantly.
 
+## Sequence: API Scenario Conformance Review
+
+- **Intent:** Ensure every documented scenario or advertised API toggle has a measurable effect in the implementation so
+  callers are never handed inert configuration knobs.
+- **Preconditions:** Collect the latest scenario documentation (README, backlog entries, dossiers) and note the
+  classes/methods those texts reference.
+- **Step-by-step actions:**
+    1. **Inventory promises.** Build a table `{Scenario/API} → {Documentation source} → {Expected behaviour}` for all items in scope.
+    2. **Locate implementation points.** For each promise, list the concrete entry points (classes, builders, public methods) that should realise the behaviour; include cross-links to helper types.
+    3. **Validate observability.** For every entry point answer “How can a caller observe the effect?” If no observable difference exists, flag the promise as broken.
+    4. **Decide remediation.** For each flagged promise choose one path and execute it: (a) implement the missing behaviour (with tests/docs), (b) remove or rename the inert API, or (c) update documentation to stop advertising it. Record the choice.
+    5. **Clean up wiring.** After remediation, run a quick usage sweep (`rg`, IDE find usages) to delete orphaned fields, parameters, or docs left behind.
+- **Expected outputs:** Updated code/tests/docs that align with the promise inventory plus a short log capturing the
+  table, flagged mismatches, and the remediation taken per item.
+- **Follow-up:** If reviewers uncover additional mismatches or scenarios shift, rerun the sequence with the expanded
+  scope.
+
 ## Next steps
 
 - Populate concrete sequences in collaboration with the maintainer (e.g., “Nullability audit”, “Dependency freshness

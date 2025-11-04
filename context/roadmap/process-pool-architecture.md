@@ -143,7 +143,7 @@
 
 ### Execution
 - Advanced clients interact with `InteractiveSession` directly; Essential APIs will provide helpers that stream input,
-  await completion, and convert to `ClientResult`.
+  await completion, and convert to `CommandResult`.
 - Each lease receives a `LeaseScope` capturing start timestamp, request id, and default deadline for instrumentation.
 - Request-level deadlines enforced via `IdleTimeoutScheduler` or a new `LeaseDeadline` helper: when exceeded, pool
   triggers `ShutdownPlan` for the worker and marks lease failed.

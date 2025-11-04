@@ -166,6 +166,17 @@ class CommandServiceTest {
     }
 
     @Test
+    fun `listen-only runner reuses defaults`() {
+        val listenOnly = service.listenOnlyRunner().open { builder -> builder.option("--follow") }
+
+        val spec = requireNotNull(engine.lastSessionSpec)
+        assertEquals(listOf("python", "--follow"), spec.command())
+        assertSame(sessionHandle.stdout(), listenOnly.interactive().stdout())
+
+        listenOnly.close()
+    }
+
+    @Test
     fun `line session surfaces IO failures as LineSessionException`() {
         val session = service.lineSessionRunner().open()
 

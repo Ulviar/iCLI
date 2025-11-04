@@ -276,6 +276,20 @@ class PooledCommandServiceTest {
     }
 
     @Test
+    fun listenOnlyConversationProvidesClientAndScope() {
+        engine.responder = { payload -> payload }
+
+        val service = newService()
+        service.listenOnlyRunner(PooledClientSpec.defaultSpec()).use { runner ->
+            runner.open().use { conversation ->
+                assertNotNull(conversation.listenOnly())
+                assertNotNull(conversation.scope())
+                conversation.reset()
+            }
+        }
+    }
+
+    @Test
     fun pooledCommandRunnerPropagatesFailuresFromWorker() {
         engine.responder = { _ ->
             throw UncheckedIOException("boom", IOException("boom"))

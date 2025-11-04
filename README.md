@@ -24,7 +24,7 @@ var service = new CommandService(engine, command);
 ### Run a one-off command
 
 ```java
-ClientResult<String> result = service.run("--version");
+CommandResult<String> result = service.runner().run(builder -> builder.args("--version"));
 
 if (result.success()) {
     System.out.println(result.value());
@@ -129,13 +129,13 @@ ExecutionOptions options = ExecutionOptions.builder()
 
 CommandService tunedService = new CommandService(engine, command, options);
 
-ClientResult<String> shortForm = tunedService.run(builder ->
+CommandResult<String> shortForm = tunedService.runner().run(builder ->
         builder
                 .args("--version")
                 .customizeOptions(options -> options.mergeErrorIntoOutput(true))
 );
 
-ClientResult<String> complex = tunedService.run(builder ->
+CommandResult<String> complex = tunedService.runner().run(builder ->
         builder
                 .subcommand("run")
                 .option("--rm")
@@ -151,16 +151,16 @@ producing a `ProcessResult`.
 ## Scenario cheat sheet
 
 Each Essential API runner targets scenarios from the
-[execution-use-case-catalogue](context/roadmap/execution-use-case-catalogue.md). Use this table to select the right
+[execution-use-case-catalogue](/context/roadmap/execution-use-case-catalogue.md). Use this table to select the right
 helper and understand how pooled facades slot in today versus upcoming scenario-specific runners:
 
 | Catalogue scenario                                      | Standard helper(s)                                                                              | Pooled helper(s)                                                                                  | Notes / next steps                                                                                                                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI tooling automation & environment diagnostics        | `CommandService.runner()` / `service.run(...)`                                                   | `PooledCommandRunner` via `service.pooled().commandRunner(...)`                                   | Covers single-run automation with bounded capture + timeouts. Use pooling when command warmups dominate throughput.                                                   |
+| CLI tooling automation & environment diagnostics        | `CommandService.runner()` / `service.runner().run(...)`                                          | `PooledCommandRunner` via `service.pooled().commandRunner(...)`                                   | Covers single-run automation with bounded capture + timeouts. Use pooling when command warmups dominate throughput.                                                   |
 | Line-oriented REPL automation & scripted expect flows   | `LineSessionRunner` + `LineSessionClient.expect()` / `LineExpect`                                | `PooledLineSessionRunner`                                                                         | Powers prompt/response workflows (credential prompts, expect scripts). Each pooled runner owns its pool; scope instances with try-with-resources.                     |
 | Full interactive sessions with raw stream control       | `InteractiveSessionRunner` + `InteractiveSessionClient`                                         | `PooledInteractiveSessionRunner`                                                                  | Use for PTY-backed shells, streaming IO, and long-lived sessions that still benefit from Essential ergonomics.                                                         |
 | Stateful pooled conversations                           | Direct sessions via `CommandService` when a single worker suffices                               | `ServiceConversation` / `PooledLineConversation` via `service.pooled().client(...)`               | Advanced workflows that retain session state across requests should drop to `ProcessPoolClient`. Affinity + reset helpers arrive with ICLI-025.                      |
-| Listen-only monitoring (tail, log follow)               | Today: `interactiveSessionRunner()` + manual stream consumption                                  | Today: `PooledInteractiveSessionRunner` or `ProcessPoolClient`                                    | Dedicated listen-only runners land under ICLI-023. Until then, stream directly from `InteractiveSessionClient.stdout()`/`stderr()`.                                    |
+| Listen-only monitoring (tail, log follow)               | `listenOnlyRunner()` + `ListenOnlySessionClient` streaming publishers                            | `PooledListenOnlySessionRunner` or `ProcessPoolClient`                                            | Clients subscribe to stdout/stderr publishers for reactive tailing. Kotlin Flow adapters ship in a separate module; use the raw `Flow.Publisher<ByteBuffer>` surface here. |
 | CLI-backed MCP tools/resources                          | `CommandRunner` / `LineSessionRunner` (per tool semantics)                                       | `PooledCommandRunner` or advanced `ProcessPoolClient` for hot adapters                            | Scenario templates + ready-made MCP adapters will be published via ICLI-024.                                                                                           |
 
 Scenario presets (TBD-001) will later bundle opinionated `ExecutionOptions`/`ProcessPoolConfig` defaults so a single
@@ -190,13 +190,13 @@ only when you need to orchestrate pools yourself. Consumers should rely on the e
 ### Client Package (`com.github.ulviar.icli.client`)
 
 - `CommandService` — opinionated wrapper for a single console application; exposes `runner()`, `lineSessionRunner()`,
-  and `interactiveSessionRunner()` built on shared defaults. Callers may work with `CommandCall` objects directly or
-  supply a lambda that customises a `CommandCallBuilder` provided by the service.
+  `listenOnlyRunner()`, and `interactiveSessionRunner()` built on shared defaults. Callers may work with `CommandCall`
+  objects directly or supply a lambda that customises a `CommandCallBuilder` provided by the service.
 - `CommandCall` / `CommandCallBuilder` — immutable snapshot of a prepared invocation and its fluent assembler for
   composing arguments, environment overrides, working directory, per-call option tweaks, and response decoder selection.
 - `LineSessionRunner`, `InteractiveSessionRunner` — reusable launchers for interactive workflows; callers reuse their
   shared defaults and create new sessions on demand.
-- `ClientResult<T>` — success/failure container; callers inspect `success()` then pull `value()` or `error()`.
+- `CommandResult<T>` — success/failure container; callers inspect `success()` then pull `value()` or `error()`.
 - `InteractiveSessionClient`, `LineSessionClient` — convenience wrappers around raw interactive handles.
 - `ResponseDecoder` & `LineDelimitedResponseDecoder` — strategies for turning interactive stdout into structured
   responses.
