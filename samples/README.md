@@ -51,5 +51,5 @@ Tests live under `samples/src/test/kotlin` and default to JUnit 6 with Kotlin as
 1. Create a new package under `com.github.ulviar.icli.samples.<scenarioName>` with `icli` and competitor subpackages.
 2. Provide matching Java and Kotlin entry points for every implementation, sharing common helpers when possible.
 3. Add two tests: one against a fake process/fixture (placed alongside the scenario) and one against the real CLI tool.
-4. Update [samples/README.md](README.md) with the new scenario, required tools, and any extra setup steps.
+4. Update [samples/README.md](/samples/README.md) with the new scenario, required tools, and any extra setup steps.
 5. Document guardrails for the real-tool test (JUnit tag, assumption, or Gradle profile) so CI remains deterministic.

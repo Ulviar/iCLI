@@ -33,6 +33,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(kotlin("test"))
+    testImplementation(project(":process-fixture"))
 }
 
 tasks.withType<Test>().configureEach {

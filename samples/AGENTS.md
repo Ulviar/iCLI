@@ -23,5 +23,5 @@
   `SingleRunExecutor`, adapters, and Kotlin helpers) instead of duplicating process-launch logic per scenario.
 
 ## Documentation
-- Update [samples/README.md](README.md) whenever you add a scenario or change the contribution workflow.
+- Update [samples/README.md](/samples/README.md) whenever you add a scenario or change the contribution workflow.
 - Cross-link relevant roadmap/use-case catalogue entries so readers understand which scenario a sample illustrates.

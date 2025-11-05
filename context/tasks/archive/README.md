@@ -36,6 +36,8 @@ intact.
   documentation updates, and regression coverage (archived 2025-11-03).
 - [`ICLI-030`](ICLI-030/README.md) — Final pooled API cleanup relocating advanced helpers under `client.pooled` and
   refreshing documentation/tests (archived 2025-11-04).
+- [`ICLI-042`](ICLI-042/README.md) — Configurable process fixture module with single, line, and streaming modes for
+  integration/stress testing (archived 2025-11-05).
 
 ## Archival checklist
 
@@ -43,7 +45,7 @@ intact.
 2. Update [backlog.md](/context/tasks/backlog.md):
    - Set the task `Status` to `Done`.
    - Point the `Dossier` column to the archived location
-   ([context/tasks/archive/<TASK-ID>/README.md](context/tasks/archive/<TASK-ID>/README.md)).
+   ([context/tasks/archive/<TASK-ID>/README.md](/context/tasks/archive/<TASK-ID>/README.md)).
 3. Move the entire task directory from `context/tasks/<TASK-ID>/` to `context/tasks/archive/<TASK-ID>/`.
 4. Add an archive note in the dossier’s “Completion & archive” section indicating the move date.
 5. Execute `python scripts/normalize_markdown_links.py` so archived logs keep valid cross-document references.

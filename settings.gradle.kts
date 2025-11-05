@@ -5,3 +5,4 @@ plugins {
 rootProject.name = "iCLI"
 
 include("samples")
+include("process-fixture")

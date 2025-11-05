@@ -38,7 +38,7 @@
   even though Scenario #1 will standardise on `java -version`.
   - Ensure the samples module stays isolated from publishing/CI release automation once the build becomes multi-module.
   - Clarify documentation expectations (root README vs module README) to avoid duplication.
-- **Backlog link:** [backlog.md](../../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:** [analysis/2025-11-04.md](analysis/2025-11-04.md) — Captures the repository rules and roadmap context
@@ -76,7 +76,7 @@
   - Introducing multi-module build requires careful coordination with existing scripts (`pre_response_checks.py`),
   otherwise automation may mis-detect changes.
 - **Links:**
-  - [backlog.md](../../backlog.md)
+  - [backlog.md](/context/tasks/backlog.md)
   - Related follow-on tasks: ICLI-037, ICLI-038, ICLI-039.
 - **Next actions:**
   - Capture `java -version` assumptions plus guard strategy for the real-tool test case in Scenario #1 documentation.

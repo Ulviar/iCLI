@@ -45,6 +45,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(kotlin("test"))
+    testImplementation(project(":process-fixture"))
 
     add("integrationTestImplementation", platform("org.junit:junit-bom:6.0.0"))
     add("integrationTestImplementation", "org.junit.jupiter:junit-jupiter")

@@ -62,7 +62,7 @@
 - When running in line/stream modes, include a `READY` banner summarising configuration for easier debugging.
 
 ## Module expectations
-- New Gradle module `process-fixture` under the repo root, with its own [AGENTS.md](../../AGENTS.md), README, and tests.
+- New Gradle module `process-fixture` under the repo root, with its own [AGENTS.md](/AGENTS.md), README, and tests.
 - Implemented in Java 25 (to match main project) with Kotlin tests allowed.
 - Expose a simple CLI entry point (e.g., `com.github.ulviar.icli.fixture.ProcessFixture`) so integration tests can
   invoke it via `TestProcessCommand`-style helpers.

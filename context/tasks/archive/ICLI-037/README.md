@@ -29,8 +29,8 @@
   optional tests, dependency on core module, no publishing).
 - **Proposed deliverables:**
   1. Updated Gradle settings + root build file reflecting the new module and shared conventions.
-  2. [samples/AGENTS.md](../../../../samples/AGENTS.md), README, basic package structure
-  (`com.github.ulviar.icli.samples`) and empty Java/Kotlin classes or placeholders ready for future scenarios.
+  2. [samples/AGENTS.md](/samples/AGENTS.md), README, basic package structure (`com.github.ulviar.icli.samples`) and
+  empty Java/Kotlin classes or placeholders ready for future scenarios.
   3. Build logic that keeps the samples module out of publication tasks while enabling Spotless/SpotBugs/test configs.
 - **Open questions / risks:**
   - Ensure repository scripts (`pre_response_checks.py`, future formatting hooks) still operate after multi-module
@@ -38,7 +38,7 @@
   - Decide whether samples tests should run with regular `./gradlew test` or remain optional; coordinate
   tags/assumptions for future real-tool scenarios.
   - Validate that dependency declarations avoid circular references (samples should depend on main but not vice versa).
-- **Backlog link:** [backlog.md](../../backlog.md)
+- **Backlog link:** [backlog.md](/context/tasks/backlog.md)
 
 ## Analysis
 - **Log entries:** [analysis/2025-11-04.md](analysis/2025-11-04.md) — Records the build review, dependency version
