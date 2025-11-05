@@ -10,10 +10,7 @@ final class StreamingDelays {
             StreamingStyle style, StreamingProfile profile, RuntimeBounds runtimeBounds, long chunkIndex) {
         return switch (style) {
             case SMOOTH -> Math.max(10L, runtimeBounds.minMillis());
-            case BURST ->
-                (chunkIndex % profile.burstSize() == 0)
-                        ? profile.burstIntervalMillis()
-                        : 5L;
+            case BURST -> (chunkIndex % profile.burstSize() == 0) ? profile.burstIntervalMillis() : 5L;
             case CHUNKED -> 0L;
         };
     }

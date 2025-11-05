@@ -68,7 +68,11 @@ class FixtureStreamingModeTest {
                     ),
             )
 
-        val chunkLines = result.stdout.lineSequence().filter { it.startsWith("CHUNK") }.toList()
+        val chunkLines =
+            result.stdout
+                .lineSequence()
+                .filter { it.startsWith("CHUNK") }
+                .toList()
         assertEquals(1, chunkLines.size, result.stdout)
         assertTrue(chunkLines.first().contains("-paused"), result.stdout)
         assertTrue(result.stdout.contains("STREAM-COMPLETE max-chunks"), result.stdout)
@@ -87,7 +91,11 @@ class FixtureStreamingModeTest {
             )
 
         assertEquals(77, result.exitCode)
-        val chunkLines = result.stdout.lineSequence().filter { it.startsWith("CHUNK") }.toList()
+        val chunkLines =
+            result.stdout
+                .lineSequence()
+                .filter { it.startsWith("CHUNK") }
+                .toList()
         assertTrue(chunkLines.isEmpty(), result.stdout)
     }
 }

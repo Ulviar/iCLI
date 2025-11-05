@@ -36,6 +36,8 @@ intact.
   documentation updates, and regression coverage (archived 2025-11-03).
 - [`ICLI-030`](ICLI-030/README.md) — Final pooled API cleanup relocating advanced helpers under `client.pooled` and
   refreshing documentation/tests (archived 2025-11-04).
+- [`ICLI-031`](ICLI-031/README.md) — Integration coverage for `ProcessPoolClient` using the process fixture (stateless,
+  concurrent, streaming, diagnostics scenarios) (archived 2025-11-05).
 - [`ICLI-042`](ICLI-042/README.md) — Configurable process fixture module with single, line, and streaming modes for
   integration/stress testing (archived 2025-11-05).
 

@@ -151,8 +151,8 @@ final class StreamingController {
         if (decision.type() == FailureEvaluator.DecisionType.EXIT) {
             return decision.exitCode();
         }
-        Sleeper.sleepMillis(StreamingDelays.chunkDelay(
-                style, config.streamingProfile(), config.runtimeBounds(), loop.emitted()));
+        Sleeper.sleepMillis(
+                StreamingDelays.chunkDelay(style, config.streamingProfile(), config.runtimeBounds(), loop.emitted()));
         return -1;
     }
 

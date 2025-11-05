@@ -104,11 +104,12 @@ public final class FixtureCliParser {
         }
         String type = parts[0].toLowerCase(Locale.ROOT);
         int size = Integer.parseInt(parts[1]);
-        PayloadFormat format = switch (type) {
-            case "text" -> PayloadFormat.TEXT;
-            case "bytes", "base64" -> PayloadFormat.BASE64;
-            default -> throw new IllegalArgumentException("Unknown payload type: " + type);
-        };
+        PayloadFormat format =
+                switch (type) {
+                    case "text" -> PayloadFormat.TEXT;
+                    case "bytes", "base64" -> PayloadFormat.BASE64;
+                    default -> throw new IllegalArgumentException("Unknown payload type: " + type);
+                };
         return new PayloadProfile(format, size);
     }
 

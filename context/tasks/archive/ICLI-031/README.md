@@ -1,9 +1,9 @@
 # ICLI-031 — Add pooled client integration coverage
 
 ## Status
-- **Lifecycle stage:** Execution (paused pending ICLI-042)
-- **Overall status:** Active
-- **Last updated:** 2025-11-04
+- **Lifecycle stage:** Done
+- **Overall status:** Done
+- **Last updated:** 2025-11-05
 - **Owner:** Assistant
 
 ## Overview
@@ -35,9 +35,11 @@
 ## Analysis
 - **Log entries:**
   - [analysis/2025-11-04.md](analysis/2025-11-04.md)
-- **Knowledge consulted:** Recorded in the analysis log (architecture brief, process-pool spec, backlog, etc.).
-- **Readiness decision:** Execution can begin once test process selection and concurrency strategy are confirmed (see
-  analysis log for details).
+  - [analysis/2025-11-05.md](analysis/2025-11-05.md)
+- **Knowledge consulted:** Recorded in the analysis logs (architecture brief, process-pool spec, process fixture spec,
+  backlog, etc.).
+- **Readiness decision:** Execution resumed on 2025-11-05 following delivery of ICLI-042; scenarios enumerated in the
+  latest analysis log.
 
 ## Research
 - **Requests filed:** _None._
@@ -48,17 +50,19 @@
 ## Execution
 - **History entries:**
   - [execution-history/2025-11-04.md](execution-history/2025-11-04.md)
-- **Implementation highlights:** Added integration coverage for `ProcessPoolClient` (stateless processing, concurrent
-  conversation + request, retirement replacement) using `StandardProcessEngine` and the shared test process fixture.
-- **Testing:** `spotlessApply`, `integrationTest` (see execution log for run details).
-- **Follow-up work:** Task paused on 2025-11-04 until ICLI-042 delivers the configurable process fixture needed for
-  broader scenarios (multi-mode workloads, stress cases).
-- **Retrospective:** Pending final review/close-out.
+  - [execution-history/2025-11-05.md](execution-history/2025-11-05.md)
+- **Implementation highlights:** Added comprehensive integration coverage for `ProcessPoolClient`, including stateless
+  request reuse, concurrent leases, conversation retirement, process-fixture-powered streaming (pause/resume/STOP), and
+  diagnostics verification for timeout-induced failures.
+- **Testing:** `spotlessApply`, `integrationTest`, `test` (see execution logs for detailed runs).
+- **Follow-up work:** _None._
+- **Retrospective:** DoD satisfied—real ProcessPool integrations now cover success, concurrency, streaming, and failure
+  paths, and the process fixture helpers unblock future suites.
 
 ## Completion & archive
-- **Archive status:** Active.
-- **Archive location:** _TBD upon archive._
-- **Final verification:** _Pending._
+- **Archive status:** Archived 2025-11-05.
+- **Archive location:** `context/tasks/archive/ICLI-031/`.
+- **Final verification:** `spotlessApply`, `integrationTest`, `test` (2025-11-05).
 
 ## Decisions & notes
 - **Key decisions:** _Pending._

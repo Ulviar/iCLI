@@ -149,8 +149,8 @@ final class LineSessionController {
                     PayloadGenerator.generate(plan.payloadProfile(), random, plan.requestId(), plan.label());
             io.stdout().printf("CHUNK %d %s%n", chunk, payload.text());
             logger.chunk(chunk, payload.size(), style.name().toLowerCase());
-            Sleeper.sleepMillis(StreamingDelays.chunkDelay(
-                    style, config.streamingProfile(), config.runtimeBounds(), chunk));
+            Sleeper.sleepMillis(
+                    StreamingDelays.chunkDelay(style, config.streamingProfile(), config.runtimeBounds(), chunk));
         }
         logger.streamComplete(limit, "inline-request");
         io.stdout().println("STREAM-COMPLETE inline-request");

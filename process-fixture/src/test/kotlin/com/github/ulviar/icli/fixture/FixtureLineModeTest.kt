@@ -52,7 +52,11 @@ class FixtureLineModeTest {
             )
 
         assertEquals(0, result.exitCode)
-        val chunkLines = result.stdout.lineSequence().filter { it.startsWith("CHUNK") }.toList()
+        val chunkLines =
+            result.stdout
+                .lineSequence()
+                .filter { it.startsWith("CHUNK") }
+                .toList()
         assertEquals(2, chunkLines.size, result.stdout)
         assertTrue(chunkLines.all { it.contains("-inline") }, result.stdout)
         assertTrue(result.stdout.contains("STREAM-COMPLETE inline-request"), result.stdout)
