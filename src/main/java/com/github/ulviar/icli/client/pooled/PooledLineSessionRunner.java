@@ -51,7 +51,17 @@ public final class PooledLineSessionRunner implements AutoCloseable {
      *      propagated
      */
     public PooledLineConversation open() {
-        return open(callFactory.createBaseCall());
+        return open(ConversationAffinity.none(), callFactory.createBaseCall());
+    }
+
+    /**
+     * Opens a conversation using the service defaults and supplied affinity.
+     *
+     * @param affinity affinity descriptor used to hint worker stickiness
+     * @return pooled conversation
+     */
+    public PooledLineConversation open(ConversationAffinity affinity) {
+        return open(affinity, callFactory.createBaseCall());
     }
 
     /**
@@ -65,7 +75,18 @@ public final class PooledLineSessionRunner implements AutoCloseable {
      *      propagated
      */
     public PooledLineConversation open(Consumer<CommandCallBuilder> customiser) {
-        return open(callFactory.createCustomCall(customiser));
+        return open(ConversationAffinity.none(), callFactory.createCustomCall(customiser));
+    }
+
+    /**
+     * Opens a conversation with custom call configuration and affinity metadata.
+     *
+     * @param affinity affinity descriptor used to hint worker stickiness
+     * @param customiser hook used to override decoder or other call attributes
+     * @return pooled conversation bound to a worker lease
+     */
+    public PooledLineConversation open(ConversationAffinity affinity, Consumer<CommandCallBuilder> customiser) {
+        return open(affinity, callFactory.createCustomCall(customiser));
     }
 
     /**
@@ -78,8 +99,8 @@ public final class PooledLineSessionRunner implements AutoCloseable {
      * @throws RuntimeException if session initialisation fails; the conversation is closed before the exception is
      *      propagated
      */
-    private PooledLineConversation open(CommandCall call) {
-        ServiceConversation conversation = client.openConversation();
+    private PooledLineConversation open(ConversationAffinity affinity, CommandCall call) {
+        ServiceConversation conversation = client.openConversation(affinity);
         try {
             LineSessionClient lineClient = resolveLineClient(conversation, call);
             PooledLineConversationDelegate delegate = new PooledLineConversationDelegate(conversation, lineClient);

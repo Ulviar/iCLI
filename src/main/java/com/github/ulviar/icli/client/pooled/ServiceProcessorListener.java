@@ -70,4 +70,22 @@ public interface ServiceProcessorListener {
      * @param scope metadata for the leased worker
      */
     default void conversationReset(LeaseScope scope) {}
+
+    /**
+     * Fired when client code explicitly resets a conversation via {@code ServiceConversation.reset(ConversationReset)}.
+     *
+     * @param scope metadata for the leased worker
+     * @param reset reset metadata describing the reason
+     */
+    default void conversationReset(LeaseScope scope, ConversationReset reset) {
+        conversationReset(scope);
+    }
+
+    /**
+     * Fired when a conversation retires its worker instead of returning it to the idle pool.
+     *
+     * @param scope metadata for the leased worker
+     * @param retirement descriptor capturing the retirement reason
+     */
+    default void conversationRetired(LeaseScope scope, ConversationRetirement retirement) {}
 }

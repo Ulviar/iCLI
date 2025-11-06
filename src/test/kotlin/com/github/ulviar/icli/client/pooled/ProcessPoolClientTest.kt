@@ -23,6 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -258,6 +259,71 @@ class ProcessPoolClientTest {
         assertEquals(1, listener.conversationClosingCount)
         assertEquals(1, listener.conversationResetCount)
         assertEquals(1, listener.conversationClosedCount)
+    }
+
+    @Test
+    fun `conversation affinity reuses worker when available`() {
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                ResponseDecoder.lineDelimited(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val affinity = ConversationAffinity.key("chat-1")
+                val first = client.openConversation(affinity)
+                val workerId = first.scope().workerId()
+                first.close()
+
+                val second = client.openConversation(affinity)
+                assertEquals(workerId, second.scope().workerId())
+                second.close()
+            }
+    }
+
+    @Test
+    fun `retiring conversation clears affinity cache`() {
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                ResponseDecoder.lineDelimited(),
+                ServiceProcessorListener.noOp(),
+            ).use { client ->
+                val affinity = ConversationAffinity.key("chat-2")
+                val first = client.openConversation(affinity)
+                val originalWorker = first.scope().workerId()
+                first.retire(ConversationRetirement.unhealthy("state drift"))
+
+                val second = client.openConversation(affinity)
+                assertNotEquals(originalWorker, second.scope().workerId())
+                second.close()
+            }
+    }
+
+    @Test
+    fun `listener receives retirement metadata`() {
+        val listener = RecordingListener()
+        engine.response = { payload -> payload }
+
+        ProcessPoolClient
+            .create(
+                engine,
+                newConfig(),
+                scheduler,
+                ResponseDecoder.lineDelimited(),
+                listener,
+            ).use { client ->
+                client.openConversation().retire(ConversationRetirement.unhealthy("diagnostic failure"))
+            }
+
+        assertEquals(listOf("diagnostic failure"), listener.retirements.map { it.reason() })
     }
 
     @Test

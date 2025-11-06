@@ -27,11 +27,21 @@ public final class PooledListenOnlySessionRunner implements AutoCloseable {
      * @return pooled listen-only conversation
      */
     public PooledListenOnlyConversation open() {
-        return openConversation();
+        return open(ConversationAffinity.none());
     }
 
-    private PooledListenOnlyConversation openConversation() {
-        ServiceConversation conversation = client.openConversation();
+    /**
+     * Opens a listen-only conversation with affinity metadata.
+     *
+     * @param affinity affinity descriptor used to hint worker stickiness
+     * @return pooled listen-only conversation
+     */
+    public PooledListenOnlyConversation open(ConversationAffinity affinity) {
+        return openConversation(affinity);
+    }
+
+    private PooledListenOnlyConversation openConversation(ConversationAffinity affinity) {
+        ServiceConversation conversation = client.openConversation(affinity);
         try {
             ListenOnlySessionClient listenOnly = ListenOnlySessionClient.share(conversation.interactive());
             return new PooledListenOnlyConversation(conversation, listenOnly);

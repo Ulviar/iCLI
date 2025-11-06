@@ -1,6 +1,7 @@
 package com.github.ulviar.icli.engine.pool.internal.state;
 
 import com.github.ulviar.icli.engine.pool.api.PoolMetrics;
+import com.github.ulviar.icli.engine.pool.api.PreferredWorker;
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
 import com.github.ulviar.icli.engine.pool.api.WorkerRetirementReason;
 import com.github.ulviar.icli.engine.pool.internal.lease.DefaultLeaseScope;
@@ -54,7 +55,44 @@ final class CapacityLedger {
      * that have been marked for retirement or crossed idle thresholds are removed from inventory and recorded in the
      * supplied {@code retired} list so callers can dispose them after leaving the critical section.
      */
-    Optional<PoolWorker> pollIdle(List<RetiredWorker> retired, Instant now) {
+    Optional<PoolWorker> pollIdle(PreferredWorker preferredWorker, List<RetiredWorker> retired, Instant now) {
+        if (preferredWorker.hasSpecificWorker()) {
+            Optional<PoolWorker> preferred = pollPreferredIdle(preferredWorker.workerId(), retired, now);
+            if (preferred.isPresent()) {
+                return preferred;
+            }
+        }
+        return pollAnyIdle(retired, now);
+    }
+
+    private Optional<PoolWorker> pollPreferredIdle(int workerId, List<RetiredWorker> retired, Instant now) {
+        ArrayDeque<PoolWorker> scanned = new ArrayDeque<>();
+        while (!idleWorkers.isEmpty()) {
+            PoolWorker candidate = idleWorkers.removeFirst();
+            if (candidate.retireRequested()) {
+                retireIdleWorker(retired, candidate, candidate.retirementCause());
+                continue;
+            }
+            Optional<WorkerRetirementReason> reason = retirementPolicy.shouldRetireForIdle(candidate, now);
+            if (reason.isPresent()) {
+                retireIdleWorker(retired, candidate, reason.get());
+                continue;
+            }
+            if (candidate.id() == workerId) {
+                while (!scanned.isEmpty()) {
+                    idleWorkers.addFirst(scanned.removeLast());
+                }
+                return Optional.of(candidate);
+            }
+            scanned.addLast(candidate);
+        }
+        while (!scanned.isEmpty()) {
+            idleWorkers.addFirst(scanned.removeLast());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<PoolWorker> pollAnyIdle(List<RetiredWorker> retired, Instant now) {
         while (!idleWorkers.isEmpty()) {
             PoolWorker candidate = idleWorkers.removeFirst();
             if (candidate.retireRequested()) {

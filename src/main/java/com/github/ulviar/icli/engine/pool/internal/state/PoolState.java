@@ -1,6 +1,7 @@
 package com.github.ulviar.icli.engine.pool.internal.state;
 
 import com.github.ulviar.icli.engine.pool.api.PoolMetrics;
+import com.github.ulviar.icli.engine.pool.api.PreferredWorker;
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
 import com.github.ulviar.icli.engine.pool.api.ServiceUnavailableException;
 import com.github.ulviar.icli.engine.pool.api.WorkerRetirementReason;
@@ -68,11 +69,12 @@ public final class PoolState {
      * @param deadlineNanos absolute {@link System#nanoTime()} deadline ({@code 0} means wait indefinitely)
      * @param waitAllowed   whether the caller is willing to join the waiter queue if no idle worker is immediately
      *                      available
+     * @param preferredWorker worker preference descriptor supplied by the caller
      *
      * @return an {@link AcquireResult} describing whether a lease was granted, a launch was reserved, or the request
      * failed
      */
-    public AcquireResult acquire(long deadlineNanos, boolean waitAllowed) {
+    public AcquireResult acquire(long deadlineNanos, boolean waitAllowed, PreferredWorker preferredWorker) {
         List<RetiredWorker> retired = new ArrayList<>();
         WaiterQueue.Waiter waiter = null;
         lock.lock();
@@ -83,7 +85,7 @@ public final class PoolState {
                     return done(lifecycleFailure);
                 }
 
-                IdleLeaseOutcome idleOutcome = tryLeaseFromIdleOrServeWaiter(retired);
+                IdleLeaseOutcome idleOutcome = tryLeaseFromIdleOrServeWaiter(preferredWorker, retired);
                 if (idleOutcome.hasResult()) {
                     return done(idleOutcome.result());
                 }
@@ -132,9 +134,10 @@ public final class PoolState {
         return result;
     }
 
-    private IdleLeaseOutcome tryLeaseFromIdleOrServeWaiter(List<RetiredWorker> retired) {
+    private IdleLeaseOutcome tryLeaseFromIdleOrServeWaiter(
+            PreferredWorker preferredWorker, List<RetiredWorker> retired) {
         Instant now = config.clock().instant();
-        var idle = ledger.pollIdle(retired, now);
+        var idle = ledger.pollIdle(preferredWorker, retired, now);
         if (idle.isEmpty()) {
             return IdleLeaseOutcome.none();
         }

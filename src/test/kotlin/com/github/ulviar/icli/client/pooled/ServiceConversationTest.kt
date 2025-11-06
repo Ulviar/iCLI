@@ -21,9 +21,22 @@ class ServiceConversationTest {
         val listener = RecordingListener()
         val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
-        conversation.reset()
+        conversation.reset(ConversationReset.manual("phase checkpoint"))
 
         assertEquals(listOf(ResetRequest.Reason.MANUAL), lease.resetReasons)
+        assertEquals(1, listener.conversationResetCount)
+        assertEquals("phase checkpoint", listener.resetSignals.single().reason())
+        conversation.close()
+    }
+
+    @Test
+    fun `default reset helper still emits signal`() {
+        val lease = FakeWorkerLease()
+        val listener = RecordingListener()
+        val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
+
+        conversation.reset()
+
         assertEquals(1, listener.conversationResetCount)
         conversation.close()
     }
@@ -85,13 +98,14 @@ class ServiceConversationTest {
         val listener = RecordingListener()
         val conversation = ServiceConversation(lease, ResponseDecoder.lineDelimited(), InlineScheduler(), listener)
 
-        conversation.retire()
+        conversation.retire(ConversationRetirement.unhealthy("prompt desynchronised"))
 
         assertEquals(listOf(ResetRequest.Reason.CLIENT_RETIRE), lease.resetReasons)
         assertTrue(lease.sessionClosed())
         assertEquals(1, lease.closeCount.get())
         assertEquals(1, listener.conversationResetCount)
         assertEquals(1, listener.conversationClosedCount)
+        assertEquals(listOf("prompt desynchronised"), listener.retirements.map { it.reason() })
     }
 
     @Test

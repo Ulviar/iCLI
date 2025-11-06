@@ -3,9 +3,11 @@ package com.github.ulviar.icli.client.pooled;
 import com.github.ulviar.icli.client.ClientScheduler;
 import com.github.ulviar.icli.client.ResponseDecoder;
 import com.github.ulviar.icli.engine.ProcessEngine;
+import com.github.ulviar.icli.engine.pool.api.PreferredWorker;
 import com.github.ulviar.icli.engine.pool.api.ProcessPool;
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig;
 import java.time.Duration;
+import java.util.OptionalInt;
 
 /**
  * Essential API facade over {@link ProcessPool}. The client owns the underlying pool lifecycle and exposes helpers for
@@ -35,18 +37,21 @@ public final class ProcessPoolClient implements AutoCloseable {
     private final ResponseDecoder responseDecoder;
     private final ServiceProcessorListener listener;
     private final Duration drainTimeout;
+    private final ConversationAffinityRegistry affinityRegistry;
 
     private ProcessPoolClient(
             ProcessPool pool,
             ClientScheduler scheduler,
             ResponseDecoder responseDecoder,
             ServiceProcessorListener listener,
-            Duration drainTimeout) {
+            Duration drainTimeout,
+            ConversationAffinityRegistry affinityRegistry) {
         this.pool = pool;
         this.scheduler = scheduler;
         this.responseDecoder = responseDecoder;
         this.listener = listener;
         this.drainTimeout = drainTimeout;
+        this.affinityRegistry = affinityRegistry;
     }
 
     /**
@@ -69,7 +74,8 @@ public final class ProcessPoolClient implements AutoCloseable {
             ServiceProcessorListener listener) {
         ProcessPool pool = ProcessPool.create(engine, config);
         Duration drainTimeout = normalisedDrainTimeout(config.requestTimeout());
-        return new ProcessPoolClient(pool, scheduler, responseDecoder, listener, drainTimeout);
+        return new ProcessPoolClient(
+                pool, scheduler, responseDecoder, listener, drainTimeout, ConversationAffinityRegistry.enabled());
     }
 
     private static Duration normalisedDrainTimeout(Duration timeout) {
@@ -107,7 +113,21 @@ public final class ProcessPoolClient implements AutoCloseable {
      * @return conversation bound to a single pooled worker
      */
     public ServiceConversation openConversation() {
-        return new ServiceConversation(pool.acquire(), responseDecoder, scheduler, listener);
+        return openConversation(ConversationAffinity.none());
+    }
+
+    /**
+     * Opens a conversation using the provided affinity metadata.
+     *
+     * @param affinity affinity descriptor indicating the desired worker stickiness
+     * @return conversation bound to a worker that honours the affinity when possible
+     */
+    public ServiceConversation openConversation(ConversationAffinity affinity) {
+        OptionalInt preferred = affinityRegistry.reserve(affinity);
+        PreferredWorker preference =
+                preferred.isPresent() ? PreferredWorker.specific(preferred.getAsInt()) : PreferredWorker.any();
+        var lease = pool.acquireWithPreference(preference);
+        return new ServiceConversation(lease, responseDecoder, scheduler, listener, affinity, affinityRegistry);
     }
 
     /**
@@ -131,7 +151,7 @@ public final class ProcessPoolClient implements AutoCloseable {
         if (this.listener == listener) {
             return this;
         }
-        return new ProcessPoolClient(pool, scheduler, responseDecoder, listener, drainTimeout);
+        return new ProcessPoolClient(pool, scheduler, responseDecoder, listener, drainTimeout, affinityRegistry);
     }
 
     /**

@@ -56,6 +56,45 @@ class ProcessPoolTest {
     }
 
     @Test
+    fun acquiresPreferredWorkerWhenIdle() {
+        val engine = FakeProcessEngine()
+        val pool = ProcessPool.create(engine, ProcessPoolConfig.builder(COMMAND).maxSize(1).build())
+
+        try {
+            val lease = pool.acquire(Duration.ofSeconds(1))
+            val workerId = lease.scope().workerId()
+            lease.close()
+
+            val preferred = pool.acquireWithPreference(PreferredWorker.specific(workerId), Duration.ofSeconds(1))
+            assertEquals(workerId, preferred.scope().workerId())
+            preferred.close()
+        } finally {
+            pool.close()
+            pool.drain(Duration.ofMillis(100))
+        }
+    }
+
+    @Test
+    fun fallsBackWhenPreferredWorkerUnavailable() {
+        val engine = FakeProcessEngine()
+        val pool = ProcessPool.create(engine, ProcessPoolConfig.builder(COMMAND).maxSize(1).build())
+
+        try {
+            val lease = pool.acquire(Duration.ofSeconds(1))
+            val workerId = lease.scope().workerId()
+            lease.close()
+
+            val preferred =
+                pool.acquireWithPreference(PreferredWorker.specific(workerId + 5), Duration.ofSeconds(1))
+            assertEquals(workerId, preferred.scope().workerId())
+            preferred.close()
+        } finally {
+            pool.close()
+            pool.drain(Duration.ofMillis(100))
+        }
+    }
+
+    @Test
     fun metricsPublishingSkipsConsecutiveDuplicates() {
         val engine = FakeProcessEngine()
         val diagnostics = TrackingDiagnostics()
@@ -325,7 +364,7 @@ class ProcessPoolTest {
             )
 
         val activeLease = pool.acquire(Duration.ofSeconds(1))
-        val executor = Executors.newFixedThreadPool(2)
+        val executor = Executors.newVirtualThreadPerTaskExecutor()
         val acquisitionOrder = CopyOnWriteArrayList<Int>()
 
         try {
@@ -729,7 +768,7 @@ class ProcessPoolTest {
                     .requestTimeoutSchedulerFactory { scheduler }
                     .build(),
             )
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = Executors.newVirtualThreadPerTaskExecutor()
 
         try {
             val first = pool.acquire(Duration.ofSeconds(1))
@@ -1175,9 +1214,7 @@ class ProcessPoolTest {
         }
 
         fun triggerTimeout(workerId: Int) {
-            callbacks[workerId]?.let { entry ->
-                entry.onTimeout.run()
-            }
+            callbacks[workerId]?.onTimeout?.run()
         }
 
         fun triggered(requestId: UUID): Boolean = firedRequests.contains(requestId)

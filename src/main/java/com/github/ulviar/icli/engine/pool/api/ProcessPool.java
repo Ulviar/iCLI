@@ -133,7 +133,7 @@ public final class ProcessPool implements AutoCloseable {
      *                                     fails
      */
     public WorkerLease acquire() {
-        return acquire(config.leaseTimeout());
+        return acquireWithPreference(PreferredWorker.any(), config.leaseTimeout());
     }
 
     /**
@@ -152,14 +152,36 @@ public final class ProcessPool implements AutoCloseable {
      *                                     cannot launch the worker reserved for this caller
      */
     public WorkerLease acquire(Duration timeout) {
+        return acquireWithPreference(PreferredWorker.any(), timeout);
+    }
+
+    /**
+     * Acquires a worker while expressing a preference for the supplied worker.
+     *
+     * @param preference preference descriptor indicating whether a specific worker should be reused
+     * @return a {@link WorkerLease} bound to the preferred worker when available or any healthy worker otherwise
+     */
+    public WorkerLease acquireWithPreference(PreferredWorker preference) {
+        return acquireWithPreference(preference, config.leaseTimeout());
+    }
+
+    /**
+     * Acquires a worker while expressing a preference for the supplied worker id.
+     *
+     * @param preference worker preference descriptor
+     * @param timeout maximum time to wait
+     * @return worker lease honouring the preference when possible
+     */
+    public WorkerLease acquireWithPreference(PreferredWorker preference, Duration timeout) {
         if (timeout.isNegative()) {
             throw new IllegalArgumentException("timeout must not be negative");
         }
+        PreferredWorker resolvedPreference = Objects.requireNonNull(preference, "preference must not be null");
         long deadlineNanos = timeout.isZero() ? 0 : Deadline.toAbsoluteTimeout(timeout);
         boolean waitAllowed = !timeout.isZero();
 
         while (true) {
-            AcquireResult result = state.acquire(deadlineNanos, waitAllowed);
+            AcquireResult result = state.acquire(deadlineNanos, waitAllowed, resolvedPreference);
             publishMetrics();
 
             retireWorkers(result.retired());

@@ -110,6 +110,8 @@ class RecordingListener : ServiceProcessorListener {
     var conversationClosingCount = 0
     var conversationClosedCount = 0
     var conversationResetCount = 0
+    val resetSignals = mutableListOf<ConversationReset>()
+    val retirements = mutableListOf<ConversationRetirement>()
 
     override fun requestStarted(
         scope: LeaseScope,
@@ -144,7 +146,18 @@ class RecordingListener : ServiceProcessorListener {
         conversationClosedCount += 1
     }
 
-    override fun conversationReset(scope: LeaseScope) {
+    override fun conversationReset(
+        scope: LeaseScope,
+        reset: ConversationReset,
+    ) {
         conversationResetCount += 1
+        resetSignals += reset
+    }
+
+    override fun conversationRetired(
+        scope: LeaseScope,
+        retirement: ConversationRetirement,
+    ) {
+        retirements += retirement
     }
 }

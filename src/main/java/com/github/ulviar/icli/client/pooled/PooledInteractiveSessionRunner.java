@@ -52,7 +52,17 @@ public final class PooledInteractiveSessionRunner implements AutoCloseable {
      *      propagated
      */
     public PooledInteractiveConversation open() {
-        return open(callFactory.createBaseCall());
+        return open(ConversationAffinity.none(), callFactory.createBaseCall());
+    }
+
+    /**
+     * Opens a conversation with the provided affinity metadata.
+     *
+     * @param affinity affinity descriptor used to hint worker stickiness
+     * @return pooled interactive conversation
+     */
+    public PooledInteractiveConversation open(ConversationAffinity affinity) {
+        return open(affinity, callFactory.createBaseCall());
     }
 
     /**
@@ -66,7 +76,18 @@ public final class PooledInteractiveSessionRunner implements AutoCloseable {
      *      propagated
      */
     public PooledInteractiveConversation open(Consumer<CommandCallBuilder> customiser) {
-        return open(callFactory.createCustomCall(customiser));
+        return open(ConversationAffinity.none(), callFactory.createCustomCall(customiser));
+    }
+
+    /**
+     * Opens a conversation with custom call configuration and affinity metadata.
+     *
+     * @param affinity affinity descriptor used to hint worker stickiness
+     * @param customiser hook used to override decoder or other call attributes
+     * @return pooled interactive conversation
+     */
+    public PooledInteractiveConversation open(ConversationAffinity affinity, Consumer<CommandCallBuilder> customiser) {
+        return open(affinity, callFactory.createCustomCall(customiser));
     }
 
     /**
@@ -79,8 +100,8 @@ public final class PooledInteractiveSessionRunner implements AutoCloseable {
      * @throws RuntimeException if session initialisation fails; the conversation is closed before the exception is
      *      propagated
      */
-    private PooledInteractiveConversation open(CommandCall call) {
-        ServiceConversation conversation = client.openConversation();
+    private PooledInteractiveConversation open(ConversationAffinity affinity, CommandCall call) {
+        ServiceConversation conversation = client.openConversation(affinity);
         try {
             InteractiveSessionClient interactive = conversation.interactive();
             LineSessionClient lineClient = resolveLineClient(conversation, interactive, call);

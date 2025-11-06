@@ -4,11 +4,9 @@ import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
 import com.github.ulviar.icli.engine.ShutdownSignal
+import com.github.ulviar.icli.engine.pool.api.PreferredWorker
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig
 import com.github.ulviar.icli.engine.pool.api.WorkerRetirementReason
-import com.github.ulviar.icli.engine.pool.internal.state.AcquireResult
-import com.github.ulviar.icli.engine.pool.internal.state.DrainStatus
-import com.github.ulviar.icli.engine.pool.internal.state.ReleaseResult
 import com.github.ulviar.icli.engine.pool.internal.worker.PoolWorker
 import java.io.InputStream
 import java.io.OutputStream
@@ -49,7 +47,7 @@ class PoolStateTest {
         state.onLaunchSuccess(worker)
         assertCounters(state.debugCounters(), allocated = 1, idle = 1, active = 0, launching = 0)
 
-        val leased = state.acquire(0, true)
+        val leased = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(leased)
         assertEquals(worker.id(), leased.worker().id())
         assertCounters(state.debugCounters(), allocated = 1, idle = 0, active = 1, launching = 0)
@@ -150,7 +148,7 @@ class PoolStateTest {
         val worker = worker(workerId, clock.instant())
         state.onLaunchSuccess(worker)
 
-        val leased = state.acquire(0, true)
+        val leased = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(leased)
 
         val releasePlan = state.beginRelease(worker, clock.instant())
@@ -179,7 +177,7 @@ class PoolStateTest {
         val worker = worker(workerId, initial)
         state.onLaunchSuccess(worker)
 
-        val leased = state.acquire(0, true)
+        val leased = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(leased)
 
         clock.advance(Duration.ofMinutes(6))
@@ -208,7 +206,7 @@ class PoolStateTest {
         val worker = worker(workerId, initial)
         state.onLaunchSuccess(worker)
 
-        val leased = state.acquire(0, true)
+        val leased = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(leased)
 
         val releasePlan = state.beginRelease(worker, clock.instant())
@@ -216,7 +214,7 @@ class PoolStateTest {
         assertIs<ReleaseResult.ReturnedToIdle>(releaseResult)
 
         clock.advance(Duration.ofSeconds(2))
-        val acquireOutcome = state.acquire(0, true)
+        val acquireOutcome = state.acquire(0, true, PreferredWorker.any())
         val retiredReasons = acquireOutcome.retired().map { it.reason() }
         assertTrue(WorkerRetirementReason.IDLE_TIMEOUT in retiredReasons)
     }
@@ -237,7 +235,7 @@ class PoolStateTest {
 
         assertTrue(state.markClosing())
 
-        val outcome = state.acquire(0, false)
+        val outcome = state.acquire(0, false, PreferredWorker.any())
         val failure = assertIs<AcquireResult.Failed>(outcome)
         assertEquals("Process pool is shutting down", failure.error().message)
         assertTrue(failure.retired().isEmpty())
@@ -314,7 +312,7 @@ class PoolStateTest {
         val worker = worker(workerId, initial)
         state.onLaunchSuccess(worker)
 
-        val leased = state.acquire(0, true)
+        val leased = state.acquire(0, true, PreferredWorker.any())
         val activeLease = assertIs<AcquireResult.Leased>(leased)
 
         val completion = CountDownLatch(1)
@@ -326,7 +324,12 @@ class PoolStateTest {
                 .ofVirtual()
                 .unstarted {
                     try {
-                        val result = state.acquire(System.nanoTime() + TimeUnit.SECONDS.toNanos(5), true)
+                        val result =
+                            state.acquire(
+                                System.nanoTime() + TimeUnit.SECONDS.toNanos(5),
+                                true,
+                                PreferredWorker.any(),
+                            )
                         resultHolder.set(result)
                     } finally {
                         interrupted.set(Thread.currentThread().isInterrupted)
@@ -363,7 +366,7 @@ class PoolStateTest {
         }
         assertTrue(interrupted.get(), "Interrupt flag must be preserved")
 
-        val replacement = state.acquire(0, true)
+        val replacement = state.acquire(0, true, PreferredWorker.any())
         val replacementLease = assertIs<AcquireResult.Leased>(replacement)
         assertEquals(workerId, replacementLease.worker().id())
 
@@ -413,7 +416,7 @@ class PoolStateTest {
         val worker = worker(workerId, clock.instant())
         state.onLaunchSuccess(worker)
 
-        val lease = state.acquire(0, true)
+        val lease = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(lease)
 
         val retiring = mutableListOf<PoolWorker>()
@@ -443,7 +446,7 @@ class PoolStateTest {
         val worker = worker(workerId, clock.instant())
         state.onLaunchSuccess(worker)
 
-        val lease = state.acquire(0, true)
+        val lease = state.acquire(0, true, PreferredWorker.any())
         assertIs<AcquireResult.Leased>(lease)
 
         val interrupted = AtomicBoolean(false)

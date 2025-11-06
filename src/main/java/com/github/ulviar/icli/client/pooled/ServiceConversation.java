@@ -20,20 +20,37 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class ServiceConversation implements AutoCloseable {
 
+    private static final ConversationReset DEFAULT_RESET = ConversationReset.manual();
+    private static final ConversationReset RETIRE_RESET = ConversationReset.manual("worker retired");
+
     private final WorkerLease lease;
     private final LeaseScope scope;
     private final InteractiveSessionClient interactiveClient;
     private final LineSessionClient lineClient;
     private final ServiceProcessorListener listener;
+    private final ConversationAffinity affinity;
+    private final ConversationAffinityRegistry affinityRegistry;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     ServiceConversation(
             WorkerLease lease, ResponseDecoder decoder, ClientScheduler scheduler, ServiceProcessorListener listener) {
+        this(lease, decoder, scheduler, listener, ConversationAffinity.none(), ConversationAffinityRegistry.disabled());
+    }
+
+    ServiceConversation(
+            WorkerLease lease,
+            ResponseDecoder decoder,
+            ClientScheduler scheduler,
+            ServiceProcessorListener listener,
+            ConversationAffinity affinity,
+            ConversationAffinityRegistry affinityRegistry) {
         this.lease = lease;
         this.scope = lease.scope();
         this.interactiveClient = InteractiveSessionClient.wrap(lease.session());
         this.lineClient = LineSessionClient.create(interactiveClient, decoder, scheduler);
         this.listener = listener;
+        this.affinity = affinity;
+        this.affinityRegistry = affinityRegistry;
         listener.conversationOpened(scope);
     }
 
@@ -65,8 +82,17 @@ public final class ServiceConversation implements AutoCloseable {
      * {@link #retire()} when finished.</p>
      */
     public void reset() {
+        reset(DEFAULT_RESET);
+    }
+
+    /**
+     * Manually resets the leased worker using the provided metadata.
+     *
+     * @param reset descriptor explaining why the reset occurred
+     */
+    public void reset(ConversationReset reset) {
         lease.reset(ResetRequest.manual(scope.requestId()));
-        listener.conversationReset(scope);
+        listener.conversationReset(scope, reset);
     }
 
     /**
@@ -85,7 +111,7 @@ public final class ServiceConversation implements AutoCloseable {
      */
     @Override
     public void close() {
-        closeInternal(false);
+        closeInternal(CloseDirective.closeNormally());
     }
 
     /**
@@ -94,23 +120,45 @@ public final class ServiceConversation implements AutoCloseable {
      * ignored after the first close.
      */
     public void retire() {
-        closeInternal(true);
+        retire(ConversationRetirement.unspecified());
     }
 
-    private void closeInternal(boolean retire) {
+    /**
+     * Retires the worker with custom metadata.
+     *
+     * @param retirement descriptor explaining why the worker is being retired
+     */
+    public void retire(ConversationRetirement retirement) {
+        closeInternal(CloseDirective.retire(retirement));
+    }
+
+    private void closeInternal(CloseDirective directive) {
         if (!closed.compareAndSet(false, true)) {
             return;
         }
         listener.conversationClosing(scope);
         try {
-            if (retire) {
+            if (directive.retire()) {
                 lease.reset(ResetRequest.retire(scope.requestId()));
-                listener.conversationReset(scope);
+                listener.conversationReset(scope, RETIRE_RESET);
+                listener.conversationRetired(scope, directive.retirement());
                 interactiveClient.close();
             }
         } finally {
             lease.close();
+            updateAffinity(directive.retire());
             listener.conversationClosed(scope);
         }
+    }
+
+    private void updateAffinity(boolean retired) {
+        if (!affinity.isPresent()) {
+            return;
+        }
+        if (retired) {
+            affinityRegistry.forget(affinity);
+            return;
+        }
+        affinityRegistry.remember(affinity, scope.workerId());
     }
 }

@@ -4,6 +4,7 @@ import com.github.ulviar.icli.engine.CommandDefinition
 import com.github.ulviar.icli.engine.ExecutionOptions
 import com.github.ulviar.icli.engine.InteractiveSession
 import com.github.ulviar.icli.engine.ShutdownSignal
+import com.github.ulviar.icli.engine.pool.api.PreferredWorker
 import com.github.ulviar.icli.engine.pool.api.ProcessPoolConfig
 import com.github.ulviar.icli.engine.pool.api.WorkerRetirementReason
 import com.github.ulviar.icli.engine.pool.internal.worker.PoolWorker
@@ -42,7 +43,7 @@ class CapacityLedgerTest {
         ledger.enqueueReturnedIdle(worker)
 
         val retired = mutableListOf<RetiredWorker>()
-        val polled = ledger.pollIdle(retired, Instant.EPOCH)
+        val polled = ledger.pollIdle(PreferredWorker.any(), retired, Instant.EPOCH)
         val scope = ledger.beginLease(polled.orElseThrow(), Instant.EPOCH)
         assertEquals(workerId, scope.workerId())
 
@@ -68,11 +69,34 @@ class CapacityLedgerTest {
 
         worker.requestRetire(WorkerRetirementReason.RETIRE_REQUESTED)
         val retired = mutableListOf<RetiredWorker>()
-        val result = ledger.pollIdle(retired, Instant.EPOCH)
+        val result = ledger.pollIdle(PreferredWorker.any(), retired, Instant.EPOCH)
 
         assertTrue(result.isEmpty)
         assertEquals(1, retired.size)
         assertEquals(workerId, retired.single().worker().id())
+    }
+
+    @Test
+    fun pollIdlePrefersRequestedWorker() {
+        val ledger = ledger(maxSize = 2)
+        val firstId = ledger.reserveLaunchWorkerId()
+        val first = newWorker(firstId)
+        ledger.registerLaunch()
+        ledger.enqueueReturnedIdle(first)
+
+        val secondId = ledger.reserveLaunchWorkerId()
+        val second = newWorker(secondId)
+        ledger.registerLaunch()
+        ledger.enqueueReturnedIdle(second)
+
+        val retired = mutableListOf<RetiredWorker>()
+        val preferred =
+            ledger.pollIdle(PreferredWorker.specific(secondId), retired, Instant.EPOCH).orElseThrow()
+
+        assertEquals(secondId, preferred.id())
+        val fallback =
+            ledger.pollIdle(PreferredWorker.any(), retired, Instant.EPOCH).orElseThrow()
+        assertEquals(firstId, fallback.id())
     }
 
     @Test
