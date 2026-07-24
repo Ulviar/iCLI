@@ -143,7 +143,7 @@ jobs:
 
       - name: Upload failed test reports
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: failed-tests-${{ matrix.os }}-java-${{ matrix.java-runtime }}
           path: |
@@ -184,7 +184,7 @@ jobs:
 
       - name: Upload failed test reports
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: failed-tests-source-java-${{ matrix.java-release }}
           path: |
@@ -328,7 +328,7 @@ jobs:
 
       - name: Upload exact verified Central bytes for consumer job
         id: central-bytes-upload
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.central-bytes.outputs.artifact_name }}
           path: ${{ runner.temp }}/procwright-central-downloads
@@ -455,7 +455,7 @@ jobs:
           STAGE_RUN_ID: ${{ needs.central-publication-ready.outputs.stage-run-id }}
 
       - name: Preserve successful Central consumer proof
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: procwright-${{ inputs.consumer-version }}-${{ inputs.release-commit }}-central-consumer-smoke
           path: .procwright-target/build/central-consumer-smoke/provenance.txt
